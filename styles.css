@@ -360,26 +360,26 @@ section .title::after{
     top: 0;
     background: crimson;
 }
+.skills-content .right .java::before{
+    width: 95%;
+}
 .skills-content .right .python::before{
     width: 95%;
 }
-.skills-content .right .cprograming::before{
-    width: 75%;
-}
-.skills-content .right .java::before{
+.skills-content .right .javascript::before{
     width: 95%;
 }
 .skills-content .right .django::before{
     width: 60%;
 }
-.skills-content .right .postgres::before{
-    width: 55%;
+.skills-content .right .postgresql::before{
+    width: 75%;
 }
 .skills-content .right .html::before{
-    width: 50%;
+    width: 80%;
 }
 .skills-content .right .css::before{
-    width: 45%;
+    width: 75%;
 }
 
 /* certifications section styling */
