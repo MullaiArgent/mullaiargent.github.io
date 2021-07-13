@@ -167,8 +167,8 @@ section .title::after{
     height: 100vh;
     color: #fff;
     min-height: 500px;
-    background-size: cover;
-    background-attachment: fixed;
+    background-size:cover;
+    background-attachment: relative;
     font-family: 'Ubuntu', sans-serif;
 }
 .home .max-width{
