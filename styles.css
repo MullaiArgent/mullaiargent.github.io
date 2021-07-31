@@ -363,24 +363,23 @@ section .title::after{
 .skills-content .right .java::before{
     width: 95%;
 }
+.skills-content .right .spring::before{
+    width: 75%;
+}
 .skills-content .right .python::before{
-    width: 95%;
-}
-.skills-content .right .javascript::before{
-    width: 95%;
-}
-.skills-content .right .html::before{
     width: 95%;
 }
 .skills-content .right .django::before{
     width: 60%;
 }
-.skills-content .right .postgresql::before{
+.skills-content .right .mysql::before{
     width: 75%;
 }
-
-.skills-content .right .css::before{
-    width: 75%;
+.skills-content .right .kotlin::before{
+    width: 40%;
+}
+.skills-content .right .htmlcss::before{
+    width: 60%;
 }
 
 /* certifications section styling */
