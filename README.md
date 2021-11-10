@@ -1,1 +1,1 @@
-mullaiargent.github.io
+http://mullaiargent.github.io/
