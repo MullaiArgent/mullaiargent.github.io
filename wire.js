@@ -123,3 +123,113 @@
     }
   }, true);
 })();
+
+// ---- Smoothness pass -----------------------------------------------------
+// The mockup leans on paint-bound CSS animations that stutter on weaker GPUs:
+//   * the header logo uses a drop-shadow blur pulse + a background-position
+//     sweep (both repaint every frame);
+//   * a full-page watermark trident continuously animates background-position
+//     (a large repaint) while sitting at ~6% opacity, i.e. near invisible;
+//   * ~20 sparkles animate transform/opacity but each carries a drop-shadow
+//     filter and none are layer-promoted, so every frame repaints them.
+// This pass swaps the logo effect for compositor-only transform/opacity (driven
+// by the Web Animations API so a stylesheet re-render can't wipe it), silences
+// the invisible watermark repaint, and promotes the sparkles to their own GPU
+// layers. Net: the same look, far less per-frame paint, so shimmer + scrolling
+// stay smooth. Everything is idempotent and re-applied when the framework
+// re-renders. Fully guarded, so a failure just leaves the mockup as-is.
+(function () {
+  var reduce = false;
+  try { reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) {}
+
+  function el(tag, css) { var e = document.createElement(tag); if (css) e.style.cssText = css; e.setAttribute('aria-hidden', 'true'); return e; }
+  function running(node) { return !!(node && node.getAnimations && node.getAnimations().length); }
+
+  // ---- header logo: smooth shimmer ----
+  function patchLogo() {
+    var img = document.querySelector('img[alt="Rasidhu"]');
+    if (!img || !img.parentElement) return;
+    var box = img.parentElement;                 // 40x40 logo container
+    var glow = box.querySelector('[data-rp="glow"]');
+    var band = box.querySelector('[data-rp="band"]');
+    // already live -> nothing to do (guard on a real running animation, not a
+    // marker attribute: the framework clones the box and cloneNode() drops WAAPI
+    // animations while keeping our nodes + markers).
+    if (glow && band && running(glow) && running(band)) return;
+    try {
+      box.style.animation = 'none';              // drop the drop-shadow blur pulse
+      if (!box.style.position) box.style.position = 'relative';
+      if (!glow || !band) {
+        // fresh (or original mockup) box: strip the mockup's paint-bound shine
+        // overlay and any stale nodes we left, then rebuild ours.
+        var kids = box.querySelectorAll('span');
+        for (var i = 0; i < kids.length; i++) {
+          var s = kids[i].getAttribute('style') || '';
+          if (kids[i].getAttribute('data-rp') || s.indexOf('mix-blend-mode') >= 0 || s.indexOf('rpSweep') >= 0) kids[i].remove();
+        }
+        glow = el('span', 'position:absolute;inset:-5px;z-index:0;border-radius:50%;background:radial-gradient(circle,rgba(245,197,66,.75),rgba(245,197,66,0) 68%);filter:blur(5px);pointer-events:none;opacity:.4;will-change:opacity,transform');
+        glow.setAttribute('data-rp', 'glow');
+        box.insertBefore(glow, box.firstChild);
+        img.style.position = 'relative';
+        img.style.zIndex = '1';
+        var wrap = el('span', 'position:absolute;inset:0;z-index:2;overflow:hidden;border-radius:8px;pointer-events:none');
+        band = el('span', 'position:absolute;top:-25%;left:0;width:42%;height:150%;background:linear-gradient(115deg,transparent,rgba(255,255,255,.9) 45%,rgba(255,244,205,.9) 55%,transparent);mix-blend-mode:screen;will-change:transform');
+        band.setAttribute('data-rp', 'band');
+        wrap.appendChild(band);
+        box.appendChild(wrap);
+      }
+      if (reduce) { band.style.opacity = '0'; return; }   // no motion: hide the streak
+      if (!glow.animate) return;
+      glow.getAnimations().forEach(function (a) { a.cancel(); });
+      band.getAnimations().forEach(function (a) { a.cancel(); });
+      glow.animate(
+        [{ opacity: 0.28, transform: 'scale(0.9)' },
+         { opacity: 0.82, transform: 'scale(1.06)' },
+         { opacity: 0.28, transform: 'scale(0.9)' }],
+        { duration: 4000, iterations: Infinity, easing: 'ease-in-out' });
+      band.animate(
+        [{ transform: 'translateX(-160%)' },
+         { transform: 'translateX(-160%)', offset: 0.18 },
+         { transform: 'translateX(340%)', offset: 0.6 },
+         { transform: 'translateX(340%)' }],
+        { duration: 3600, iterations: Infinity, easing: 'ease-in-out' });
+    } catch (e) {}
+  }
+
+  // ---- background: cut per-frame paint that competes with scrolling ----
+  function tuneScene() {
+    try {
+      // silence the near-invisible watermark's continuous background-position
+      // repaint (opacity ~6%, the sweep is imperceptible anyway)
+      var sweeps = document.querySelectorAll('span[style*="rpSweep"]');
+      for (var i = 0; i < sweeps.length; i++) {
+        if (sweeps[i].getAttribute('data-rp') === 'band') continue;   // our logo band
+        if (!sweeps[i].getAttribute('data-rp-tuned')) {
+          sweeps[i].style.animation = 'none';
+          sweeps[i].setAttribute('data-rp-tuned', '1');
+        }
+      }
+      // promote sparkles to their own GPU layers so their transform/opacity
+      // animation stops repainting the drop-shadow every frame (keeps the look)
+      var sp = document.querySelectorAll('#rp-sparkles > div');
+      for (var j = 0; j < sp.length; j++) {
+        if (!sp[j].getAttribute('data-rp-tuned')) {
+          sp[j].style.willChange = 'transform, opacity';
+          sp[j].setAttribute('data-rp-tuned', '1');
+        }
+      }
+    } catch (e) {}
+  }
+
+  function pass() { patchLogo(); tuneScene(); }
+
+  pass();
+  var tries = 0;
+  var iv = setInterval(function () { pass(); if (++tries > 60) clearInterval(iv); }, 100);
+  // re-apply if the framework re-renders. Watch childList only, so the page's
+  // constant mousemove inline-style churn never triggers this.
+  try {
+    new MutationObserver(function () { pass(); })
+      .observe(document.documentElement, { childList: true, subtree: true });
+  } catch (e) {}
+})();
