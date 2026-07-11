@@ -1,281 +1,288 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="keywords" content="mullairajan,portfolio,snsct,SNS College of Technology,mullaiargent,github mullai",java programmers,mullai,rajan,resume vedio,sns mullai>
-    <meta name="author" content="Mullai Rajan">
-    <meta name="description" content="This is a Portfolio webpage about Mullai Rajan">
-    <title>The Mullai Rajan</title>
-    <link rel="icon" href="images/bookmark-ribbon.png" type="images/x-icon">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.11/typed.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/4.0.1/jquery.waypoints.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css"/>
-    <link rel="stylesheet" href="styles.css" >
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RasidhuPOS Subscription</title>
+  <meta name="description" content="Choose a yearly RasidhuPOS plan. GST billing, inventory, cloud backup and multi-device sync, on desktop and Android.">
+  <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzMiAzMic+PHJlY3QgeD0nMTQuNScgeT0nMTEnIHdpZHRoPSczJyBoZWlnaHQ9JzE3JyByeD0nMS41JyBmaWxsPScjYzk5NDAwJy8+PHBhdGggZD0nTTcgN3Y2TTE2IDV2OE0yNSA3djYnIHN0cm9rZT0nI2M5OTQwMCcgc3Ryb2tlLXdpZHRoPSczJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIGZpbGw9J25vbmUnLz48cGF0aCBkPSdNNyAxMnE5IDcgMTggMCcgc3Ryb2tlPScjYzk5NDAwJyBzdHJva2Utd2lkdGg9JzMnIGZpbGw9J25vbmUnLz48Y2lyY2xlIGN4PScxNicgY3k9JzI3JyByPScyLjQnIGZpbGw9JyNjOTk0MDAnLz48L3N2Zz4=">
+  <link rel="stylesheet" href="styles.css">
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script src="vendor/qrcode.min.js"></script>
 </head>
-
-
 <body>
-    <div class="scroll-up-btn">
-        <i class="fas fa-angle-up"></i>
-    </div>
-    <nav class="navbar">
-        <div class="max-width">
-            <div class="logo"><a href="#">Mullai<span>Rajan.</span></a></div>
-            <ul class="menu">
-                <li><a href="#home" class="menu-btn">Home</a></li>
-                <li><a href="#about" class="menu-btn">About</a></li>
-                <li><a href="#researchpaper" class="menu-btn">Research Papers</a></li>
-                <li><a href="#skills" class="menu-btn">Skills</a></li>
-                <li><a href="#certifications" class="menu-btn">Certifications</a></li>
-                <li><a href="#contact" class="menu-btn">Contact</a></li>
-            </ul>
-            <div class="menu-btn">
-                <i class="fas fa-bars"></i>
-            </div>
-        </div>
+  <header class="site-header">
+    <nav class="nav">
+      <a class="brand" href="index.html">
+        <img class="trident" alt="RasidhuPOS" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzMiAzMic+PHJlY3QgeD0nMTQuNScgeT0nMTEnIHdpZHRoPSczJyBoZWlnaHQ9JzE3JyByeD0nMS41JyBmaWxsPScjYzk5NDAwJy8+PHBhdGggZD0nTTcgN3Y2TTE2IDV2OE0yNSA3djYnIHN0cm9rZT0nI2M5OTQwMCcgc3Ryb2tlLXdpZHRoPSczJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIGZpbGw9J25vbmUnLz48cGF0aCBkPSdNNyAxMnE5IDcgMTggMCcgc3Ryb2tlPScjYzk5NDAwJyBzdHJva2Utd2lkdGg9JzMnIGZpbGw9J25vbmUnLz48Y2lyY2xlIGN4PScxNicgY3k9JzI3JyByPScyLjQnIGZpbGw9JyNjOTk0MDAnLz48L3N2Zz4=">
+        <span>
+          <span class="brand-name">Rasidhu POS</span>
+          <span class="brand-sub">Point of Sale</span>
+        </span>
+      </a>
+      <div class="nav-links">
+        <a href="#tiers">Features</a>
+        <a href="#compare">Compare plans</a>
+        <a id="support-link" href="contact.html">Support</a>
+      </div>
     </nav>
+  </header>
 
-    <section class="home" id="home">
-        <div class="max-width">
-            <div class="home-content">
-                <div class="text-1">Hello, my name is</div>
-                <div class="text-2">Mullai Rajan</div>
-                <div class="text-3">And I'm a <span class="typing"></span></div>
-            </div>
-        </div>
+  <main>
+    <!-- Hero. Honest band, no fabricated stats. A specific money-back
+         guarantee pill is intentionally omitted until the vendor commits to
+         one; the Refund policy links from the footer. -->
+    <section class="hero">
+      <span class="pill">One plan. Desktop and Android. Linked to your Google account.</span>
+      <h1>Choose your Rasidhu POS plan</h1>
+      <p class="sub">Simple yearly pricing. GST billing, inventory, cloud backup and multi-device sync, on desktop and Android. Activate with a single UPI payment.</p>
     </section>
 
-    <section class="about" id="about">
-        <div class="max-width">
-            <h2 class="title">About me</h2>
-            <div class="about-content">
-                <div class="column left">
-                    <img src="images/1profile-1.jpeg" alt="" >
-                </div>
-                <div class="column right">
-                    <div class="text">I'm Mullai and I'm a <span class="typing-2"></span></div>
-                    <p> I'm an Electrical and Electronics Engineer. I'm fueled by my passion for learning something new every day and not bound in a particular Domain. Worked on Different programming Languages, Different frameworks, Different Designing tools. Even worked on Raspberry Pi for beginner-level projects. My Hunger for Knowledge and Determination to turn information into action has led me to Publish Research Articles as Team, being the corresponding author of each article developed my TeamWork Skill and Leadership qualities. In this Journey Music is a major source of Elixir which keeps me working every day.</p>
-                    <a href="https://drive.google.com/file/d/1S20T-ePNEw-ExClOVQTmaNC-lLrO5DX3/view?usp=sharing" target=_blank>View Onepage Resume</a><br>
-                    <a href="https://drive.google.com/file/d/1rVnyVpzXzWa8MUwdgMBaphYqqBAvj8zo/view?usp=sharing"target=_blank>Watch Vedio Resume</a>
-                </div>
-            </div>
+    <!-- Tier cards -->
+    <section class="wrap" id="tiers">
+      <div class="tiers">
+
+        <div class="tier-card" data-tier="starter">
+          <h3>Starter</h3>
+          <p class="tagline">For a single shop getting started.</p>
+          <div class="price-row"><span class="price" data-price="starter">Rs 9,990</span><span class="per">/year</span></div>
+          <p class="price-note">Billed yearly per Google account.</p>
+          <ul class="bullets">
+            <li>1 shop included</li>
+            <li>Up to 3 cashiers, 1 admin</li>
+            <li>GST billing &amp; invoicing (retail + wholesale)</li>
+            <li>Purchases, inventory &amp; stock, expenses</li>
+            <li>Sales reports, 88mm &amp; A4 print</li>
+            <li>WhatsApp bill share and delivery</li>
+            <li>Offline-first, secure cloud backup &amp; sync</li>
+            <li>Works on desktop and Android</li>
+          </ul>
+          <button class="buy-btn" data-plan="starter">Buy now</button>
         </div>
+
+        <div class="tier-card popular" data-tier="growth">
+          <span class="badge">Most popular</span>
+          <h3>Growth</h3>
+          <p class="tagline">For growing businesses with a few outlets.</p>
+          <div class="price-row"><span class="price" data-price="growth">Rs 17,990</span><span class="per">/year</span></div>
+          <p class="price-note">Billed yearly per Google account.</p>
+          <ul class="bullets">
+            <li>2 shops included</li>
+            <li>Up to 8 cashiers, 3 admins</li>
+            <li>Multi-shop dashboard</li>
+            <li>Role-based staff accounts</li>
+            <li>Everything in Starter</li>
+            <li>Works on desktop and Android</li>
+          </ul>
+          <button class="buy-btn gold" data-plan="growth">Buy now</button>
+        </div>
+
+        <div class="tier-card" data-tier="business">
+          <h3>Business</h3>
+          <p class="tagline">For established multi-outlet operations.</p>
+          <div class="price-row"><span class="price" data-price="business">Rs 79,990</span><span class="per">/year</span></div>
+          <p class="price-note">Billed yearly per Google account.</p>
+          <ul class="bullets">
+            <li>10 shops included</li>
+            <li>Up to 40 cashiers, 10 admins</li>
+            <li>Multi-shop dashboard + role-based staff</li>
+            <li>Priority support</li>
+            <li>Everything in Growth</li>
+            <li>Works on desktop and Android</li>
+          </ul>
+          <button class="buy-btn" data-plan="business">Buy now</button>
+        </div>
+
+        <div class="tier-card" data-tier="enterprise">
+          <h3>Enterprise</h3>
+          <p class="tagline">For large or custom deployments.</p>
+          <div class="price-row"><span class="price">Custom</span></div>
+          <p class="price-note">Caps and onboarding tailored to you.</p>
+          <ul class="bullets">
+            <li>Unlimited shops</li>
+            <li>Unlimited staff accounts</li>
+            <li>Custom caps &amp; onboarding</li>
+            <li>Fastest support</li>
+            <li>Everything in Business</li>
+            <li>Works on desktop and Android</li>
+          </ul>
+          <a class="buy-btn" id="ent-contact" href="contact.html">Contact us</a>
+        </div>
+
+      </div>
     </section>
 
-    <section class="researchpaper" id="researchpaper">
-        <div class="max-width">
-            <h2 class="title">My Researchpapers</h2>
-            <div class="serv-content">
-                <div class="card">
-                    <div class="box">
-                        <i class="fas fa-code"></i>
-                        <div class="text">International Publications</div>
-                        <p>  1. Car Event Data Recorder <a href="https://www.jetir.org/papers/JETIR2005183.pdf"target=_blank> Click Here</a> </p><br>
-                        <p>  2. Strategy to Avoid the Wastage of Consumable Energy <a href="https://www.ijcrt.org/papers/IJCRT2004489.pdf" target=_blank> Click Here</a></p><br>
-                        <p>  3. Smart Environmental Monitoring System  <a href="https://www.jetir.org/papers/JETIR2005183.pdf"target=_blank> Click Here</a> </p><br>
-                        <p>  4. Smart Alternative Metering Strategy for Minimizing Electricity Thefts and Meter Tampering <a href="https://www.ijirst.org/articles/IJIRSTV7I11005.pdf"target=_blank> Click Here</a></p> <br>
-                        <p>  5. IoT Enabled Rural Waste Management System <a href="http://ripublication.com/ijeer21/ijeerv13n1_01.pdf" >Click Here</a></p> <br>
-                        <p>  6. Wearable device to keep track of Respiratory Tract Diseases for the future diagnosis using History <a href= "https://stmcomputers.stmjournals.com/index.php/JoAIRA/article/view/75"> Click Here</a> <br>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="box">
-                        <i class="fas fa-chart-line"></i>
-                        <div class="text">International Presentations</div>
-                        <p>1. 'Applications of GRAPHENE' - International Conference’19 - M.Kumaraswamy College of Engineering </p><br>
-                        <p>2. 'Nano Materials'<br> presented in International Conference On Advanced Materials And Their Applications at V.O.C. College of Engineering Thothukudi</p>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="box">
-                        <i class="fas fa-code"></i>
-                        <div class="text">National Presentations</div>
-                        <p>1. 'Wearable device to keep track of Respiratory Tract Diseases for the future diagnosis using History'<br> Presented in M. Kumaraswamy College of Engineering. </p>
-                    </div>
-                </div>
-               </div>
-            </div>
-        </div>
+    <!-- Compare table -->
+    <section class="section wrap" id="compare">
+      <h2>Compare every plan</h2>
+      <p class="lead">Every plan includes the full point-of-sale, on both desktop and Android. Plans differ by shops, staff seats and support.</p>
+      <div class="table-scroll">
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Starter</th>
+              <th class="popular-col">Growth</th>
+              <th>Business</th>
+              <th>Enterprise</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Shops included</td><td>1</td><td>2</td><td>10</td><td>Unlimited</td></tr>
+            <tr><td>Staff accounts (cashier / admin / super)</td><td>3 / 1 / 1</td><td>8 / 3 / 1</td><td>40 / 10 / 2</td><td>Custom</td></tr>
+            <tr><td>GST billing &amp; invoicing</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+            <tr><td>Inventory / stock</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+            <tr><td>Sales reports</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+            <tr><td>Cloud backup &amp; multi-device sync</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+            <tr><td>Offline mode</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+            <tr><td>WhatsApp bill share</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+            <tr><td>Desktop app</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+            <tr><td>Mobile app (Android)</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+            <tr><td>Support level</td><td>Standard</td><td>Standard</td><td>Priority</td><td>Fastest</td></tr>
+          </tbody>
+        </table>
+      </div>
     </section>
+  </main>
 
-    <section class="skills" id="skills">
-        <div class="max-width">
-            <h2 class="title">My skills</h2>
-            <div class="skills-content">
-                <div class="column left">
-                    <div class="text">My skills & experiences.</div>
-                    <p>Along with my Graduation Course and Research works, I worked on my skillset.Starting with Python and some other Advanced packages like NumPy, Tkinter,OpenCV framework Django. On the Course of Learning Django, I learned HTML, CSS, Database Connection using Postgresql and JavaScript. After knowing the Vastness of Java Programing I Explored Servlet, HIbernet and Spring. To get handson Embedded Systems i did few projects using RaspberryPi Since it has Python as it's Working Language. </p>
-                </div>
-                <div class="column right">
-                    <div class="bars">
-                        <div class="info">
-                            <span>Java &nbsp;&nbsp;<i class="fab fa-java"></i></span>
-                            <span>95%</span>
-                        </div>
-                        <div class="line java"></div>
-                    </div>
-                    <div class="bars">
-                        <div class="info">
-                            <span>Spring &nbsp;&nbsp;<i class="fab fa-envira"></i></span>
-                            <span>75%</span>
-                        </div>
-                        <div class="line spring"></div>
-                    </div>
-                    <div class="bars">
-                        <div class="info">
-                            <span>Python&nbsp;&nbsp;<i class="fab fa-python"></i></span>
-                            <span>95%</span>
-                        </div>
-                        <div class="line python"></div>
-                    </div>
-                    <div class="bars">
-                        <div class="info">
-                            <span>Django&nbsp;&nbsp;<i class="fas fa-laptop-code"></i></span>
-                            <span>60%</span>
-                        </div>
-                        <div class="line django"></div>
-                    </div>
-                    <div class="bars">
-                        <div class="info">
-                            <span>MySQL &nbsp;&nbsp;<i class="fas fa-database"></i></span>
-                            <span>75%</span>
-                        </div>
-                        <div class="line mysql"></div>
-                    </div>
-                    <div class="bars">
-                        <div class="info">
-                            <span>Kotlin in AS&nbsp;&nbsp;<i class="fab fa-android"></i></span>
-                            <span>40%</span>
-                        </div>
-                        <div class="line kotlin"></div>
-                    </div>
-                    <div class="bars">
-                        <div class="info">
-                            <span>HTML & CSS&nbsp;&nbsp;<i class="fab fa-html5"></i>&nbsp;<i class="fab fa-css3-alt"></i></span>
-                            <span>60%</span>
-                        </div>
-                        <div class="line htmlcss"></div>
-                    </div>
-                </div>
-            </div>
+  <!-- Trust band -->
+  <section class="trust-band">
+    <h2>Everything included, no surprises</h2>
+    <p><span class="gold-text">Free updates, secure daily cloud backup, real human support.</span> No setup fees.</p>
+    <!-- Add a money-back line here only once the vendor commits to a refund window (see refund.html). -->
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-links">
+        <a href="terms.html">Terms</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="refund.html">Refund</a>
+        <a href="contact.html">Contact</a>
+      </div>
+      <div class="footer-copy">&copy; 2026 <span class="js-business">RasidhuPOS</span></div>
+    </div>
+  </footer>
+  <p class="gst-line" id="gst-line" style="display:none;"></p>
+
+  <!-- Pay modal -->
+  <div class="modal-backdrop" id="payModal" role="dialog" aria-modal="true" aria-labelledby="payPlanName">
+    <div class="modal">
+      <button class="close-x" id="payClose" aria-label="Close">&times;</button>
+      <div id="payForm">
+        <h3 id="payPlanName">Plan</h3>
+        <p class="modal-price"><span id="payPrice">Rs 0</span> <span class="per">/year</span></p>
+        <p class="step-note">Scan the QR in any UPI app, or tap Pay in UPI app. After paying, enter your UPI reference (UTR) below and tap I've paid.</p>
+        <div class="pay-body" id="payBody">
+          <div class="qr-box" id="qr"></div>
+          <a class="buy-btn gold pay-app-btn" id="upilink" href="#">Pay in UPI app</a>
         </div>
-    </section>
+        <label class="field-label" for="utr">UPI reference (UTR)</label>
+        <input class="utr-input" id="utr" type="text" inputmode="numeric" placeholder="e.g. 4012 3456 7890" autocomplete="off">
+        <p class="order-line">Order id: <strong id="orderLine"></strong>. Paying to <strong id="payeeLine"></strong>.</p>
+        <button class="buy-btn gold" id="paidBtn" style="margin-top:14px;">I've paid</button>
+      </div>
+      <div id="thankyou">
+        <div class="tick"></div>
+        <h3>Thank you</h3>
+        <p>We will activate shortly. Keep RasidhuPOS open, it unlocks automatically.</p>
+      </div>
+    </div>
+  </div>
 
-    <section class="certifications" id="certifications">
-        <div class="max-width">
-            <h2 class="title">My certifications</h2>
-            <div class="carousel owl-carousel">
-                <div class="card">
-                    <div class="box">
-                        <img src="images/2profile-1.jpeg" alt="mullairajan">
-                        <div class="text">Model United Nations</div>
-                        <p>Actively Participated in Different MUNs in the South Circuit of India namely SNSIMUN’18, VITCMUN’19, SRMRMUN’19, YLGC’19, SIBBMUN’19.<br>Honoured with Excellency Award in Asian MUN Circuit E-Pink MUN as a Delegate of Japan in United Nation’s Human Rights Coucil</p>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="box">
-                        <img src="images/1profile-2.jpg" alt="mullairajan">
-                        <div class="text">National Cadets Corps</div>
-                        <p>As the Objective says 'To Create a Human Resource of Organized, Trained and Motivated Youth'. I participated in Different aspects of NCC considerably<br>I Attended 3 Days Annual Training Camp at RVS CAS 08/02/2021 - 10/02/2021 - 2/4 TNBN SNSCT </p>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="box">
-                        <img src="images/1profile-3.jpg" alt="mullairajan">
-                        <div class="text">Personal Projects</div>
-                        <p>1. Developed an Service Level Spring Boot Application which displays Live Covid-19 Stats</p><br>
-                        <p>2. Developed a Fully Responsive Dynamic webpage with Admin Panel using  Python's Django framework, Postgresql Database, HTML, CSS.</p><br>
-                        <p>3. Embedded a system to determine the time to turn off the motor with proximities but using a Flow Sensor with Raspberry Pi.</p><br>
-                        <p>4. Auto Attendace Entry project using OpenCV and Facerecognition in Python</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+  <script>
+    function initStorefront() {
+      var C = window.RPOS_CONFIG || {};
+      function inr(n) { return "Rs " + Number(n || 0).toLocaleString("en-IN"); }
 
-    <section class="contact" id="contact">
-        <div class="max-width">
-            <h2 class="title">Contact me</h2>
-            <div class="contact-content">
-                <div class="column left">
-                    <div class="text">Get in Touch</div>
-                    <div class="icons">
-                        <div class="row">
-                            <i class="fas fa-user"></i>
-                            <div class="info">
-                                <div class="head">Name</div>
-                                <div class="sub-title">Mullai Rajan</div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <div class="info">
-                                <div class="head">Address</div>
-                                <div class="sub-title"> <a href="https://goo.gl/maps/E1bRy5tPQyH4ASa57"target=_blank> Ambur, Tamil Nadu</div></a>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <i class="fas fa-envelope"></i>
-                            <div class="info">
-                                <div class="head">Email</div>
-                                <div class="sub-title">mullairajan2000@gmail.com</div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <i class="fa fa-briefcase"></i>
-                            <div class="info">
-                                <div class="head">Office Mail</div>
-                                <div class="sub-title">mullai.rajan@zohocorp.com</div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <i class="fab fa-instagram"></i>
-                            <div class="info">
-                                <div class="head">Instagram</div>
-                                <div class="sub-title"> <a href="https://www.instagram.com/im.busy.listening.musics/"target=_blank>@im.busy.listening.musics</div></a> 
-                            </div>
-                        </div>
-                        <div class="row">
-                            <i class="fab fa-linkedin"></i>
-                            <div class="info">
-                                <div class="head">LinkedIn</div>
-                                <div class="sub-title"><a href="https://www.linkedin.com/in/mullairajan2000/"target=_blank>www.linkedin.com/in/mullairajan2000/</div></a>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <i class="fab fa-github"></i>
-                            <div class="info">
-                                <div class="head">GitHub</div>
-                                <div class="sub-title"> <a href="https://github.com/MullaiArgent"target=_blank>MullaiArgent</div></a> 
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                    <section class="about" id="about">
-                        <p>It is My Pleasure, if you try my favorite Song.</p><br>
-                        <h6>"I Walk on Water" a Song by <a href="https://kaleo.lnk.to/surfacesounds" target=_blank>Kaleo</a></h6>
-                         <div class="about-content">
-                                <div class="column right">
-                                    <audio controls>
-                                        <source src="Music/iwalkonwater.mp3">
-                                    </audio>
-                                    <a href="https://www.azlyrics.com/lyrics/kaleo/iwalkonwater.html" target=_blank>Lyrics</a><br>
-                                </div>
-                            </div>
-                    </section>
-                </div>
-            </div>
-        </div>
-    </section>
+      // Prices from config (so the vendor edits one file).
+      ["starter", "growth", "business"].forEach(function (p) {
+        var el = document.querySelector('[data-price="' + p + '"]');
+        if (el) el.textContent = inr((C.PRICES || {})[p]);
+      });
 
-    <footer>
-        <span>You came this Far! Thank you</span>
-    </footer>
+      // Business name in footer, GST line, enterprise + support mailto.
+      var supEmail = C.SUPPORT_EMAIL || "";
+      Array.prototype.forEach.call(document.querySelectorAll(".js-business"), function (e) {
+        e.textContent = C.BUSINESS_NAME || "RasidhuPOS";
+      });
+      if (C.GSTIN) {
+        var g = document.getElementById("gst-line");
+        if (g) { g.textContent = "Prices exclusive of GST (GSTIN: " + C.GSTIN + ")"; g.style.display = "block"; }
+      }
 
-    <script src="script1.js"></script>
+      var q = (window.rpos && rpos.qs) ? rpos.qs() : {};
+      var isApp = (q.src === "androidapp");
+
+      var modal = document.getElementById("payModal");
+      var qrBox = document.getElementById("qr");
+      var upilink = document.getElementById("upilink");
+      var payBody = document.getElementById("payBody");
+      var order = null, activePlan = null;
+      var PLAN_NAMES = { starter: "Starter", growth: "Growth", business: "Business" };
+
+      function openPay(plan) {
+        activePlan = plan;
+        order = rpos.orderId();
+        document.getElementById("payPlanName").textContent = PLAN_NAMES[plan] || plan;
+        document.getElementById("payPrice").textContent = inr(rpos.priceOf(plan));
+        document.getElementById("orderLine").textContent = order;
+        document.getElementById("payeeLine").textContent = C.PAYEE_NAME || C.UPI_VPA || "";
+        document.getElementById("payForm").style.display = "block";
+        document.getElementById("thankyou").style.display = "none";
+        document.getElementById("utr").value = "";
+        var upi = rpos.upiString(plan, order);
+        upilink.href = upi;
+        qrBox.innerHTML = "";
+        try {
+          if (window.QRCode) { new QRCode(qrBox, { text: upi, width: 220, height: 220 }); }
+          else { qrBox.textContent = "QR unavailable"; }
+        } catch (e) { qrBox.textContent = "QR unavailable"; }
+        // On the mobile app, lead with the Pay-in-app button (QR second).
+        payBody.className = "pay-body" + (isApp ? " src-app" : "");
+        modal.classList.add("open");
+      }
+      window.openPay = openPay;
+
+      function closePay() { modal.classList.remove("open"); }
+
+      Array.prototype.forEach.call(document.querySelectorAll("[data-plan]"), function (btn) {
+        btn.addEventListener("click", function (e) { e.preventDefault(); openPay(btn.getAttribute("data-plan")); });
+      });
+      document.getElementById("payClose").addEventListener("click", closePay);
+      modal.addEventListener("click", function (e) { if (e.target === modal) closePay(); });
+
+      document.getElementById("paidBtn").addEventListener("click", function () {
+        var utr = (document.getElementById("utr").value || "").trim();
+        try { rpos.submitPaid(activePlan, utr, order); } catch (e) {}
+        document.getElementById("payForm").style.display = "none";
+        document.getElementById("thankyou").style.display = "block";
+      });
+
+      // Prefill: highlight the plan passed in ?plan=, page still lets them change.
+      if (q.plan && PLAN_NAMES[q.plan]) {
+        var card = document.querySelector('.tier-card[data-tier="' + q.plan + '"]');
+        if (card) card.classList.add("preselected");
+      }
+    }
+
+    // Runtime config: fetch config.json (published by the sentinel Storefront
+    // tab) and shallow-merge it OVER the built-in config.js defaults, so the
+    // whole PRICES / FORM_FIELDS objects are replaced. Any failure (missing
+    // file, offline) silently keeps the config.js defaults, then init runs.
+    (async function () {
+      try {
+        var ctrl = new AbortController();
+        var t = setTimeout(function () { ctrl.abort(); }, 4000);
+        try {
+          var resp = await fetch('config.json', { cache: 'no-store', signal: ctrl.signal });
+          if (resp.ok) { Object.assign(window.RPOS_CONFIG, await resp.json()); }
+        } finally { clearTimeout(t); }
+      } catch (e) { /* offline / 404 / timeout: keep config.js defaults */ }
+      try { initStorefront(); } catch (e) {}
+    })();
+  </script>
 </body>
 </html>

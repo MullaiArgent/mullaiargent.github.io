@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy Policy - RasidhuPOS</title>
+  <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzMiAzMic+PHJlY3QgeD0nMTQuNScgeT0nMTEnIHdpZHRoPSczJyBoZWlnaHQ9JzE3JyByeD0nMS41JyBmaWxsPScjYzk5NDAwJy8+PHBhdGggZD0nTTcgN3Y2TTE2IDV2OE0yNSA3djYnIHN0cm9rZT0nI2M5OTQwMCcgc3Ryb2tlLXdpZHRoPSczJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIGZpbGw9J25vbmUnLz48cGF0aCBkPSdNNyAxMnE5IDcgMTggMCcgc3Ryb2tlPScjYzk5NDAwJyBzdHJva2Utd2lkdGg9JzMnIGZpbGw9J25vbmUnLz48Y2lyY2xlIGN4PScxNicgY3k9JzI3JyByPScyLjQnIGZpbGw9JyNjOTk0MDAnLz48L3N2Zz4=">
+  <link rel="stylesheet" href="styles.css">
+  <script src="config.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav">
+      <a class="brand" href="index.html">
+        <img class="trident" alt="RasidhuPOS" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzMiAzMic+PHJlY3QgeD0nMTQuNScgeT0nMTEnIHdpZHRoPSczJyBoZWlnaHQ9JzE3JyByeD0nMS41JyBmaWxsPScjYzk5NDAwJy8+PHBhdGggZD0nTTcgN3Y2TTE2IDV2OE0yNSA3djYnIHN0cm9rZT0nI2M5OTQwMCcgc3Ryb2tlLXdpZHRoPSczJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIGZpbGw9J25vbmUnLz48cGF0aCBkPSdNNyAxMnE5IDcgMTggMCcgc3Ryb2tlPScjYzk5NDAwJyBzdHJva2Utd2lkdGg9JzMnIGZpbGw9J25vbmUnLz48Y2lyY2xlIGN4PScxNicgY3k9JzI3JyByPScyLjQnIGZpbGw9JyNjOTk0MDAnLz48L3N2Zz4=">
+        <span><span class="brand-name">Rasidhu POS</span><span class="brand-sub">Point of Sale</span></span>
+      </a>
+      <div class="nav-links"><a href="index.html">Plans</a><a href="contact.html">Support</a></div>
+    </nav>
+  </header>
+
+  <main class="policy">
+    <h1>Privacy Policy</h1>
+    <p class="updated">Last updated: 10 July 2026</p>
+
+    <h2>1. What we collect</h2>
+    <p>To provide the subscription we collect your Google account email (this is your subscription identity), the UPI payment reference (UTR), the plan and amount you submit, and basic technical details such as the app version and whether the request came from the desktop or Android app.</p>
+
+    <h2>2. What we do not collect</h2>
+    <p>We do not receive or store your card or bank credentials. UPI payments are made directly from your app to our UPI address, so we never see your banking login.</p>
+
+    <h2>3. How we use it</h2>
+    <p>We use this information only to verify your payment and to activate and support your subscription. It is stored in our Google Sheet of subscription requests and in the signed entitlement list that unlocks the app.</p>
+
+    <h2>4. Sharing</h2>
+    <p>We do not sell your data. We share it only where needed to run the service (for example Google, which hosts the form and sheet) or where required by law.</p>
+
+    <h2>5. Your choices</h2>
+    <p>To access or delete your data, contact us at <a class="js-email-link" href="#"><span class="js-email">support</span></a>.</p>
+
+    <a class="back-link" href="index.html">Back to plans</a>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-links">
+        <a href="terms.html">Terms</a><a href="privacy.html">Privacy</a><a href="refund.html">Refund</a><a href="contact.html">Contact</a>
+      </div>
+      <div class="footer-copy">&copy; 2026 <span class="js-business">RasidhuPOS</span></div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var C = window.RPOS_CONFIG || {};
+      function set(sel, val) { Array.prototype.forEach.call(document.querySelectorAll(sel), function (e) { e.textContent = val; }); }
+      set(".js-business", C.BUSINESS_NAME || "RasidhuPOS");
+      set(".js-email", C.SUPPORT_EMAIL || "");
+      Array.prototype.forEach.call(document.querySelectorAll("a.js-email-link"), function (a) { a.href = "mailto:" + (C.SUPPORT_EMAIL || ""); });
+    })();
+  </script>
+</body>
+</html>
