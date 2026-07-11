@@ -1,0 +1,25 @@
+{
+  "BUSINESS_NAME": "Mullai Rajan",
+  "CITY": "Chennai",
+  "FORM_ACTION": "https://docs.google.com/forms/d/e/1FAIpQLSd22a8xVrUd81lAtZmXp7IDMXwa2sP26C-hKNS7pHJaccb6Rg/formResponse",
+  "FORM_FIELDS": {
+    "amount": "entry.670930799",
+    "appversion": "entry.378284466",
+    "client_ts": "entry.128503365",
+    "email": "entry.414386988",
+    "orderid": "entry.854898479",
+    "plan": "entry.1174638699",
+    "source": "entry.1945180516",
+    "utr": "entry.55718535"
+  },
+  "GSTIN": "",
+  "PAYEE_NAME": "Mullai Rajan",
+  "PRICES": {
+    "business": 10000,
+    "growth": 2500,
+    "starter": 1500
+  },
+  "SUPPORT_EMAIL": "mullairajan2000@gmail.com",
+  "UPI_VPA": "mullairajan@ybl",
+  "WHATSAPP": "7010139747"
+}
