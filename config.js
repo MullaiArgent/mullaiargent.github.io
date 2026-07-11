@@ -6,7 +6,7 @@
 window.RPOS_CONFIG = {
   UPI_VPA: "mullairajan@ybl",                // where money lands
   PAYEE_NAME: "FILL Business Name",
-  PRICES: { starter: 9990, growth: 17990, business: 79990 }, // INR / year
+  PRICES: { starter: 1500, growth: 2500, business: 10000 }, // INR / year (sentinel config.json overrides)
   // Google Form (RasidhuPOS subscription requests). Editable in the sentinel Storefront tab.
   FORM_ACTION: "https://docs.google.com/forms/d/e/1FAIpQLSd22a8xVrUd81lAtZmXp7IDMXwa2sP26C-hKNS7pHJaccb6Rg/formResponse",
   FORM_FIELDS: {

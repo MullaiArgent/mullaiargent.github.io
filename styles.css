@@ -7,13 +7,17 @@
   --gold-mid: #e6b325;
   --gold-hi: #f5c542;
   --gold-deep: #b57e00;
+  --gold-btn-text: #3a2a00;
+  --gold-grad: linear-gradient(110deg, #e0a412 0%, #f5c542 30%, #fff3c8 48%, #f5c542 66%, #e0a412 100%);
   --ink: #19191c;
   --ink-soft: #4a4a52;
-  --cream: #fdf6e3;
+  --cream: #fdf9ef;
   --cream-deep: #f6ecd0;
   --card: #ffffff;
-  --line: #e7dcc0;
+  --line: #eadfc4;
+  --card-line: #ece4d2;
   --shadow: 0 10px 30px rgba(25, 25, 28, 0.10);
+  --card-shadow: 0 4px 22px rgba(25, 25, 28, 0.06);
 }
 
 * { box-sizing: border-box; }
@@ -22,9 +26,19 @@ html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
-  font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   color: var(--ink);
-  background: var(--cream);
+  /* Warm gold ambient: soft radial blooms over a light cream base, confined to
+     the hero + tier-card region (px vertical positions from the top of the
+     document) so they glow behind the cards and fade before the compare table. */
+  background-color: var(--cream);
+  background-image:
+    radial-gradient(circle 720px at 50% 120px, rgba(245, 197, 66, 0.10), transparent 68%),
+    radial-gradient(circle 600px at 15% 40px, rgba(245, 197, 66, 0.30), transparent 70%),
+    radial-gradient(circle 380px at 85% 165px, rgba(224, 164, 18, 0.20), transparent 70%),
+    radial-gradient(circle 320px at 9% 560px, rgba(230, 179, 37, 0.22), transparent 72%),
+    radial-gradient(circle 430px at 91% 520px, rgba(255, 215, 120, 0.22), transparent 72%);
+  background-repeat: no-repeat;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
 }
@@ -46,9 +60,9 @@ a { color: var(--gold-deep); }
 }
 .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
 .brand .trident {
-  width: 34px; height: 34px; flex: 0 0 auto;
+  height: 38px; width: auto; flex: 0 0 auto; display: block;
 }
-.brand .brand-name { font-weight: 800; font-size: 18px; color: var(--ink); letter-spacing: 0.2px; }
+.brand .brand-name { font-weight: 800; font-size: 19px; color: var(--ink); letter-spacing: -0.4px; }
 .brand .brand-sub { display: block; font-weight: 500; font-size: 11px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 1.5px; }
 .nav-links { display: flex; gap: 26px; align-items: center; }
 .nav-links a { color: var(--ink); text-decoration: none; font-weight: 600; font-size: 15px; }
@@ -57,39 +71,90 @@ a { color: var(--gold-deep); }
 /* ---------- Hero ---------- */
 .hero { text-align: center; padding: 62px 20px 30px; }
 .pill {
-  display: inline-block; padding: 7px 16px; border-radius: 999px;
-  background: var(--cream-deep); border: 1px solid var(--line);
-  color: var(--ink-soft); font-weight: 600; font-size: 13px; margin-bottom: 20px;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 7px 16px 7px 14px; border-radius: 999px;
+  background: rgba(245, 197, 66, 0.14); border: 1px solid rgba(224, 164, 18, 0.35);
+  color: #8a6a10; font-weight: 600; font-size: 13px; margin-bottom: 20px;
 }
-.hero h1 { font-size: 42px; line-height: 1.12; margin: 0 0 14px; font-weight: 800; }
-.hero p.sub { font-size: 18px; color: var(--ink-soft); max-width: 620px; margin: 0 auto; }
+.pill::before {
+  content: ""; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--gold); flex: 0 0 auto;
+}
+.hero h1 {
+  font-size: 46px; line-height: 1.06; margin: 0 0 14px;
+  font-weight: 800; letter-spacing: -1.3px;
+}
+.hero p.sub { font-size: 18px; color: #5f5f66; max-width: 620px; margin: 0 auto; }
+
+/* ---------- Plan-type segmented toggle ---------- */
+.seg-wrap { display: flex; justify-content: center; padding: 10px 0 2px; }
+.seg-toggle {
+  position: relative;
+  display: inline-flex; gap: 4px; padding: 5px;
+  background: #efe9db; border: 1px solid rgba(0, 0, 0, 0.04);
+  border-radius: 12px;
+}
+/* Sliding active-state pill. JS (index.html) sizes/positions it to the active
+   button so it glides between segments. Sits behind the (transparent) buttons. */
+.seg-thumb {
+  position: absolute; top: 5px; bottom: 5px; left: 0; width: 0;
+  border-radius: 9px; background: var(--card);
+  box-shadow: 0 2px 6px rgba(25, 25, 28, 0.12);
+  transform: translateX(0); z-index: 0;
+  transition: transform 0.32s cubic-bezier(0.4, 0.15, 0.15, 1),
+              width 0.32s cubic-bezier(0.4, 0.15, 0.15, 1);
+}
+.seg-btn {
+  position: relative; z-index: 1;
+  border: none; background: transparent; cursor: pointer;
+  font-family: inherit; font-weight: 700; font-size: 15px; color: #8a8a90;
+  padding: 10px 22px; border-radius: 9px;
+  transition: color 0.2s ease;
+}
+.seg-btn:hover { color: var(--ink); }
+.seg-btn.active { color: var(--ink); }
+@media (prefers-reduced-motion: reduce) {
+  .seg-thumb { transition: none; }
+}
 
 /* ---------- Tier grid ---------- */
 .tiers {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px;
-  padding: 34px 0 10px; align-items: stretch;
+  display: grid; grid-template-columns: repeat(2, minmax(0, 360px)); gap: 22px;
+  padding: 24px 0 10px; align-items: stretch; justify-content: center;
 }
+/* Cards on the inactive segment are hidden by the toggle. Two-class specificity
+   (0,2,0) beats .tier-card's display:flex so this reliably wins. */
+.tier-card.seg-hidden { display: none; }
 .tier-card {
   position: relative; display: flex; flex-direction: column;
-  background: var(--card); border: 1px solid var(--line); border-radius: 16px;
-  padding: 26px 22px; box-shadow: var(--shadow);
+  background: var(--card); border: 1px solid var(--card-line); border-radius: 18px;
+  padding: 32px 28px; box-shadow: var(--card-shadow);
 }
 .tier-card.popular {
-  border: 2px solid var(--gold);
-  box-shadow: 0 16px 40px rgba(201, 148, 0, 0.22);
-  transform: translateY(-6px);
+  border: 2px solid var(--gold-mid);
+  box-shadow: 0 16px 44px rgba(224, 164, 18, 0.22);
 }
 .tier-card.preselected { outline: 3px solid var(--gold-hi); outline-offset: 4px; }
+/* Segment-switch entrance: fade + slight rise/scale, re-triggered per switch. */
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.985); }
+  to   { opacity: 1; transform: none; }
+}
+.tier-card.card-enter { animation: cardIn 0.36s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .tier-card.card-enter { animation: none; }
+}
 .tier-card .badge {
   position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
-  background: linear-gradient(120deg, var(--gold-hi), var(--gold-mid), var(--gold));
-  color: var(--ink); font-weight: 800; font-size: 12px; letter-spacing: 0.6px;
-  padding: 5px 14px; border-radius: 999px; text-transform: uppercase;
+  background: var(--gold-grad);
+  color: var(--gold-btn-text); font-weight: 800; font-size: 11px; letter-spacing: 0.5px;
+  padding: 6px 14px; border-radius: 999px; text-transform: uppercase;
+  box-shadow: 0 4px 12px rgba(224, 164, 18, 0.30);
 }
-.tier-card h3 { margin: 6px 0 4px; font-size: 22px; }
+.tier-card h3 { margin: 6px 0 4px; font-size: 22px; letter-spacing: -0.4px; }
 .tier-card .tagline { color: var(--ink-soft); font-size: 14px; margin: 0 0 16px; min-height: 20px; }
 .price-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 4px; }
-.price { font-size: 34px; font-weight: 800; color: var(--ink); }
+.price { font-size: 38px; font-weight: 800; color: var(--ink); letter-spacing: -1px; }
 .per { color: var(--ink-soft); font-weight: 600; font-size: 15px; }
 .price-note { font-size: 12px; color: var(--ink-soft); margin: 0 0 18px; min-height: 16px; }
 .bullets { list-style: none; padding: 0; margin: 0 0 22px; flex: 1 1 auto; }
@@ -106,18 +171,18 @@ a { color: var(--gold-deep); }
 .buy-btn {
   display: inline-block; width: 100%; text-align: center; cursor: pointer;
   border: 1px solid var(--ink); background: var(--card); color: var(--ink);
-  font-weight: 700; font-size: 15.5px; padding: 12px 16px; border-radius: 11px;
+  font-weight: 700; font-size: 15px; padding: 14px 16px; border-radius: 11px;
   text-decoration: none; transition: transform 0.08s ease, box-shadow 0.15s ease;
 }
 .buy-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
 .buy-btn.gold {
-  border: none; color: var(--ink);
-  background: linear-gradient(120deg, var(--gold) 0%, var(--gold-mid) 38%, var(--gold-hi) 50%, var(--gold-mid) 62%, var(--gold) 100%);
+  border: none; color: var(--gold-btn-text); font-weight: 800;
+  background: var(--gold-grad);
   background-size: 220% 100%;
   animation: sheen 2.4s ease-in-out infinite;
-  box-shadow: 0 6px 18px rgba(201, 148, 0, 0.35);
+  box-shadow: 0 6px 18px rgba(224, 164, 18, 0.35);
 }
-.buy-btn.gold:hover { box-shadow: 0 10px 26px rgba(201, 148, 0, 0.5); }
+.buy-btn.gold:hover { box-shadow: 0 10px 26px rgba(224, 164, 18, 0.5); }
 @keyframes sheen {
   0%   { background-position: 120% 0; }
   100% { background-position: -20% 0; }
@@ -128,7 +193,7 @@ a { color: var(--gold-deep); }
 
 /* ---------- Compare table ---------- */
 .section { padding: 46px 0; }
-.section h2 { text-align: center; font-size: 30px; margin: 0 0 8px; }
+.section h2 { text-align: center; font-size: 32px; font-weight: 800; letter-spacing: -0.7px; margin: 0 0 8px; }
 .section .lead { text-align: center; color: var(--ink-soft); margin: 0 0 30px; }
 .table-scroll { overflow-x: auto; }
 .compare-table {
@@ -140,7 +205,9 @@ a { color: var(--gold-deep); }
   padding: 14px 16px; text-align: center; border-bottom: 1px solid var(--line); font-size: 14.5px;
 }
 .compare-table th { background: var(--cream-deep); font-weight: 800; }
-.compare-table thead th.popular-col { color: var(--gold-deep); }
+/* Soft gold band highlighting the Growth (3rd) column to mirror the tier grid. */
+.compare-table thead th.popular-col { color: var(--gold-deep); box-shadow: inset 0 3px 0 var(--gold-mid); }
+.compare-table td:nth-child(3), .compare-table th:nth-child(3) { background: rgba(245, 197, 66, 0.07); }
 .compare-table td:first-child, .compare-table th:first-child { text-align: left; font-weight: 600; }
 .compare-table tbody tr:last-child td { border-bottom: none; }
 .compare-table td.yes { color: var(--gold-deep); font-weight: 800; }
