@@ -1,6 +1,143 @@
 {
   "BUSINESS_NAME": "Mullai Rajan",
   "CITY": "Chennai",
+  "COMPARE": [
+    {
+      "label": "Shops included",
+      "values": [
+        "1",
+        "Up to 2",
+        "Up to 10",
+        "Unlimited"
+      ]
+    },
+    {
+      "label": "Registers per shop",
+      "values": [
+        "1",
+        "Up to 3",
+        "Unlimited",
+        "Unlimited"
+      ]
+    },
+    {
+      "label": "Billing & GST invoicing",
+      "values": [
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713"
+      ]
+    },
+    {
+      "label": "Inventory management",
+      "values": [
+        "Advanced",
+        "Advanced",
+        "Advanced",
+        "Advanced"
+      ]
+    },
+    {
+      "label": "Sales reports & analytics",
+      "values": [
+        "Advanced",
+        "Advanced",
+        "Advanced",
+        "Advanced"
+      ]
+    },
+    {
+      "label": "Staff accounts",
+      "values": [
+        "\u2713",
+        "\u2713",
+        "Role-based",
+        "Role-based + SSO"
+      ]
+    },
+    {
+      "label": "Loyalty & customer CRM",
+      "values": [
+        "\u2014",
+        "\u2014",
+        "Coming Soon",
+        "Coming Soon"
+      ]
+    },
+    {
+      "label": "Barcode & label printing",
+      "values": [
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713"
+      ]
+    },
+    {
+      "label": "Offline mode",
+      "values": [
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713"
+      ]
+    },
+    {
+      "label": "Payment gateway integrations",
+      "values": [
+        "\u2014",
+        "\u2014",
+        "Coming Soon",
+        "Coming Soon"
+      ]
+    },
+    {
+      "label": "Support",
+      "values": [
+        "Email",
+        "Priority chat",
+        "Urgent dial-in",
+        "24/7 + manager"
+      ]
+    },
+    {
+      "label": "Onboarding",
+      "values": [
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713"
+      ]
+    },
+    {
+      "label": "Importing to Tally",
+      "values": [
+        "Coming Soon",
+        "Coming Soon",
+        "Coming Soon",
+        "Coming Soon"
+      ]
+    },
+    {
+      "label": "Cloud Sync",
+      "values": [
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713"
+      ]
+    },
+    {
+      "label": "Mobile Login",
+      "values": [
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713"
+      ]
+    }
+  ],
   "DOWNLOAD_ANDROID_URL": "https://github.com/MullaiArgent/RasidhuPOS-releases/releases/latest",
   "DOWNLOAD_WINDOWS_URL": "https://github.com/MullaiArgent/RasidhuPOS-releases/releases/latest",
   "FORM_ACTION": "https://docs.google.com/forms/d/e/1FAIpQLSd22a8xVrUd81lAtZmXp7IDMXwa2sP26C-hKNS7pHJaccb6Rg/viewform?usp=header",
@@ -20,6 +157,116 @@
   },
   "GSTIN": "",
   "PAYEE_NAME": "Mullai Rajan",
+  "PLANS": [
+    {
+      "caps": {
+        "cloud_enabled": true,
+        "max_admins": 1,
+        "max_bills_per_day": 100000,
+        "max_cashiers": 3,
+        "max_purchases_per_day": 100000,
+        "max_shops": 1,
+        "max_super_admins": 1
+      },
+      "code": "starter",
+      "contact": false,
+      "cta": "Buy now",
+      "features": [
+        "1 register",
+        "Billing & GST invoicing",
+        "Basic inventory management",
+        "Daily sales report",
+        "Email support"
+      ],
+      "name": "Starter",
+      "per": "/year",
+      "popular": false,
+      "price": 1500,
+      "shops": "Single shop",
+      "tagline": "For a single counter just getting started with digital billing."
+    },
+    {
+      "caps": {
+        "cloud_enabled": true,
+        "max_admins": 3,
+        "max_bills_per_day": 100000,
+        "max_cashiers": 8,
+        "max_purchases_per_day": 100000,
+        "max_shops": 2,
+        "max_super_admins": 1
+      },
+      "code": "growth",
+      "contact": false,
+      "cta": "Buy now",
+      "features": [
+        "Up to 3 registers per shop",
+        "Multi-shop dashboard",
+        "Staff accounts & permissions",
+        "Loyalty & customer CRM",
+        "Priority chat support"
+      ],
+      "name": "Growth",
+      "per": "/year",
+      "popular": true,
+      "price": 2500,
+      "shops": "Up to 2 shops",
+      "tagline": "Everything a growing store needs across two locations."
+    },
+    {
+      "caps": {
+        "cloud_enabled": true,
+        "max_admins": 10,
+        "max_bills_per_day": 100000,
+        "max_cashiers": 40,
+        "max_purchases_per_day": 100000,
+        "max_shops": 10,
+        "max_super_admins": 2
+      },
+      "code": "business",
+      "contact": false,
+      "cta": "Buy now",
+      "features": [
+        "Unlimited registers",
+        "Advanced analytics & forecasting",
+        "Role-based staff access",
+        "API & payment integrations",
+        "Dedicated onboarding"
+      ],
+      "name": "Business",
+      "per": "/year",
+      "popular": true,
+      "price": 10000,
+      "shops": "Up to 10 shops",
+      "tagline": "Centralised control and analytics for multi-outlet retailers."
+    },
+    {
+      "caps": {
+        "cloud_enabled": true,
+        "max_admins": 50,
+        "max_bills_per_day": 100000,
+        "max_cashiers": 200,
+        "max_purchases_per_day": 100000,
+        "max_shops": 100,
+        "max_super_admins": 10
+      },
+      "code": "enterprise",
+      "contact": true,
+      "cta": "Contact sales",
+      "features": [
+        "Everything in Business",
+        "Custom integrations",
+        "Single sign-on (SSO)",
+        "24/7 priority support",
+        "Dedicated account manager"
+      ],
+      "name": "Enterprise",
+      "per": "",
+      "popular": false,
+      "price": null,
+      "shops": "Unlimited shops",
+      "tagline": "Tailored deployment, SLAs and account management at scale."
+    }
+  ],
   "PRICES": {
     "business": 10000,
     "growth": 2500,
