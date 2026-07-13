@@ -3,7 +3,7 @@
   "CITY": "Chennai",
   "DOWNLOAD_ANDROID_URL": "https://github.com/MullaiArgent/RasidhuPOS-releases/releases/latest",
   "DOWNLOAD_WINDOWS_URL": "https://github.com/MullaiArgent/RasidhuPOS-releases/releases/latest",
-  "FORM_ACTION": "https://docs.google.com/forms/d/e/1FAIpQLSd22a8xVrUd81lAtZmXp7IDMXwa2sP26C-hKNS7pHJaccb6Rg/formResponse",
+  "FORM_ACTION": "https://docs.google.com/forms/d/e/1FAIpQLSd22a8xVrUd81lAtZmXp7IDMXwa2sP26C-hKNS7pHJaccb6Rg/viewform?usp=header",
   "FORM_FIELDS": {
     "amount": "entry.670930799",
     "appversion": "entry.378284466",
