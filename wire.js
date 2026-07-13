@@ -14,18 +14,157 @@
     var ctrl = null, t = null;
     try { ctrl = new AbortController(); t = setTimeout(function () { ctrl.abort(); }, 4000); } catch (e) {}
     var opts = ctrl ? { cache: 'no-store', signal: ctrl.signal } : { cache: 'no-store' };
-    fetch('config.json', opts)
+    // Cache-buster query: 'no-store' stops the BROWSER caching, but the GitHub
+    // Pages CDN edge still serves config.json for up to max-age=600 (10 min). A
+    // unique ?v= is a distinct edge cache key, so a fresh sentinel publish shows
+    // immediately instead of up to 10 minutes later.
+    fetch('config.json?v=' + Date.now(), opts)
       .then(function (r) { return r && r.ok ? r.json() : null; })
-      .then(function (j) { if (j) { Object.assign(C, j); } })
+      .then(function (j) {
+        if (j) { Object.assign(C, j); }
+        // Derive the pay-modal PRICES from the published PLANS so the charged
+        // amount always matches the displayed price; then paint the catalogue.
+        if (C.PLANS && C.PLANS.length) {
+          var pr = {};
+          for (var i = 0; i < C.PLANS.length; i++) {
+            var pp = C.PLANS[i];
+            if (!pp.contact && pp.price != null && pp.price !== '' && !isNaN(Number(pp.price))) pr[pp.code] = Number(pp.price);
+          }
+          if (Object.keys(pr).length) C.PRICES = Object.assign({}, C.PRICES || {}, pr);
+          startPlanOverlay();
+        }
+      })
       .catch(function () {})
       .then(function () { if (t) clearTimeout(t); });
   })();
+
+  // ---- data-driven Plans overlay ------------------------------------------
+  // The mockup bakes plan names / prices / features / the compare table into its
+  // inline data. When the sentinel publishes a PLANS (+ COMPARE) block in
+  // config.json, rewrite the rendered cards + compare rows from it so the live
+  // page shows the vendor's current catalogue (design unchanged). Idempotent via
+  // a per-node signature, and re-applied on the framework's re-renders. No PLANS
+  // in config -> no-op, so the baked mockup shows unchanged. Verified against the
+  // hydrated DOM (cards + real <table> compare grid).
+  var PLAN_N2C = { Starter: 'starter', Growth: 'growth', Business: 'business', Enterprise: 'enterprise' };
+
+  function planFmtPrice(p) {
+    if (p.contact || p.price == null || p.price === '') return (p.price == null || p.price === '') ? 'Custom' : String(p.price);
+    var n = Number(p.price);
+    return isNaN(n) ? String(p.price) : n.toLocaleString('en-IN');
+  }
+
+  function applyPlanCards(plans) {
+    var by = {}, i;
+    for (i = 0; i < plans.length; i++) by[plans[i].code] = plans[i];
+    var faces = document.querySelectorAll('.card-face');
+    for (var k = 0; k < faces.length; k++) {
+      var face = faces[k], wrap = null, ch = face.children, c;
+      for (c = 0; c < ch.length; c++) { if (ch[c].tagName === 'DIV' && ch[c].style && ch[c].style.zIndex === '1') { wrap = ch[c]; break; } }
+      if (!wrap) continue;
+      var nameEl = wrap.children[0]; if (!nameEl) continue;
+      var p = by[PLAN_N2C[(nameEl.textContent || '').trim()]];
+      if (!p) continue;                       // already applied (custom name) or unknown -> skip
+      var sig = [p.name, p.shops, p.currency, p.price, p.per, p.cta, (p.features || []).join('|')].join('~');
+      if (face.getAttribute('data-rp-plan') === sig) continue;   // idempotent
+      nameEl.textContent = p.name;
+      if (wrap.children[1]) wrap.children[1].textContent = p.shops || '';
+      var pr = wrap.children[2];
+      if (pr && pr.children.length >= 3) {
+        pr.children[0].textContent = p.contact ? '' : (p.currency || '₹');
+        pr.children[1].textContent = planFmtPrice(p);
+        pr.children[2].textContent = p.per || '';
+      }
+      var tg = wrap.querySelector('p'); if (tg && p.tagline) tg.textContent = p.tagline;
+      var bt = wrap.querySelector('button'); if (bt && p.cta) bt.textContent = p.cta;
+      var ul = wrap.querySelector('ul');
+      if (ul && p.features && p.features.length) {
+        var t = ul.querySelector('li');
+        if (t) {
+          var ls = t.getAttribute('style') || '', ic = t.children[0],
+              is = ic ? ic.getAttribute('style') : '', it = ic ? ic.textContent : '✓',
+              xs = t.children[1] ? t.children[1].getAttribute('style') : '';
+          while (ul.firstChild) ul.removeChild(ul.firstChild);   // clear (no innerHTML: no injection surface)
+          for (var fi = 0; fi < p.features.length; fi++) {
+            var li = document.createElement('li'); if (ls) li.setAttribute('style', ls);
+            var a = document.createElement('span'); if (is) a.setAttribute('style', is); a.textContent = it;
+            var b = document.createElement('span'); if (xs) b.setAttribute('style', xs); b.textContent = p.features[fi];
+            li.appendChild(a); li.appendChild(b); ul.appendChild(li);
+          }
+        }
+      }
+      face.setAttribute('data-rp-plan', sig);
+    }
+  }
+
+  function applyCompare(plans, rows) {
+    var table = document.querySelector('table.ctable') || document.querySelector('.ctable') || document.querySelector('table');
+    if (!table) return;
+    var ths = table.querySelectorAll('thead th'), h, n;
+    for (h = 1; h < ths.length && (h - 1) < plans.length; h++) {    // skip the "Feature" column
+      var th = ths[h], pl = plans[h - 1];
+      for (n = 0; n < th.childNodes.length; n++) {
+        var nd = th.childNodes[n];
+        if (nd.nodeType === 3 && nd.textContent.trim()) { nd.textContent = pl.name; break; }
+      }
+      var sub = th.querySelector('div');                 // the "N shops" sub-label under the name
+      if (sub && pl.shops) sub.textContent = pl.shops;
+    }
+    if (!rows || !rows.length) return;
+    var tb = table.querySelector('tbody'); if (!tb) return;
+    var trs = [], kids = tb.children, i;
+    for (i = 0; i < kids.length; i++) if (kids[i].tagName === 'TR') trs.push(kids[i]);
+    var data = [], trail = [], r;
+    for (r = 0; r < trs.length; r++) { var c0 = trs[r].querySelector('td'); if (c0 && c0.textContent.trim() !== '') data.push(trs[r]); else trail.push(trs[r]); }
+    var sig = rows.length + '::' + (rows[0] ? rows[0].label : '');
+    if (table.getAttribute('data-rp-compare') === sig && data.length === rows.length) return;  // idempotent
+    if (!data.length) return;
+    var tmpl = data[0].cloneNode(true), d;
+    for (d = 0; d < data.length; d++) data[d].parentNode.removeChild(data[d]);
+    var anchor = trail.length ? trail[0] : null;
+    for (var ri = 0; ri < rows.length; ri++) {
+      var tr = tmpl.cloneNode(true), td = tr.children, row = rows[ri], cc;
+      if (td[0]) td[0].textContent = row.label || '';
+      var v = row.values || [];
+      for (cc = 0; cc < 4; cc++) if (td[cc + 1]) td[cc + 1].textContent = (v[cc] != null ? v[cc] : '');
+      tr.setAttribute('style', 'border-bottom:1px solid #f0f0f2' + ((ri % 2) ? ';background:#fafafb' : ''));
+      if (anchor) tb.insertBefore(tr, anchor); else tb.appendChild(tr);
+    }
+    table.setAttribute('data-rp-compare', sig);
+  }
+
+  function applyPlans() {
+    try {
+      var plans = C.PLANS;
+      if (!plans || !plans.length) return;    // no published catalogue -> leave the baked mockup
+      applyPlanCards(plans);
+      applyCompare(plans, C.COMPARE || []);
+    } catch (e) { /* never break the page */ }
+  }
+
+  function startPlanOverlay() {
+    // Keep the pay-modal's plan detection + titles in step with any renames.
+    try {
+      if (C.PLANS) for (var i = 0; i < C.PLANS.length; i++) {
+        var p = C.PLANS[i]; if (p && p.code && p.name) PLAN_NAME[p.code] = p.name;
+      }
+    } catch (e) {}
+    applyPlans();
+    var tries = 0;
+    var iv = setInterval(function () { applyPlans(); if (++tries > 80) clearInterval(iv); }, 150);  // ~12s of retries for late hydration
+    try { new MutationObserver(function () { applyPlans(); }).observe(document.documentElement, { childList: true, subtree: true }); } catch (e) {}
+  }
 
   var PLAN_ORDER = ['starter', 'growth', 'business', 'enterprise'];
   var PLAN_NAME = { starter: 'Starter', growth: 'Growth', business: 'Business', enterprise: 'Enterprise' };
   var R = window.rpos || {};
 
-  function priceOf(p) { return R.priceOf ? R.priceOf(p) : ((C.PRICES || {})[p] || 0); }
+  function shopPer() { var v = Number(C.SHOPS_PRICE_PER); return isFinite(v) && v > 0 ? v : 1250; }
+  function priceOf(p) {
+    // Business is priced per shop (enhance.js owns rpos.businessShops + the field).
+    if (p === 'business' && R.businessShops) return R.businessShops * shopPer();
+    return R.priceOf ? R.priceOf(p) : ((C.PRICES || {})[p] || 0);
+  }
   function inr(n) { return 'Rs ' + Number(n || 0).toLocaleString('en-IN'); }
 
   // ---- pay modal (built lazily, once) ----
@@ -34,16 +173,29 @@
     modal = document.createElement('div');
     modal.id = 'rpos-pay';
     modal.setAttribute('style', 'position:fixed;inset:0;background:rgba(15,15,20,.55);display:none;align-items:center;justify-content:center;z-index:2147483000;font-family:system-ui,Segoe UI,Roboto,sans-serif');
+    var inpS = 'width:100%;padding:11px;border:1px solid #d5d5d9;border-radius:9px;margin-bottom:10px;box-sizing:border-box;font-size:14px;font-family:inherit';
+    var lblS = 'display:block;text-align:left;font-size:12.5px;font-weight:600;color:#3a3a40;margin:2px 0 5px';
     modal.innerHTML =
-      '<div style="position:relative;background:#fff;max-width:430px;width:92%;border-radius:16px;padding:26px 24px;box-shadow:0 24px 70px rgba(0,0,0,.35);text-align:center">' +
+      '<div style="position:relative;background:#fff;max-width:430px;width:92%;max-height:92vh;overflow:auto;border-radius:16px;padding:26px 24px;box-shadow:0 24px 70px rgba(0,0,0,.35);text-align:center">' +
       '<button data-x style="position:absolute;top:8px;right:12px;border:0;background:none;font-size:24px;line-height:1;color:#8a8a90;cursor:pointer">&times;</button>' +
       '<h3 data-plan style="margin:0 0 2px;font-size:19px;color:#19191c"></h3>' +
       '<div data-amt style="font-size:30px;font-weight:800;color:#19191c;margin:2px 0 0"></div>' +
-      '<div data-payee style="color:#6b6b70;font-size:12.5px;margin-bottom:16px"></div>' +
+      '<div data-amtnote style="color:#a97400;font-size:12px;font-weight:600;min-height:14px"></div>' +
+      '<div data-payee style="color:#6b6b70;font-size:12.5px;margin-bottom:14px"></div>' +
       '<div data-qr style="display:flex;justify-content:center;min-height:200px;margin:0 auto 12px"></div>' +
       '<a data-upi href="#" style="display:inline-block;background:linear-gradient(#f5c542,#e6b325);color:#19191c;font-weight:700;padding:11px 20px;border-radius:11px;text-decoration:none;margin-bottom:16px">Pay in UPI app</a>' +
-      '<div style="text-align:left;font-size:13px;color:#3a3a40;margin-bottom:6px">After paying, enter your UPI reference (UTR):</div>' +
-      '<input data-utr placeholder="e.g. 4157xxxxxx" style="width:100%;padding:11px;border:1px solid #d5d5d9;border-radius:9px;margin-bottom:12px;box-sizing:border-box;font-size:14px">' +
+      '<div data-signin style="display:none;justify-content:center;margin-bottom:12px"></div>' +
+      '<label style="' + lblS + '">Email (Gmail)</label>' +
+      '<input data-email type="email" autocomplete="email" placeholder="you@gmail.com" style="' + inpS + '">' +
+      '<label style="' + lblS + '">Full name</label>' +
+      '<input data-name autocomplete="name" placeholder="Your name" style="' + inpS + '">' +
+      '<label style="' + lblS + '">Contact number</label>' +
+      '<input data-contact type="tel" autocomplete="tel" placeholder="10-digit mobile" style="' + inpS + '">' +
+      '<label style="' + lblS + '">UPI reference (UTR)</label>' +
+      '<input data-utr placeholder="e.g. 4157xxxxxx" style="' + inpS + '">' +
+      '<label style="' + lblS + '">Notes (optional)</label>' +
+      '<textarea data-notes rows="2" placeholder="Anything we should know" style="' + inpS + ';resize:vertical"></textarea>' +
+      '<div data-err style="display:none;text-align:left;color:#c0392b;font-size:12.5px;font-weight:600;margin:2px 0 10px"></div>' +
       '<button data-paid style="width:100%;background:#c99400;color:#19191c;font-weight:800;border:0;padding:13px;border-radius:11px;cursor:pointer;font-size:15px">I have paid</button>' +
       '<div data-thanks style="display:none;color:#1a7f37;font-weight:600;margin-top:14px;line-height:1.45">Thank you. We will confirm your payment and activate your account shortly. Keep RasidhuPOS open, it unlocks automatically.</div>' +
       '</div>';
@@ -51,8 +203,28 @@
     modal.addEventListener('click', function (e) { if (e.target === modal) hide(); });
     modal.querySelector('[data-x]').onclick = hide;
     modal.querySelector('[data-paid]').onclick = function () {
+      var email = (modal.querySelector('[data-email]').value || '').trim();
+      var name = (modal.querySelector('[data-name]').value || '').trim();
+      var contact = (modal.querySelector('[data-contact]').value || '').trim();
       var utr = (modal.querySelector('[data-utr]').value || '').trim();
-      try { if (R.submitPaid) R.submitPaid(curPlan, utr, curOrder); } catch (e) {}
+      var notes = (modal.querySelector('[data-notes]').value || '').trim();
+      var digits = contact.replace(/[^\d]/g, '');
+      var err = '';
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) err = 'Please enter a valid email (Gmail).';
+      else if (name.length < 2) err = 'Please enter your name.';
+      else if (digits.length < 8) err = 'Please enter a valid contact number.';
+      var eb = modal.querySelector('[data-err]');
+      if (err) { eb.textContent = err; eb.style.display = 'block'; return; }
+      eb.style.display = 'none';
+      try { R.pageEmail = email; } catch (e) {}
+      try {
+        if (R.submitPaid) R.submitPaid(curPlan, {
+          utr: utr, name: name, contact: contact, notes: notes, email: email,
+          orderid: curOrder, amount: priceOf(curPlan),
+          shops: curPlan === 'business' ? (R.businessShops || '') : ''
+        });
+      } catch (e) {}
+      var pb = modal.querySelector('[data-paid]'); pb.disabled = true; pb.style.opacity = '.6';
       modal.querySelector('[data-thanks]').style.display = 'block';
     };
   }
@@ -61,18 +233,43 @@
     if (!modal) build();
     curPlan = plan;
     curOrder = R.orderId ? R.orderId() : ('' + (new Date().getTime())).slice(-6);
-    var upi = R.upiString ? R.upiString(plan, curOrder) :
+    var amt = priceOf(plan);
+    var email = R.currentEmail ? R.currentEmail() : (R.pageEmail || '');
+    var upi = R.upiString ? R.upiString(plan, curOrder, { amount: amt, email: email }) :
       ('upi://pay?pa=' + encodeURIComponent(C.UPI_VPA || '') + '&pn=' + encodeURIComponent(C.PAYEE_NAME || 'RasidhuPOS') +
-       '&am=' + priceOf(plan) + '&cu=INR&tn=' + encodeURIComponent('RPOS-' + plan + '-' + curOrder));
+       '&am=' + amt + '&cu=INR&tn=' + encodeURIComponent('RPOS-' + plan + '-' + curOrder + (email ? ' ' + email : '')));
     modal.querySelector('[data-plan]').textContent = 'RasidhuPOS ' + (PLAN_NAME[plan] || plan) + ' (yearly)';
-    modal.querySelector('[data-amt]').textContent = inr(priceOf(plan));
+    modal.querySelector('[data-amt]').textContent = inr(amt);
+    modal.querySelector('[data-amtnote]').textContent =
+      (plan === 'business' && R.businessShops)
+        ? ('for ' + R.businessShops + ' shops (Rs ' + shopPer().toLocaleString('en-IN') + ' each)') : '';
     modal.querySelector('[data-payee]').textContent = 'via UPI to ' + (C.UPI_VPA || '');
     var qb = modal.querySelector('[data-qr]'); qb.innerHTML = '';
     try { new QRCode(qb, { text: upi, width: 200, height: 200 }); }
     catch (e) { qb.textContent = 'Open the button below on your phone to pay.'; }
     modal.querySelector('[data-upi]').href = upi;
+    modal.querySelector('[data-email]').value = email;
+    modal.querySelector('[data-name]').value = '';
+    modal.querySelector('[data-contact]').value = '';
     modal.querySelector('[data-utr]').value = '';
+    modal.querySelector('[data-notes]').value = '';
+    var eb = modal.querySelector('[data-err]'); eb.style.display = 'none'; eb.textContent = '';
+    var pb = modal.querySelector('[data-paid]'); pb.disabled = false; pb.style.opacity = '1';
     modal.querySelector('[data-thanks]').style.display = 'none';
+    // Optional Google sign-in in the modal: only when no email yet and a client
+    // id is configured. Rendered by enhance.js; never blocks the manual field.
+    try {
+      var sb = modal.querySelector('[data-signin]');
+      if (!email && R.mountGoogleSignin && C.GOOGLE_CLIENT_ID) {
+        sb.style.display = 'flex'; sb.innerHTML = '';
+        R.mountGoogleSignin(sb, function (em) {
+          if (!em) return;
+          try { R.pageEmail = em; } catch (e) {}
+          modal.querySelector('[data-email]').value = em;
+          sb.style.display = 'none';
+        });
+      } else { sb.style.display = 'none'; }
+    } catch (e) {}
     modal.style.display = 'flex';
   }
 

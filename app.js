@@ -21,37 +21,61 @@
     return s;
   };
 
-  rpos.upiString = function (plan, orderid) {
-    var amt = rpos.priceOf(plan);
+  // The email shown / signed in on the page (set by enhance.js from ?email= or a
+  // Google sign-in). Falls back to the query string so app.js stays usable alone.
+  rpos.currentEmail = function () {
+    return rpos.pageEmail || rpos.qs().email || "";
+  };
+
+  // opts: { amount, email }. The amount defaults to the plan's catalogue price;
+  // pass it explicitly for per-shop tiers (Business) whose price is dynamic. The
+  // buyer's email is folded into the UPI transaction note so it shows in the
+  // payer's UPI app and on the vendor's statement (kept short; some apps trim it).
+  rpos.upiString = function (plan, orderid, opts) {
+    opts = opts || {};
+    var amt = (opts.amount != null) ? opts.amount : rpos.priceOf(plan);
+    var email = opts.email || rpos.currentEmail();
+    var tn = "RPOS-" + plan + "-" + orderid + (email ? " " + email : "");
     return "upi://pay?pa=" + encodeURIComponent(C.UPI_VPA) +
       "&pn=" + encodeURIComponent(C.PAYEE_NAME) +
       "&am=" + amt + "&cu=INR" +
-      "&tn=" + encodeURIComponent("RPOS-" + plan + "-" + orderid);
+      "&tn=" + encodeURIComponent(tn);
   };
 
   // Fire-and-forget submit to the Google Form via a hidden iframe (no CORS read,
-  // no login). Returns nothing; the UI shows a thank-you regardless.
-  rpos.submitPaid = function (plan, utr, orderid) {
+  // no login). opts: { utr, name, contact, notes, email, amount, shops, orderid }.
+  // (A bare string second arg is still accepted as the UTR for older callers.)
+  // Returns nothing; the UI shows a thank-you regardless.
+  rpos.submitPaid = function (plan, opts, orderid) {
+    if (typeof opts === "string") opts = { utr: opts, orderid: orderid };
+    opts = opts || {};
     var q = rpos.qs(), F = C.FORM_FIELDS || {};
-    var data = {};
-    data[F.email] = q.email || "";
-    data[F.plan] = plan;
-    data[F.amount] = String(rpos.priceOf(plan));
-    data[F.utr] = utr || "";
-    data[F.orderid] = orderid || "";
-    data[F.source] = q.src || "web";
-    data[F.appversion] = q.v || "";
-    data[F.client_ts] = new Date().toISOString();
+    var amount = (opts.amount != null) ? opts.amount : rpos.priceOf(plan);
+    var pairs = [
+      [F.email, opts.email || rpos.currentEmail()],
+      [F.plan, plan],
+      [F.amount, String(amount)],
+      [F.utr, opts.utr || ""],
+      [F.orderid, opts.orderid || orderid || ""],
+      [F.source, q.src || "web"],
+      [F.appversion, q.v || ""],
+      [F.client_ts, new Date().toISOString()],
+      [F.name, opts.name || ""],
+      [F.contact, opts.contact || ""],
+      [F.notes, opts.notes || ""],
+      [F.shops, (opts.shops != null && opts.shops !== "") ? String(opts.shops) : ""]
+    ];
 
     var iframe = document.createElement("iframe");
     iframe.name = "rpos_sink"; iframe.style.display = "none";
     document.body.appendChild(iframe);
     var form = document.createElement("form");
     form.action = C.FORM_ACTION; form.method = "POST"; form.target = "rpos_sink";
-    for (var k in data) {
-      if (!k) continue;
+    for (var i = 0; i < pairs.length; i++) {
+      var name = pairs[i][0];
+      if (!name) continue;                         // field id not configured -> skip
       var inp = document.createElement("input");
-      inp.type = "hidden"; inp.name = k; inp.value = data[k];
+      inp.type = "hidden"; inp.name = name; inp.value = pairs[i][1];
       form.appendChild(inp);
     }
     document.body.appendChild(form);
