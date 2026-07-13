@@ -304,8 +304,16 @@
   pass();
   var tries = 0;
   var iv = setInterval(function () { pass(); assertBizPrice(); if (++tries > 90) clearInterval(iv); }, 130);   // ~12s of retries
+  // Re-apply on the framework's re-renders. The observer disconnects while it
+  // runs and reconnects after, so the DOM writes pass()/deferredAssert() make
+  // are never observed by it - a hard guard against a self-feedback loop that
+  // would peg the main thread and freeze the page.
   try {
-    new MutationObserver(function () { pass(); deferredAssert(); })
-      .observe(document.documentElement, { childList: true, subtree: true });
+    var mo = new MutationObserver(function () {
+      try { mo.disconnect(); } catch (e) {}
+      try { pass(); deferredAssert(); } catch (e) {}
+      try { mo.observe(document.documentElement, { childList: true, subtree: true }); } catch (e) {}
+    });
+    mo.observe(document.documentElement, { childList: true, subtree: true });
   } catch (e) {}
 })();

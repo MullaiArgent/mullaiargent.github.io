@@ -8,6 +8,23 @@
 (function () {
   var C = window.RPOS_CONFIG || (window.RPOS_CONFIG = {});
 
+  // Observe childList changes on the whole document and re-run `fn` on each,
+  // but DISCONNECT while `fn` runs and reconnect after. That makes the observer
+  // blind to any DOM writes `fn` itself performs, so a re-application pass can
+  // never observe its own mutation and re-fire - the guard that keeps a stray
+  // unguarded write from turning into an infinite feedback loop that pegs the
+  // main thread and freezes the page. Late/framework re-renders still fire it.
+  function observeChildList(fn) {
+    try {
+      var mo = new MutationObserver(function () {
+        try { mo.disconnect(); } catch (e) {}
+        try { fn(); } catch (e) {}
+        try { mo.observe(document.documentElement, { childList: true, subtree: true }); } catch (e) {}
+      });
+      mo.observe(document.documentElement, { childList: true, subtree: true });
+    } catch (e) {}
+  }
+
   // Sentinel-managed config.json (UPI / prices / Form / contact) merged OVER
   // the config.js defaults. Fail-open; aborts after 4s so it never blocks.
   (function () {
@@ -105,10 +122,16 @@
       var th = ths[h], pl = plans[h - 1];
       for (n = 0; n < th.childNodes.length; n++) {
         var nd = th.childNodes[n];
-        if (nd.nodeType === 3 && nd.textContent.trim()) { nd.textContent = pl.name; break; }
+        // Write ONLY when the value actually differs. This runs inside the
+        // MutationObserver below; assigning textContent replaces child nodes
+        // (a childList mutation) EVEN when the string is unchanged, which would
+        // re-trigger the observer on every pass -> an infinite feedback loop
+        // that pegs the main thread and freezes the page. The !== guard keeps
+        // the header idempotent so the observer settles.
+        if (nd.nodeType === 3 && nd.textContent.trim()) { if (nd.textContent !== pl.name) nd.textContent = pl.name; break; }
       }
       var sub = th.querySelector('div');                 // the "N shops" sub-label under the name
-      if (sub && pl.shops) sub.textContent = pl.shops;
+      if (sub && pl.shops && sub.textContent !== pl.shops) sub.textContent = pl.shops;
     }
     if (!rows || !rows.length) return;
     var tb = table.querySelector('tbody'); if (!tb) return;
@@ -152,7 +175,12 @@
     applyPlans();
     var tries = 0;
     var iv = setInterval(function () { applyPlans(); if (++tries > 80) clearInterval(iv); }, 150);  // ~12s of retries for late hydration
-    try { new MutationObserver(function () { applyPlans(); }).observe(document.documentElement, { childList: true, subtree: true }); } catch (e) {}
+    // Re-apply on the framework's re-renders. The observer DISCONNECTS while it
+    // runs applyPlans and reconnects after, so the DOM writes applyPlans makes
+    // are never seen by this observer - a hard guard against self-feedback loops
+    // (a single unguarded textContent write here would otherwise peg the main
+    // thread and freeze the whole page).
+    observeChildList(function () { applyPlans(); });
   }
 
   var PLAN_ORDER = ['starter', 'growth', 'business', 'enterprise'];
@@ -424,9 +452,15 @@
   var tries = 0;
   var iv = setInterval(function () { pass(); if (++tries > 60) clearInterval(iv); }, 100);
   // re-apply if the framework re-renders. Watch childList only, so the page's
-  // constant mousemove inline-style churn never triggers this.
+  // constant mousemove inline-style churn never triggers this. The observer
+  // disconnects while pass() runs and reconnects after, so pass()'s own DOM
+  // writes are never observed - no self-feedback loop can freeze the page.
   try {
-    new MutationObserver(function () { pass(); })
-      .observe(document.documentElement, { childList: true, subtree: true });
+    var mo = new MutationObserver(function () {
+      try { mo.disconnect(); } catch (e) {}
+      try { pass(); } catch (e) {}
+      try { mo.observe(document.documentElement, { childList: true, subtree: true }); } catch (e) {}
+    });
+    mo.observe(document.documentElement, { childList: true, subtree: true });
   } catch (e) {}
 })();
