@@ -277,7 +277,7 @@
     try {
       if (document.querySelector('link[rel~="icon"]')) return;
       var l = document.createElement('link');
-      l.rel = 'icon'; l.type = 'image/svg+xml'; l.href = 'favicon.svg';
+      l.rel = 'icon'; l.type = 'image/png'; l.href = 'trident.png';
       (document.head || document.documentElement).appendChild(l);
     } catch (e) {}
   }

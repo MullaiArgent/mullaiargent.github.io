@@ -14,11 +14,11 @@
     var ctrl = null, t = null;
     try { ctrl = new AbortController(); t = setTimeout(function () { ctrl.abort(); }, 4000); } catch (e) {}
     var opts = ctrl ? { cache: 'no-store', signal: ctrl.signal } : { cache: 'no-store' };
-    // Cache-buster query: 'no-store' stops the BROWSER caching, but the GitHub
-    // Pages CDN edge still serves config.json for up to max-age=600 (10 min). A
-    // unique ?v= is a distinct edge cache key, so a fresh sentinel publish shows
-    // immediately instead of up to 10 minutes later.
-    fetch('config.json?v=' + Date.now(), opts)
+    // Plain config.json (no per-load cache-buster): the GitHub Pages CDN edge
+    // serves it with max-age=600, so a fresh sentinel publish shows within ~10
+    // min. A unique ?v= per load would bypass the edge and hit origin on every
+    // view, which is what broke the page - so we rely on the 10-min edge cache.
+    fetch('config.json', opts)
       .then(function (r) { return r && r.ok ? r.json() : null; })
       .then(function (j) {
         if (j) { Object.assign(C, j); }
