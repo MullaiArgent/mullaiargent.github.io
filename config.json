@@ -181,7 +181,7 @@
       "name": "Starter",
       "per": "/year",
       "popular": false,
-      "price": 1500,
+      "price": 3000,
       "shops": "Single shop",
       "tagline": "For a single counter just getting started with digital billing."
     },
@@ -208,7 +208,7 @@
       "name": "Growth",
       "per": "/year",
       "popular": true,
-      "price": 2500,
+      "price": 5550,
       "shops": "Up to 2 shops",
       "tagline": "Everything a growing store needs across two locations."
     },
@@ -269,8 +269,8 @@
   ],
   "PRICES": {
     "business": 10000,
-    "growth": 2500,
-    "starter": 1500
+    "growth": 5550,
+    "starter": 3000
   },
   "RELEASES_URL": "https://github.com/MullaiArgent/RasidhuPOS-releases/releases/latest",
   "SUPPORT_EMAIL": "mullairajan2000@gmail.com",
