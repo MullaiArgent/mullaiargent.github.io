@@ -42,10 +42,34 @@
       "&tn=" + encodeURIComponent(tn);
   };
 
-  // Fire-and-forget submit to the Google Form via a hidden iframe (no CORS read,
-  // no login). opts: { utr, name, contact, notes, email, amount, shops, orderid }.
-  // (A bare string second arg is still accepted as the UTR for older callers.)
-  // Returns nothing; the UI shows a thank-you regardless.
+  // Coerce any Google Form link to its POST submit endpoint (.../formResponse).
+  // The sentinel-published FORM_ACTION can carry the VIEW link
+  // (.../viewform?usp=...) or an /edit link; a response POSTed there records
+  // NOTHING (Google serves the form page instead) so the responses sheet stays
+  // empty while this modal still shows a thank-you - the #1 reason a paid click
+  // never lands. Rebuild the canonical submit URL from the form id, dropping any
+  // /u/N segment, path and query. Non-Form input is left unchanged.
+  rpos.formAction = function (u) {
+    u = String(u || "").trim();
+    var m = /docs\.google\.com\/forms\/(?:u\/\d+\/)?d\/(e\/)?([A-Za-z0-9\-_]+)/i.exec(u);
+    if (!m) return u;
+    return "https://docs.google.com/forms/d/" + (m[1] ? "e/" : "") + m[2] + "/formResponse";
+  };
+
+  // Submit the paid-subscription request to the Google Form. opts: { utr, name,
+  // contact, notes, email, amount, shops, orderid }. (A bare string second arg is
+  // still accepted as the UTR for older callers.)
+  //
+  // Returns a Promise<boolean>. Tries three transports in order: a no-cors fetch
+  // (primary, and the ONLY one that can DETECT a block - it rejects when an ad /
+  // privacy extension kills the cross-site request), then navigator.sendBeacon,
+  // then the classic hidden-iframe form POST. Resolves true when a transport
+  // dispatched, and false only when every detectable transport was refused, so
+  // the caller can show honest feedback instead of a false thank-you (a blocker
+  // silently eating the request is a real reason a customer's paid click never
+  // lands - it worked in incognito, where extensions are off). The vendor dedupes
+  // by orderid, so the belt-and-suspenders double send on the blocked path is
+  // harmless.
   rpos.submitPaid = function (plan, opts, orderid) {
     if (typeof opts === "string") opts = { utr: opts, orderid: orderid };
     opts = opts || {};
@@ -65,21 +89,61 @@
       [F.notes, opts.notes || ""],
       [F.shops, (opts.shops != null && opts.shops !== "") ? String(opts.shops) : ""]
     ];
-
-    var iframe = document.createElement("iframe");
-    iframe.name = "rpos_sink"; iframe.style.display = "none";
-    document.body.appendChild(iframe);
-    var form = document.createElement("form");
-    form.action = C.FORM_ACTION; form.method = "POST"; form.target = "rpos_sink";
+    var action = rpos.formAction(C.FORM_ACTION);
+    var parts = [];
     for (var i = 0; i < pairs.length; i++) {
-      var name = pairs[i][0];
-      if (!name) continue;                         // field id not configured -> skip
-      var inp = document.createElement("input");
-      inp.type = "hidden"; inp.name = name; inp.value = pairs[i][1];
-      form.appendChild(inp);
+      if (!pairs[i][0]) continue;                  // field id not configured -> skip
+      parts.push(encodeURIComponent(pairs[i][0]) + "=" + encodeURIComponent(pairs[i][1]));
     }
-    document.body.appendChild(form);
-    form.submit();
+    var bodyStr = parts.join("&");
+
+    function iframePost() {                          // last resort; cannot confirm
+      try {
+        var iframe = document.createElement("iframe");
+        iframe.name = "rpos_sink"; iframe.style.display = "none";
+        document.body.appendChild(iframe);
+        var form = document.createElement("form");
+        form.action = action; form.method = "POST"; form.target = "rpos_sink";
+        for (var j = 0; j < pairs.length; j++) {
+          if (!pairs[j][0]) continue;
+          var inp = document.createElement("input");
+          inp.type = "hidden"; inp.name = pairs[j][0]; inp.value = pairs[j][1];
+          form.appendChild(inp);
+        }
+        document.body.appendChild(form);
+        form.submit();
+        return true;
+      } catch (e) { return false; }
+    }
+    function beaconPost() {
+      try {
+        if (!navigator.sendBeacon) return false;
+        var blob = new Blob([bodyStr], { type: "application/x-www-form-urlencoded;charset=UTF-8" });
+        return !!navigator.sendBeacon(action, blob);
+      } catch (e) { return false; }
+    }
+
+    return new Promise(function (resolve) {
+      var settled = false;
+      function done(ok) { if (!settled) { settled = true; resolve(ok); } }
+      if (window.fetch) {
+        try {
+          fetch(action, {
+            method: "POST", mode: "no-cors", keepalive: true,
+            headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+            body: bodyStr
+          }).then(function () { done(true); })
+            .catch(function () {                     // blocked -> try the rest, then be honest
+              var ok = beaconPost();
+              iframePost();
+              done(ok);
+            });
+          return;
+        } catch (e) { /* fetch threw synchronously -> fall through */ }
+      }
+      if (beaconPost()) { done(true); return; }
+      done(iframePost());
+    });
   };
 
   // Wire the page after DOM ready (openPay/renderQR defined in index.html inline
