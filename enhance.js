@@ -22,6 +22,7 @@
   function shopsMin() { return Math.max(1, Math.floor(num(C.SHOPS_MIN, 3))); }
   function shopsPer() { var v = num(C.SHOPS_PRICE_PER, 1250); return v > 0 ? v : 1250; }
   function shopsDefault() { return Math.max(shopsMin(), Math.floor(num(C.SHOPS_DEFAULT, 4))); }
+  function shopsHintText() { return 'Minimum ' + shopsMin() + ' shops. Rs ' + inrNum(shopsPer()) + ' per shop / year.'; }
   function inrNum(n) { return Number(n || 0).toLocaleString('en-IN'); }
   function bizPrice() { return R.businessShops * shopsPer(); }
   function safeUrl(u) { u = String(u || ''); return /^https?:\/\//i.test(u) ? u : '#'; }
@@ -61,18 +62,20 @@
     return null;
   }
 
-  // Steppers are <span role=button>, NOT <button>: the PLANS overlay locates the
-  // CTA via wrap.querySelector('button'), so a real button here would hijack it.
-  function stepBtn(label, onTap) {
-    var s = document.createElement('span');
-    s.setAttribute('role', 'button');
-    s.setAttribute('tabindex', '0');
-    s.setAttribute('data-rp', 'step');
-    s.textContent = label;
-    s.style.cssText = 'width:44px;flex:none;text-align:center;background:#f3ead1;color:#3a2a00;font-size:20px;font-weight:800;line-height:1;padding:11px 0;cursor:pointer;user-select:none';
-    s.addEventListener('click', function (e) { e.preventDefault(); onTap(); });
-    s.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onTap(); } });
-    return s;
+  // The shop count uses ONLY the number field's native up/down spinner (no
+  // separate +/- buttons). Chromium hides that spinner until hover, so force it
+  // always visible + comfortably tall via a one-time stylesheet.
+  function ensureStepperStyle() {
+    if (document.getElementById('rp-shops-style')) return;
+    try {
+      var st = document.createElement('style');
+      st.id = 'rp-shops-style';
+      st.textContent =
+        'input[data-rp-shops-input]::-webkit-outer-spin-button,' +
+        'input[data-rp-shops-input]::-webkit-inner-spin-button{' +
+        '-webkit-appearance:inner-spin-button;opacity:1;cursor:pointer;height:38px;margin-left:4px}';
+      (document.head || document.documentElement).appendChild(st);
+    } catch (e) {}
   }
 
   function buildShopsField() {
@@ -81,24 +84,35 @@
     box.setAttribute('data-rp-shops', '1');
     box.style.cssText = 'margin:0 0 16px;text-align:left';
 
-    var lab = document.createElement('div');
-    lab.textContent = 'Number of shops';
-    lab.style.cssText = 'font-size:12px;font-weight:700;color:#8a8a90;letter-spacing:.05em;text-transform:uppercase;margin-bottom:7px';
-    box.appendChild(lab);
+    // Layout: the compact number box on the LEFT, its label + hint stacked to the
+    // RIGHT. Keeps the whole control to a single short row so every feature bullet
+    // still fits inside the card.
+    var flow = document.createElement('div');
+    flow.style.cssText = 'display:flex;align-items:center;gap:12px';
 
+    // Number box: wide enough for a 3-digit shop count + the native spinner.
     var row = document.createElement('div');
-    row.style.cssText = 'display:flex;align-items:center;border:1px solid #e7dcc0;border-radius:11px;overflow:hidden;background:#fffdf7';
+    row.style.cssText = 'display:inline-flex;width:110px;flex:0 0 auto;align-items:center;border:1px solid #e7dcc0;border-radius:11px;overflow:hidden;background:#fffdf7';
 
     var inp = document.createElement('input');
     inp.type = 'number'; inp.min = String(shopsMin()); inp.step = '1';
     inp.setAttribute('inputmode', 'numeric');
     inp.setAttribute('aria-label', 'Number of shops');
+    inp.setAttribute('data-rp-shops-input', '1');
     inp.value = String(R.businessShops);
-    inp.style.cssText = 'flex:1;min-width:0;border:0;text-align:center;font-size:17px;font-weight:800;color:#19191c;padding:10px;outline:none;background:transparent';
+    inp.style.cssText = 'flex:1;min-width:0;border:0;text-align:center;font-size:16px;font-weight:800;color:#19191c;padding:9px 6px 9px 10px;outline:none;background:transparent';
+
+    var textcol = document.createElement('div');
+    textcol.style.cssText = 'flex:1;min-width:0';
+
+    var lab = document.createElement('div');
+    lab.textContent = 'Number of shops';
+    lab.style.cssText = 'font-size:12px;font-weight:700;color:#8a8a90;letter-spacing:.05em;text-transform:uppercase';
 
     var hint = document.createElement('div');
-    hint.textContent = 'Minimum ' + shopsMin() + ' shops. Rs ' + inrNum(shopsPer()) + ' per shop / year.';
-    hint.style.cssText = 'font-size:11.5px;color:#8a8a90;margin-top:7px';
+    hint.setAttribute('data-rp-shops-hint', '1');
+    hint.textContent = shopsHintText();
+    hint.style.cssText = 'font-size:11.5px;color:#8a8a90;margin-top:4px;line-height:1.35';
 
     // Recompute on every keystroke ("listen to keyboard actions").
     function applyVal(v, snap) {
@@ -115,11 +129,12 @@
     inp.addEventListener('blur', function () { applyVal(parseInt((inp.value || '').replace(/[^\d]/g, ''), 10), true); });
     inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') inp.blur(); });
 
-    row.appendChild(stepBtn('−', function () { applyVal(R.businessShops - 1, true); }));
     row.appendChild(inp);
-    row.appendChild(stepBtn('+', function () { applyVal(R.businessShops + 1, true); }));
-    box.appendChild(row);
-    box.appendChild(hint);
+    textcol.appendChild(lab);
+    textcol.appendChild(hint);
+    flow.appendChild(row);
+    flow.appendChild(textcol);
+    box.appendChild(flow);
     return box;
   }
 
@@ -137,7 +152,55 @@
     var wrap = bizWrap(); if (!wrap) return;
     var btn = wrap.querySelector('button'); if (!btn) return;
     if (!wrap.querySelector('[data-rp-shops]')) wrap.insertBefore(buildShopsField(), btn);
+    // Refresh the per-shop hint in case the rate (SHOPS_PRICE_PER) arrived from
+    // config.json after the field was first built. Guarded so it never loops.
+    var h = wrap.querySelector('[data-rp-shops-hint]');
+    if (h && h.textContent !== shopsHintText()) h.textContent = shopsHintText();
     assertBizPrice(wrap);
+    try { ensureCardFit(wrap); } catch (e) {}
+  }
+
+  // The Business card carries one extra control (the shops field) the other cards
+  // do not, so its content is taller than the mockup's fixed card height and the
+  // last feature bullets would spill past the border. Grow every card in the row
+  // to fit the tallest content, keeping the row level. Writes are style-only (not
+  // seen by the childList MutationObserver) and idempotent, so this converges
+  // without a feedback loop. Runs only while the card is visible.
+  function ensureCardFit(wrap) {
+    if (!wrap || !wrap.closest) return;
+    var face = wrap.closest('.card-face'); if (!face) return;
+    if (face.offsetParent === null) return;                 // hidden segment -> skip
+    var cs = getComputedStyle(face);
+    var padY = (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.paddingBottom) || 0);
+    var needed = Math.ceil(wrap.getBoundingClientRect().height + padY + 4);
+    if (!(needed > 0)) return;
+    if (Math.round(face.getBoundingClientRect().height) >= needed - 1) return;   // already fits
+    var flip = face.closest('.flip-card'); var section = flip && flip.parentElement;
+    if (!section) return;
+    var cards = section.querySelectorAll('.flip-card'), i, j;
+    for (i = 0; i < cards.length; i++) {
+      cards[i].style.setProperty('height', needed + 'px', 'important');
+      var inner = cards[i].querySelector('.flip-inner');
+      if (inner) inner.style.setProperty('height', needed + 'px', 'important');
+      var faces = cards[i].querySelectorAll('.card-face');
+      for (j = 0; j < faces.length; j++) faces[j].style.setProperty('height', needed + 'px', 'important');
+    }
+  }
+
+  // Drop our height overrides so the next fit re-measures from the mockup default
+  // (used on resize, where content wrapping - and the needed height - can change).
+  function clearCardFit() {
+    var wrap = bizWrap(); if (!wrap || !wrap.closest) return;
+    var face = wrap.closest('.card-face'); var flip = face && face.closest('.flip-card');
+    var section = flip && flip.parentElement; if (!section) return;
+    var cards = section.querySelectorAll('.flip-card'), i, j;
+    for (i = 0; i < cards.length; i++) {
+      cards[i].style.removeProperty('height');
+      var inner = cards[i].querySelector('.flip-inner');
+      if (inner) inner.style.removeProperty('height');
+      var faces = cards[i].querySelectorAll('.card-face');
+      for (j = 0; j < faces.length; j++) faces[j].style.removeProperty('height');
+    }
   }
 
   // -------------------------------------------------------------------------
@@ -185,7 +248,6 @@
       panelHTML('win', 'Windows', 'Windows 10 / 11, 64-bit installer (.exe)') +
       panelHTML('android', 'Android', 'Android 5.0 and up (.apk)') +
       '</div>' +
-      '<div style="text-align:center;margin-top:16px"><a data-all href="#" target="_blank" rel="noopener" style="color:#a97400;font-weight:700;font-size:13px;text-decoration:none">All versions and release notes</a></div>' +
       '</div>';
     document.body.appendChild(dlModal);
     dlModal.addEventListener('click', function (e) { if (e.target === dlModal) dlModal.style.display = 'none'; });
@@ -193,10 +255,70 @@
   }
   function showDownload() {
     if (!dlModal) buildDownload();
-    var win = dlModal.querySelector('[data-win]'); if (win) { win.href = safeUrl(C.DOWNLOAD_WINDOWS_URL); win.setAttribute('target', '_blank'); win.setAttribute('rel', 'noopener'); }
-    var and = dlModal.querySelector('[data-android]'); if (and) { and.href = safeUrl(C.DOWNLOAD_ANDROID_URL); and.setAttribute('target', '_blank'); and.setAttribute('rel', 'noopener'); }
-    var all = dlModal.querySelector('[data-all]'); if (all) all.href = safeUrl(C.RELEASES_URL || C.DOWNLOAD_WINDOWS_URL);
+    // Mark the buttons as downloads (no target) so the browser fetches the file
+    // directly instead of opening the GitHub page. Hrefs are filled by
+    // refreshDownloadLinks() and kept current by resolveLatestDownloads().
+    var win = dlModal.querySelector('[data-win]'); if (win) { win.setAttribute('download', ''); win.removeAttribute('target'); win.removeAttribute('rel'); }
+    var and = dlModal.querySelector('[data-android]'); if (and) { and.setAttribute('download', ''); and.removeAttribute('target'); and.removeAttribute('rel'); }
+    refreshDownloadLinks();
+    try { resolveLatestDownloads(); } catch (e) {}
     dlModal.style.display = 'flex';
+  }
+  function refreshDownloadLinks() {
+    if (!dlModal) return;
+    var w = safeUrl(C.DOWNLOAD_WINDOWS_URL), a = safeUrl(C.DOWNLOAD_ANDROID_URL);
+    var win = dlModal.querySelector('[data-win]'); if (win && w !== '#') win.href = w;
+    var and = dlModal.querySelector('[data-android]'); if (and && a !== '#') and.href = a;
+  }
+
+  // Resolve the CURRENT latest-release .exe / .apk at runtime so the buttons
+  // always serve the newest build (the config URLs are only an offline fallback).
+  // Primary: GitHub's "latest release" API, matched by file extension. Fallback:
+  // the release's latest.json manifest (stable URL), from which we derive the
+  // asset URLs by the naming convention. Everything is guarded and best-effort.
+  var _dlResolved = false, _dlResolving = false;
+  function ghRepo() {
+    var m = /github\.com\/([^\/]+)\/([^\/?#]+)/i.exec(String(C.RELEASES_URL || C.DOWNLOAD_WINDOWS_URL || ''));
+    return m ? { owner: m[1], repo: m[2] } : null;
+  }
+  function pickAsset(assets, re) {
+    for (var i = 0; i < (assets || []).length; i++) {
+      var a = assets[i], u = a && a.browser_download_url;
+      if (a && re.test(a.name || '') && /^https:\/\//i.test(u || '')) return u;
+    }
+    return null;
+  }
+  function resolveLatestDownloads() {
+    if (_dlResolved || _dlResolving) return;
+    var repo = ghRepo();
+    if (!repo || typeof fetch !== 'function') return;
+    _dlResolving = true;
+    var api = 'https://api.github.com/repos/' + repo.owner + '/' + repo.repo + '/releases/latest';
+    fetch(api, { headers: { 'Accept': 'application/vnd.github+json' } })
+      .then(function (r) { if (!r.ok) throw new Error('gh ' + r.status); return r.json(); })
+      .then(function (rel) {
+        var win = pickAsset(rel && rel.assets, /\.exe$/i);
+        var apk = pickAsset(rel && rel.assets, /\.apk$/i);
+        if (win) C.DOWNLOAD_WINDOWS_URL = win;
+        if (apk) C.DOWNLOAD_ANDROID_URL = apk;
+        if (!win && !apk) throw new Error('no assets');
+        _dlResolved = true; refreshDownloadLinks();
+      })
+      .catch(function () { return resolveViaManifest(repo); })
+      .then(function () { _dlResolving = false; });
+  }
+  function resolveViaManifest(repo) {
+    if (_dlResolved || typeof fetch !== 'function') return;
+    var base = 'https://github.com/' + repo.owner + '/' + repo.repo + '/releases';
+    return fetch(base + '/latest/download/latest.json', { cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error('manifest ' + r.status); return r.json(); })
+      .then(function (j) {
+        var v = j && j.payload && j.payload.version; if (!v) throw new Error('no version');
+        C.DOWNLOAD_WINDOWS_URL = base + '/download/v' + v + '/RasidhuPOS-Setup-' + v + '.exe';
+        C.DOWNLOAD_ANDROID_URL = base + '/download/v' + v + '/RasidhuPOS-Mobile-' + v + '.apk';
+        _dlResolved = true; refreshDownloadLinks();
+      })
+      .catch(function () {});
   }
 
   // -------------------------------------------------------------------------
@@ -288,11 +410,16 @@
     if (!t || !t.closest) return;
     if (t.closest('[data-rp-download]')) { e.preventDefault(); showDownload(); return; }
     if (t.closest('[data-rp-signin]')) { e.preventDefault(); doSignin(); return; }
+    // A plan/segment toggle can reveal or re-render the Business card; re-fit it
+    // shortly after so all bullets stay inside once the retry window has closed.
+    setTimeout(function () { try { ensureShops(); } catch (e2) {} }, 60);
+    setTimeout(function () { try { ensureShops(); } catch (e2) {} }, 420);
   });
 
   // ---- passes: run now, retry through hydration, re-apply on re-render --------
   function pass() {
     try { ensureFavicon(); } catch (e) {}
+    try { ensureStepperStyle(); } catch (e) {}
     try { ensureShops(); } catch (e) {}
     try { mountDownload(); } catch (e) {}
     try { reflectSignin(); } catch (e) {}
@@ -302,8 +429,13 @@
   function deferredAssert() { try { setTimeout(function () { try { assertBizPrice(); } catch (e) {} }, 0); } catch (e) {} }
 
   pass();
+  try { resolveLatestDownloads(); } catch (e) {}   // fetch the current latest .exe/.apk up front
   var tries = 0;
   var iv = setInterval(function () { pass(); assertBizPrice(); if (++tries > 90) clearInterval(iv); }, 130);   // ~12s of retries
+  // Card content wraps differently across widths, so re-measure the fit on resize
+  // (clear our overrides first, then let the next pass grow to the new content).
+  var _rz;
+  try { window.addEventListener('resize', function () { clearTimeout(_rz); _rz = setTimeout(function () { try { clearCardFit(); } catch (e) {} try { ensureShops(); } catch (e) {} }, 160); }); } catch (e) {}
   // Re-apply on the framework's re-renders. The observer disconnects while it
   // runs and reconnects after, so the DOM writes pass()/deferredAssert() make
   // are never observed by it - a hard guard against a self-feedback loop that

@@ -197,39 +197,70 @@
 
   // ---- pay modal (built lazily, once) ----
   var modal = null, curPlan = '', curOrder = '';
+
+  // ---- Item 4: pending-request notice (localStorage only) -----------------
+  var LS_PENDING = 'rpos_pending_v1';
+  function pendingMap() { try { return JSON.parse(localStorage.getItem(LS_PENDING) || '{}') || {}; } catch (e) { return {}; } }
+  function isPending(email) { var e = (email || '').trim().toLowerCase(); return !!(e && pendingMap()[e]); }
+  function markPending(email) {
+    var e = (email || '').trim().toLowerCase(); if (!e) return;
+    try { var m = pendingMap(); m[e] = 1; localStorage.setItem(LS_PENDING, JSON.stringify(m)); } catch (ex) {}
+  }
+  function refreshNotice() {
+    if (!modal) return;
+    var email = (modal.querySelector('[data-email]').value || '').trim();
+    var nb = modal.querySelector('[data-notice]');
+    if (!nb) return;
+    nb.style.display = 'none'; nb.textContent = '';
+    if (email && isPending(email)) {
+      nb.textContent = 'We already have your request for this email. It is being processed - keep RasidhuPOS open and it unlocks automatically.';
+      nb.style.display = 'block';
+    }
+  }
+
   function build() {
     modal = document.createElement('div');
     modal.id = 'rpos-pay';
-    modal.setAttribute('style', 'position:fixed;inset:0;background:rgba(15,15,20,.55);display:none;align-items:center;justify-content:center;z-index:2147483000;font-family:system-ui,Segoe UI,Roboto,sans-serif');
+    modal.setAttribute('style', 'position:fixed;inset:0;background:rgba(15,15,20,.55);display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:20px 12px;z-index:2147483000;font-family:system-ui,Segoe UI,Roboto,sans-serif');
     var inpS = 'width:100%;padding:11px;border:1px solid #d5d5d9;border-radius:9px;margin-bottom:10px;box-sizing:border-box;font-size:14px;font-family:inherit';
     var lblS = 'display:block;text-align:left;font-size:12.5px;font-weight:600;color:#3a3a40;margin:2px 0 5px';
     modal.innerHTML =
-      '<div style="position:relative;background:#fff;max-width:430px;width:92%;max-height:92vh;overflow:auto;border-radius:16px;padding:26px 24px;box-shadow:0 24px 70px rgba(0,0,0,.35);text-align:center">' +
+      '<div style="position:relative;background:#fff;max-width:640px;width:100%;margin:auto;border-radius:16px;padding:26px 24px;box-shadow:0 24px 70px rgba(0,0,0,.35);text-align:center">' +
       '<button data-x style="position:absolute;top:8px;right:12px;border:0;background:none;font-size:24px;line-height:1;color:#8a8a90;cursor:pointer">&times;</button>' +
       '<h3 data-plan style="margin:0 0 2px;font-size:19px;color:#19191c"></h3>' +
       '<div data-amt style="font-size:30px;font-weight:800;color:#19191c;margin:2px 0 0"></div>' +
       '<div data-amtnote style="color:#a97400;font-size:12px;font-weight:600;min-height:14px"></div>' +
       '<div data-payee style="color:#6b6b70;font-size:12.5px;margin-bottom:14px"></div>' +
+      '<div data-notice style="display:none;text-align:center;background:#fff8e1;border:1px solid #f0d98a;color:#7a5b00;font-size:13px;font-weight:600;border-radius:10px;padding:10px 12px;margin:0 0 14px;line-height:1.4"></div>' +
       '<div data-qr style="display:flex;justify-content:center;min-height:200px;margin:0 auto 12px"></div>' +
       '<a data-upi href="#" style="display:inline-block;background:linear-gradient(#f5c542,#e6b325);color:#19191c;font-weight:700;padding:11px 20px;border-radius:11px;text-decoration:none;margin-bottom:16px">Pay in UPI app</a>' +
       '<div data-signin style="display:none;justify-content:center;margin-bottom:12px"></div>' +
-      '<label style="' + lblS + '">Email (Gmail)</label>' +
-      '<input data-email type="email" autocomplete="email" placeholder="you@gmail.com" style="' + inpS + '">' +
-      '<label style="' + lblS + '">Full name</label>' +
-      '<input data-name autocomplete="name" placeholder="Your name" style="' + inpS + '">' +
-      '<label style="' + lblS + '">Contact number</label>' +
-      '<input data-contact type="tel" autocomplete="tel" placeholder="10-digit mobile" style="' + inpS + '">' +
-      '<label style="' + lblS + '">UPI reference (UTR)</label>' +
-      '<input data-utr placeholder="e.g. 4157xxxxxx" style="' + inpS + '">' +
-      '<label style="' + lblS + '">Notes (optional)</label>' +
-      '<textarea data-notes rows="2" placeholder="Anything we should know" style="' + inpS + ';resize:vertical"></textarea>' +
+      '<div data-fields style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));column-gap:16px;text-align:left">' +
+      '<div><label style="' + lblS + '">Email (Gmail)</label>' +
+      '<input data-email type="email" autocomplete="email" placeholder="you@gmail.com" style="' + inpS + '"></div>' +
+      '<div><label style="' + lblS + '">Full name</label>' +
+      '<input data-name autocomplete="name" placeholder="Your name" style="' + inpS + '"></div>' +
+      '<div><label style="' + lblS + '">Contact number</label>' +
+      '<input data-contact type="tel" autocomplete="tel" placeholder="10-digit mobile" style="' + inpS + '"></div>' +
+      '<div><label style="' + lblS + '">UPI reference (UTR)</label>' +
+      '<input data-utr placeholder="e.g. 4157xxxxxx" style="' + inpS + '"></div>' +
+      '<div style="grid-column:1 / -1"><label style="' + lblS + '">Notes (optional)</label>' +
+      '<textarea data-notes rows="2" placeholder="Anything we should know" style="' + inpS + ';resize:vertical"></textarea></div>' +
+      '</div>' +
       '<div data-err style="display:none;text-align:left;color:#c0392b;font-size:12.5px;font-weight:600;margin:2px 0 10px"></div>' +
       '<button data-paid style="width:100%;background:#c99400;color:#19191c;font-weight:800;border:0;padding:13px;border-radius:11px;cursor:pointer;font-size:15px">I have paid</button>' +
       '<div data-thanks style="display:none;color:#1a7f37;font-weight:600;margin-top:14px;line-height:1.45">Thank you. We will confirm your payment and activate your account shortly. Keep RasidhuPOS open, it unlocks automatically.</div>' +
       '</div>';
     document.body.appendChild(modal);
-    modal.addEventListener('click', function (e) { if (e.target === modal) hide(); });
+    // Intentionally NO backdrop/outside-click dismiss: a stray click outside must
+    // not discard a half-filled pay form. Close only via the X button or Escape.
     modal.querySelector('[data-x]').onclick = hide;
+    // Escape closes, but ONLY while THIS modal is open (display flips to 'none'
+    // on hide, 'flex' on show). Registered once (build() runs lazily once).
+    document.addEventListener('keydown', function (e) {
+      if ((e.key === 'Escape' || e.key === 'Esc' || e.keyCode === 27)
+          && modal && modal.style.display !== 'none') { hide(); }
+    });
     modal.querySelector('[data-paid]').onclick = function () {
       var email = (modal.querySelector('[data-email]').value || '').trim();
       var name = (modal.querySelector('[data-name]').value || '').trim();
@@ -270,10 +301,12 @@
           eb.style.display = 'block';
           pb.disabled = false; pb.style.opacity = '1';
         } else {
+          markPending(email);
           thanks.style.display = 'block';
         }
       });
     };
+    modal.querySelector('[data-email]').addEventListener('input', refreshNotice);
   }
   function hide() { if (modal) modal.style.display = 'none'; }
   function show(plan) {
@@ -303,6 +336,7 @@
     var eb = modal.querySelector('[data-err]'); eb.style.display = 'none'; eb.textContent = '';
     var pb = modal.querySelector('[data-paid]'); pb.disabled = false; pb.style.opacity = '1';
     modal.querySelector('[data-thanks]').style.display = 'none';
+    refreshNotice();
     // Optional Google sign-in in the modal: only when no email yet and a client
     // id is configured. Rendered by enhance.js; never blocks the manual field.
     try {
@@ -313,6 +347,7 @@
           if (!em) return;
           try { R.pageEmail = em; } catch (e) {}
           modal.querySelector('[data-email]').value = em;
+          refreshNotice();
           sb.style.display = 'none';
         });
       } else { sb.style.display = 'none'; }

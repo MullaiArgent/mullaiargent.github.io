@@ -6,7 +6,10 @@
 window.RPOS_CONFIG = {
   UPI_VPA: "mullairajan@ybl",                // where money lands
   PAYEE_NAME: "FILL Business Name",
-  PRICES: { starter: 1500, growth: 2500, business: 10000 }, // INR / year (sentinel config.json overrides)
+  // INR / year (sentinel config.json overrides). Business is charged per shop:
+  // the page shows SHOPS_PRICE_PER x (chosen shops), so business here is the
+  // per-shop rate, not the final amount.
+  PRICES: { starter: 1500, growth: 2500, business: 1250 },
   // Google Form (RasidhuPOS subscription requests). Editable in the sentinel Storefront tab.
   // name / contact are the mandatory buyer fields; notes + shops are extra columns.
   // Add the matching questions to the Form, then paste their entry.<id> here (or
@@ -35,9 +38,11 @@ window.RPOS_CONFIG = {
   SHOPS_DEFAULT: 4,
   SHOPS_PRICE_PER: 1250,
 
-  // Download links, sentinel-managed. Default to the public releases page; the
-  // vendor can point them straight at the current .exe / .apk asset per release.
+  // Download links, sentinel-managed. These point STRAIGHT at the release asset
+  // so the Download button downloads the file directly (no GitHub page). The
+  // sentinel repoints them at the current .exe / .apk each release so the button
+  // always serves the latest build.
   RELEASES_URL: "https://github.com/MullaiArgent/RasidhuPOS-releases/releases/latest",
-  DOWNLOAD_WINDOWS_URL: "https://github.com/MullaiArgent/RasidhuPOS-releases/releases/latest",
-  DOWNLOAD_ANDROID_URL: "https://github.com/MullaiArgent/RasidhuPOS-releases/releases/latest"
+  DOWNLOAD_WINDOWS_URL: "https://github.com/MullaiArgent/RasidhuPOS-releases/releases/download/v1.5.10/RasidhuPOS-Setup-1.5.10.exe",
+  DOWNLOAD_ANDROID_URL: "https://github.com/MullaiArgent/RasidhuPOS-releases/releases/download/v1.5.10/RasidhuPOS-Mobile-1.5.10.apk"
 };
