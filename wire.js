@@ -245,15 +245,34 @@
       if (err) { eb.textContent = err; eb.style.display = 'block'; return; }
       eb.style.display = 'none';
       try { R.pageEmail = email; } catch (e) {}
+      var pb = modal.querySelector('[data-paid]');
+      var thanks = modal.querySelector('[data-thanks]');
+      var label = pb.textContent;
+      pb.disabled = true; pb.style.opacity = '.6'; pb.textContent = 'Sending...';
+      var sent;
       try {
-        if (R.submitPaid) R.submitPaid(curPlan, {
+        sent = R.submitPaid ? R.submitPaid(curPlan, {
           utr: utr, name: name, contact: contact, notes: notes, email: email,
           orderid: curOrder, amount: priceOf(curPlan),
           shops: curPlan === 'business' ? (R.businessShops || '') : ''
-        });
-      } catch (e) {}
-      var pb = modal.querySelector('[data-paid]'); pb.disabled = true; pb.style.opacity = '.6';
-      modal.querySelector('[data-thanks]').style.display = 'block';
+        }) : false;
+      } catch (e) { sent = false; }
+      // Show the thank-you only once a transport actually dispatched. A false
+      // result means every send was refused (almost always an ad / privacy
+      // blocker on the cross-site request), so tell the buyer honestly instead
+      // of a thank-you that hides a lost request.
+      Promise.resolve(sent).then(function (ok) {
+        pb.textContent = label;
+        if (ok === false) {
+          eb.textContent = 'We could not send your confirmation. A browser blocker may be preventing it. '
+            + 'Please try again in a private / incognito window, or email '
+            + (C.SUPPORT_EMAIL || 'support') + ' with your UPI reference (UTR). Your payment is safe.';
+          eb.style.display = 'block';
+          pb.disabled = false; pb.style.opacity = '1';
+        } else {
+          thanks.style.display = 'block';
+        }
+      });
     };
   }
   function hide() { if (modal) modal.style.display = 'none'; }
