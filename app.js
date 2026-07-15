@@ -36,8 +36,11 @@
     var amt = (opts.amount != null) ? opts.amount : rpos.priceOf(plan);
     var email = opts.email || rpos.currentEmail();
     var tn = "RPOS-" + plan + "-" + orderid + (email ? " " + email : "");
+    // Guard the payee name: a stale "FILL..." placeholder in config makes some UPI
+    // apps reject the pn=, so fall back to a valid name.
+    var pn = (C.PAYEE_NAME && !/FILL/i.test(C.PAYEE_NAME)) ? C.PAYEE_NAME : "RasidhuPOS";
     return "upi://pay?pa=" + encodeURIComponent(C.UPI_VPA) +
-      "&pn=" + encodeURIComponent(C.PAYEE_NAME) +
+      "&pn=" + encodeURIComponent(pn) +
       "&am=" + amt + "&cu=INR" +
       "&tn=" + encodeURIComponent(tn);
   };
