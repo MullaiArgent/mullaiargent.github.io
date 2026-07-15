@@ -19,9 +19,23 @@
   var R = window.rpos || (window.rpos = {});
 
   function num(v, d) { v = Number(v); return isFinite(v) ? v : d; }
-  function shopsMin() { return Math.max(1, Math.floor(num(C.SHOPS_MIN, 3))); }
+  // Business shop range is sentinel-driven from PLANS[].caps.max_shops: it
+  // starts one above the tier below it (Growth's max) and tops out at
+  // Business's own max. Falls back to config.js SHOPS_MIN / a large ceiling
+  // when caps are absent (e.g. no published PLANS yet).
+  function planCap(code) {
+    try {
+      if (C.PLANS) for (var i = 0; i < C.PLANS.length; i++) {
+        var p = C.PLANS[i];
+        if ((p.code || '') === code) { var m = p.caps && Number(p.caps.max_shops); return isFinite(m) && m > 0 ? m : 0; }
+      }
+    } catch (e) {}
+    return 0;
+  }
+  function shopsMin() { var g = planCap('growth'); return Math.max(1, g > 0 ? g + 1 : Math.floor(num(C.SHOPS_MIN, 3))); }
+  function shopsMax() { var b = planCap('business'); return b > 0 ? b : 999; }
   function shopsPer() { var v = num(C.SHOPS_PRICE_PER, 1250); return v > 0 ? v : 1250; }
-  function shopsDefault() { return Math.max(shopsMin(), Math.floor(num(C.SHOPS_DEFAULT, 4))); }
+  function shopsDefault() { return Math.min(shopsMax(), Math.max(shopsMin(), Math.floor(num(C.SHOPS_DEFAULT, 4)))); }
   function shopsHintText() { return 'Minimum ' + shopsMin() + ' shops. Rs ' + inrNum(shopsPer()) + ' per shop / year.'; }
   function inrNum(n) { return Number(n || 0).toLocaleString('en-IN'); }
   function bizPrice() { return R.businessShops * shopsPer(); }
@@ -95,7 +109,7 @@
     row.style.cssText = 'display:inline-flex;width:110px;flex:0 0 auto;align-items:center;border:1px solid #e7dcc0;border-radius:11px;overflow:hidden;background:#fffdf7';
 
     var inp = document.createElement('input');
-    inp.type = 'number'; inp.min = String(shopsMin()); inp.step = '1';
+    inp.type = 'number'; inp.min = String(shopsMin()); inp.max = String(shopsMax()); inp.step = '1';
     inp.setAttribute('inputmode', 'numeric');
     inp.setAttribute('aria-label', 'Number of shops');
     inp.setAttribute('data-rp-shops-input', '1');
@@ -119,6 +133,7 @@
       var eff, bad = false;
       if (isNaN(v)) { eff = R.businessShops; bad = true; }
       else if (v < shopsMin()) { eff = shopsMin(); bad = true; }
+      else if (v > shopsMax()) { eff = shopsMax(); bad = true; }
       else { eff = v; }
       R.businessShops = eff;
       hint.style.color = bad ? '#c0392b' : '#8a8a90';
