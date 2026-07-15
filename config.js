@@ -5,7 +5,7 @@
 // links in the sentinel without redeploying this page. See README.md.
 window.RPOS_CONFIG = {
   UPI_VPA: "mullairajan@ybl",                // where money lands
-  PAYEE_NAME: "FILL Business Name",
+  PAYEE_NAME: "RasidhuPOS",
   // INR / year (sentinel config.json overrides). Business is charged per shop:
   // the page shows SHOPS_PRICE_PER x (chosen shops), so business here is the
   // per-shop rate, not the final amount.
