@@ -71,6 +71,15 @@
     return isNaN(n) ? String(p.price) : n.toLocaleString('en-IN');
   }
 
+  // The card price = the plan's per-shop rate x its shop count (planShops is
+  // hoisted from below). Contact/Custom tiers keep their label. Business is
+  // re-asserted dynamically by enhance.js as its spinner changes; this writes
+  // the correct total on first paint so there is no flat-price flash.
+  function planCardAmount(p) {
+    if (p.contact || p.price == null || p.price === '' || isNaN(Number(p.price))) return planFmtPrice(p);
+    return (Number(p.price) * planShops(p.code)).toLocaleString('en-IN');
+  }
+
   function applyPlanCards(plans) {
     var by = {}, i;
     for (i = 0; i < plans.length; i++) by[plans[i].code] = plans[i];
@@ -89,7 +98,7 @@
       var pr = wrap.children[2];
       if (pr && pr.children.length >= 3) {
         pr.children[0].textContent = p.contact ? '' : (p.currency || '₹');
-        pr.children[1].textContent = planFmtPrice(p);
+        pr.children[1].textContent = planCardAmount(p);
         pr.children[2].textContent = p.per || '';
       }
       var tg = wrap.querySelector('p'); if (tg && p.tagline) tg.textContent = p.tagline;
@@ -188,12 +197,105 @@
   var R = window.rpos || {};
 
   function shopPer() { var v = Number(C.SHOPS_PRICE_PER); return isFinite(v) && v > 0 ? v : 1250; }
-  function priceOf(p) {
-    // Business is priced per shop (enhance.js owns rpos.businessShops + the field).
-    if (p === 'business' && R.businessShops) return R.businessShops * shopPer();
-    return R.priceOf ? R.priceOf(p) : ((C.PRICES || {})[p] || 0);
+  // Every plan's Price is a PER-SHOP rate; the displayed/charged amount is that
+  // rate x the plan's shop count. Fixed tiers (Starter, Growth) use their
+  // caps.max_shops (1, 2); Business uses the count the buyer picks in the
+  // enhance.js spinner (rpos.businessShops). So Growth 2500 shows 5000 (x2) and
+  // Business 2000 x 10 = 20000. All shop counts come from the sentinel-published
+  // PLANS[].caps.max_shops, so the model is fully sentinel-driven.
+  function planMaxShops(code) {
+    try {
+      if (C.PLANS) for (var i = 0; i < C.PLANS.length; i++) {
+        var p = C.PLANS[i];
+        if ((p.code || '') === code) {
+          var m = p.caps && Number(p.caps.max_shops);
+          return isFinite(m) && m > 0 ? m : 1;
+        }
+      }
+    } catch (e) {}
+    return 1;
   }
+  function planShops(code) {
+    if (code === 'business') {
+      var b = Number(R.businessShops);
+      return (isFinite(b) && b > 0) ? b : planMaxShops('business');
+    }
+    return planMaxShops(code);
+  }
+  function perShopRate(code) {
+    return (code === 'business') ? shopPer() : (Number((C.PRICES || {})[code]) || 0);
+  }
+  function priceOf(p) { return perShopRate(p) * planShops(p); }
   function inr(n) { return 'Rs ' + Number(n || 0).toLocaleString('en-IN'); }
+
+  // Phones only: the "Pay in UPI app" upi:// deep link has no handler on a
+  // laptop, so we hide the button on desktop and lean on the QR there.
+  function isMobile() {
+    try {
+      if (/Android|iPhone|iPad|iPod|Mobile|IEMobile|Opera Mini/i.test(navigator.userAgent || '')) return true;
+      return ('ontouchstart' in window) && !!(window.matchMedia && window.matchMedia('(pointer:coarse)').matches);
+    } catch (e) { return false; }
+  }
+
+  // Accept a real mobile number. With a leading + treat it as E.164 (10-15
+  // digits incl. country code); otherwise require a 10-digit Indian mobile
+  // (6-9 leading), or 91 + such a number. Rejects junk like 1234567895658.
+  function validPhone(raw) {
+    var s = String(raw || '').replace(/[()\s\-]/g, '');
+    if (s.charAt(0) === '+') {
+      var d = s.slice(1).replace(/\D/g, '');
+      return d.length >= 10 && d.length <= 15;
+    }
+    var n = s.replace(/\D/g, '');
+    return (n.length === 10 && /^[6-9]/.test(n)) || (n.length === 12 && /^91[6-9]/.test(n));
+  }
+
+  // A stale "FILL..." payee placeholder makes some UPI apps reject the QR.
+  function payeeName() {
+    var pn = C.PAYEE_NAME;
+    return (pn && !/FILL/i.test(pn)) ? pn : 'RasidhuPOS';
+  }
+
+  // ---- pay-modal contact: country code + inline per-field validation --------
+  // Country code select (India default). The number field is national digits
+  // only, capped at 10; the submitted contact is code + digits.
+  var CC_LIST = [
+    ['+91', 'India +91'], ['+1', 'USA/Canada +1'], ['+44', 'UK +44'],
+    ['+61', 'Australia +61'], ['+971', 'UAE +971'], ['+65', 'Singapore +65'],
+    ['+60', 'Malaysia +60'], ['+94', 'Sri Lanka +94'], ['+977', 'Nepal +977']
+  ];
+  function ccOptionsHtml() {
+    var out = '';
+    for (var i = 0; i < CC_LIST.length; i++) {
+      out += '<option value="' + CC_LIST[i][0] + '"'
+        + (CC_LIST[i][0] === '+91' ? ' selected' : '') + '>' + CC_LIST[i][1] + '</option>';
+    }
+    return out;
+  }
+  // 10-digit cap: India needs a 10-digit mobile (6-9 leading); other codes
+  // accept 6-10 national digits. The code itself comes from the select.
+  function validLocalPhone(cc, digits) {
+    if (cc === '+91') return /^[6-9]\d{9}$/.test(digits);
+    return digits.length >= 6 && digits.length <= 10;
+  }
+  // Errors render RED directly above the offending field (not a shared line by
+  // the submit button) and turn the input border red; cleared as it's fixed.
+  function setFieldError(field, msg) {
+    if (!modal) return null;
+    var e = modal.querySelector('[data-err-' + field + ']');
+    var inp = modal.querySelector('[data-' + field + ']');
+    if (e) { e.textContent = msg; e.style.display = 'block'; }
+    if (inp) inp.style.borderColor = '#c0392b';
+    return inp || null;
+  }
+  function clearFieldError(field) {
+    if (!modal) return;
+    var e = modal.querySelector('[data-err-' + field + ']');
+    var inp = modal.querySelector('[data-' + field + ']');
+    if (e) { e.style.display = 'none'; e.textContent = ''; }
+    if (inp) inp.style.borderColor = '#d5d5d9';
+  }
+  function clearFieldErrors() { clearFieldError('email'); clearFieldError('name'); clearFieldError('contact'); }
 
   // ---- pay modal (built lazily, once) ----
   var modal = null, curPlan = '', curOrder = '';
@@ -224,6 +326,11 @@
     modal.setAttribute('style', 'position:fixed;inset:0;background:rgba(15,15,20,.55);display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:20px 12px;z-index:2147483000;font-family:system-ui,Segoe UI,Roboto,sans-serif');
     var inpS = 'width:100%;padding:11px;border:1px solid #d5d5d9;border-radius:9px;margin-bottom:10px;box-sizing:border-box;font-size:14px;font-family:inherit';
     var lblS = 'display:block;text-align:left;font-size:12.5px;font-weight:600;color:#3a3a40;margin:2px 0 5px';
+    var reqS = '<span style="color:#c0392b;margin-left:2px">*</span>';   // mandatory-field marker
+    // Inline per-field error line (sits directly above its input, red). The
+    // country-code select flanks the contact input.
+    var errS = 'display:none;text-align:left;color:#c0392b;font-size:11.5px;font-weight:600;margin:-4px 0 6px';
+    var selS = 'padding:11px 8px;border:1px solid #d5d5d9;border-radius:9px;box-sizing:border-box;font-size:14px;font-family:inherit;background:#fff;flex:0 0 auto';
     modal.innerHTML =
       '<div style="position:relative;background:#fff;max-width:640px;width:100%;margin:auto;border-radius:16px;padding:26px 24px;box-shadow:0 24px 70px rgba(0,0,0,.35);text-align:center">' +
       '<button data-x style="position:absolute;top:8px;right:12px;border:0;background:none;font-size:24px;line-height:1;color:#8a8a90;cursor:pointer">&times;</button>' +
@@ -233,20 +340,27 @@
       '<div data-payee style="color:#6b6b70;font-size:12.5px;margin-bottom:14px"></div>' +
       '<div data-notice style="display:none;text-align:center;background:#fff8e1;border:1px solid #f0d98a;color:#7a5b00;font-size:13px;font-weight:600;border-radius:10px;padding:10px 12px;margin:0 0 14px;line-height:1.4"></div>' +
       '<div data-qr style="display:flex;justify-content:center;min-height:200px;margin:0 auto 12px"></div>' +
+      '<div data-qrhint style="color:#6b6b70;font-size:12px;line-height:1.4;margin:0 auto 12px;max-width:360px"></div>' +
       '<a data-upi href="#" style="display:inline-block;background:linear-gradient(#f5c542,#e6b325);color:#19191c;font-weight:700;padding:11px 20px;border-radius:11px;text-decoration:none;margin-bottom:16px">Pay in UPI app</a>' +
       '<div data-signin style="display:none;justify-content:center;margin-bottom:12px"></div>' +
       '<div data-fields style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));column-gap:16px;text-align:left">' +
-      '<div><label style="' + lblS + '">Email (Gmail)</label>' +
+      '<div><label style="' + lblS + '">Email (Gmail)' + reqS + '</label>' +
+      '<div data-err-email style="' + errS + '"></div>' +
       '<input data-email type="email" autocomplete="email" placeholder="you@gmail.com" style="' + inpS + '"></div>' +
-      '<div><label style="' + lblS + '">Full name</label>' +
+      '<div><label style="' + lblS + '">Full name' + reqS + '</label>' +
+      '<div data-err-name style="' + errS + '"></div>' +
       '<input data-name autocomplete="name" placeholder="Your name" style="' + inpS + '"></div>' +
-      '<div><label style="' + lblS + '">Contact number</label>' +
-      '<input data-contact type="tel" autocomplete="tel" placeholder="10-digit mobile" style="' + inpS + '"></div>' +
+      '<div><label style="' + lblS + '">Contact number' + reqS + '</label>' +
+      '<div data-err-contact style="' + errS + '"></div>' +
+      '<div style="display:flex;gap:8px;margin-bottom:10px">' +
+      '<select data-cc style="' + selS + '">' + ccOptionsHtml() + '</select>' +
+      '<input data-contact type="tel" inputmode="numeric" autocomplete="tel" maxlength="10" placeholder="10-digit mobile" style="' + inpS + ';flex:1;margin-bottom:0"></div></div>' +
       '<div><label style="' + lblS + '">UPI reference (UTR)</label>' +
       '<input data-utr placeholder="e.g. 4157xxxxxx" style="' + inpS + '"></div>' +
       '<div style="grid-column:1 / -1"><label style="' + lblS + '">Notes (optional)</label>' +
       '<textarea data-notes rows="2" placeholder="Anything we should know" style="' + inpS + ';resize:vertical"></textarea></div>' +
       '</div>' +
+      '<div style="text-align:left;font-size:11.5px;color:#8a8a90;margin:0 0 8px">' + reqS + ' required fields</div>' +
       '<div data-err style="display:none;text-align:left;color:#c0392b;font-size:12.5px;font-weight:600;margin:2px 0 10px"></div>' +
       '<button data-paid style="width:100%;background:#c99400;color:#19191c;font-weight:800;border:0;padding:13px;border-radius:11px;cursor:pointer;font-size:15px">I have paid</button>' +
       '<div data-thanks style="display:none;color:#1a7f37;font-weight:600;margin-top:14px;line-height:1.45">Thank you. We will confirm your payment and activate your account shortly. Keep RasidhuPOS open, it unlocks automatically.</div>' +
@@ -264,16 +378,30 @@
     modal.querySelector('[data-paid]').onclick = function () {
       var email = (modal.querySelector('[data-email]').value || '').trim();
       var name = (modal.querySelector('[data-name]').value || '').trim();
-      var contact = (modal.querySelector('[data-contact]').value || '').trim();
+      var ccEl = modal.querySelector('[data-cc]');
+      var cc = (ccEl && ccEl.value) || '+91';
+      var digits = (modal.querySelector('[data-contact]').value || '').replace(/\D/g, '');
+      var contact = cc + digits;                       // full number sent to us
       var utr = (modal.querySelector('[data-utr]').value || '').trim();
       var notes = (modal.querySelector('[data-notes]').value || '').trim();
-      var digits = contact.replace(/[^\d]/g, '');
-      var err = '';
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) err = 'Please enter a valid email (Gmail).';
-      else if (name.length < 2) err = 'Please enter your name.';
-      else if (digits.length < 8) err = 'Please enter a valid contact number.';
+      // Validate every required field locally BEFORE sending; show each error
+      // in red above its own field and focus the first bad one. setFieldError
+      // is always called (so all errors show); firstBad captures only the first.
+      clearFieldErrors();
+      var firstBad = null, el;
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        el = setFieldError('email', 'Enter a valid email (Gmail).'); firstBad = firstBad || el;
+      }
+      if (name.length < 2) {
+        el = setFieldError('name', 'Enter your name.'); firstBad = firstBad || el;
+      }
+      if (!validLocalPhone(cc, digits)) {
+        el = setFieldError('contact', cc === '+91'
+          ? 'Enter a valid 10-digit mobile number.'
+          : 'Enter a valid phone number.'); firstBad = firstBad || el;
+      }
       var eb = modal.querySelector('[data-err]');
-      if (err) { eb.textContent = err; eb.style.display = 'block'; return; }
+      if (firstBad) { try { firstBad.focus(); } catch (e) {} return; }
       eb.style.display = 'none';
       try { R.pageEmail = email; } catch (e) {}
       var pb = modal.querySelector('[data-paid]');
@@ -285,7 +413,7 @@
         sent = R.submitPaid ? R.submitPaid(curPlan, {
           utr: utr, name: name, contact: contact, notes: notes, email: email,
           orderid: curOrder, amount: priceOf(curPlan),
-          shops: curPlan === 'business' ? (R.businessShops || '') : ''
+          shops: planShops(curPlan) > 1 ? String(planShops(curPlan)) : ''
         }) : false;
       } catch (e) { sent = false; }
       // Show the thank-you only once a transport actually dispatched. A false
@@ -306,7 +434,17 @@
         }
       });
     };
-    modal.querySelector('[data-email]').addEventListener('input', refreshNotice);
+    modal.querySelector('[data-email]').addEventListener('input', function () { refreshNotice(); clearFieldError('email'); });
+    modal.querySelector('[data-name]').addEventListener('input', function () { clearFieldError('name'); });
+    // Contact is national digits only, capped at 10 (the country code is the
+    // separate select). Clears its inline error as the buyer corrects it.
+    modal.querySelector('[data-contact]').addEventListener('input', function () {
+      var s = this.value.replace(/\D/g, '').slice(0, 10);
+      if (s !== this.value) this.value = s;
+      clearFieldError('contact');
+    });
+    var ccEl = modal.querySelector('[data-cc]');
+    if (ccEl) ccEl.addEventListener('change', function () { clearFieldError('contact'); });
   }
   function hide() { if (modal) modal.style.display = 'none'; }
   function show(plan) {
@@ -316,23 +454,33 @@
     var amt = priceOf(plan);
     var email = R.currentEmail ? R.currentEmail() : (R.pageEmail || '');
     var upi = R.upiString ? R.upiString(plan, curOrder, { amount: amt, email: email }) :
-      ('upi://pay?pa=' + encodeURIComponent(C.UPI_VPA || '') + '&pn=' + encodeURIComponent(C.PAYEE_NAME || 'RasidhuPOS') +
+      ('upi://pay?pa=' + encodeURIComponent(C.UPI_VPA || '') + '&pn=' + encodeURIComponent(payeeName()) +
        '&am=' + amt + '&cu=INR&tn=' + encodeURIComponent('RPOS-' + plan + '-' + curOrder + (email ? ' ' + email : '')));
     modal.querySelector('[data-plan]').textContent = 'RasidhuPOS ' + (PLAN_NAME[plan] || plan) + ' (yearly)';
     modal.querySelector('[data-amt]').textContent = inr(amt);
+    var noteShops = planShops(plan), noteRate = perShopRate(plan);
     modal.querySelector('[data-amtnote]').textContent =
-      (plan === 'business' && R.businessShops)
-        ? ('for ' + R.businessShops + ' shops (Rs ' + shopPer().toLocaleString('en-IN') + ' each)') : '';
+      (noteShops > 1 && noteRate > 0)
+        ? ('for ' + noteShops + ' shops (Rs ' + noteRate.toLocaleString('en-IN') + ' each)') : '';
     modal.querySelector('[data-payee]').textContent = 'via UPI to ' + (C.UPI_VPA || '');
     var qb = modal.querySelector('[data-qr]'); qb.innerHTML = '';
     try { new QRCode(qb, { text: upi, width: 200, height: 200 }); }
-    catch (e) { qb.textContent = 'Open the button below on your phone to pay.'; }
+    catch (e) { qb.textContent = 'Scan the QR with any UPI app on your phone to pay.'; }
     modal.querySelector('[data-upi]').href = upi;
+    // "Pay in UPI app" is a upi:// deep link with no handler on a laptop, so it is
+    // phone-only; on desktop we hide it and steer the buyer to scan the QR.
+    var mob = isMobile();
+    modal.querySelector('[data-upi]').style.display = mob ? 'inline-block' : 'none';
+    modal.querySelector('[data-qrhint]').textContent = mob
+      ? 'Tap the button to pay, or scan the QR with any UPI app.'
+      : 'Scan this QR with any UPI app on your phone (GPay / PhonePe / Paytm). If your phone camera does not open it, use the scan option inside the app.';
     modal.querySelector('[data-email]').value = email;
     modal.querySelector('[data-name]').value = '';
     modal.querySelector('[data-contact]').value = '';
+    var ccEl = modal.querySelector('[data-cc]'); if (ccEl) ccEl.value = '+91';
     modal.querySelector('[data-utr]').value = '';
     modal.querySelector('[data-notes]').value = '';
+    clearFieldErrors();
     var eb = modal.querySelector('[data-err]'); eb.style.display = 'none'; eb.textContent = '';
     var pb = modal.querySelector('[data-paid]'); pb.disabled = false; pb.style.opacity = '1';
     modal.querySelector('[data-thanks]').style.display = 'none';
@@ -382,10 +530,136 @@
     return '';
   }
 
-  function contact() {
-    if (C.SUPPORT_EMAIL) { window.location.href = 'mailto:' + C.SUPPORT_EMAIL + '?subject=' + encodeURIComponent('RasidhuPOS Enterprise enquiry'); }
-    else { window.location.href = 'contact.html'; }
+  // ---- Customer Support popup -------------------------------------------------
+  // Mirrors the desktop app's "Need Support" (Customer Support) dialog
+  // (rasidhupos/widgets/support_dialog.py): the same three contacts + copy, and a
+  // Subject / contact / Message form whose Send opens a prefilled email compose.
+  var sModal = null;
+  var SUPPORT_CONTACTS = [
+    { label: 'Thillai Rajan', value: '+91 7010704136', href: 'tel:+917010704136' },
+    { label: 'Mullai Rajan',  value: '+91 7010139747', href: 'tel:+917010139747' }
+  ];
+  function supportEmail() {
+    var e = C.SUPPORT_EMAIL;
+    return (e && !/FILL/i.test(e) && /@/.test(e)) ? e : 'mullairajan2000@gmail.com';
   }
+  function supportToast(msg) {
+    try {
+      var t = document.createElement('div');
+      t.textContent = msg;
+      t.setAttribute('style', 'position:fixed;left:50%;bottom:32px;transform:translateX(-50%);background:#19191c;color:#fff;font:600 13px system-ui,Segoe UI,Roboto,sans-serif;padding:9px 16px;border-radius:9px;z-index:2147483001;box-shadow:0 6px 20px rgba(0,0,0,.3)');
+      document.body.appendChild(t);
+      setTimeout(function () { try { document.body.removeChild(t); } catch (e) {} }, 1600);
+    } catch (e) {}
+  }
+  function copyText(v, kind) {
+    function toast() { supportToast(kind + ' copied'); }
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(v).then(toast, function () {}); return; }
+    } catch (e) {}
+    try {
+      var ta = document.createElement('textarea'); ta.value = v;
+      ta.setAttribute('style', 'position:fixed;top:0;left:0;opacity:0');
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta); toast();
+    } catch (e) {}
+  }
+  // Built with DOM methods (no innerHTML): the values come from config, so this
+  // keeps the injection surface at zero, matching applyPlanCards above.
+  function contactRow(label, value, href, kind) {
+    var row = document.createElement('div');
+    row.setAttribute('style', 'display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid #f0f0f2');
+    var l = document.createElement('span');
+    l.setAttribute('style', 'text-align:left;color:#3a3a40;font-size:13.5px'); l.textContent = label;
+    var right = document.createElement('span');
+    right.setAttribute('style', 'display:flex;align-items:center;gap:8px');
+    var a = document.createElement('a');
+    a.setAttribute('href', href);
+    a.setAttribute('style', 'color:#19191c;font-weight:600;font-size:13.5px;text-decoration:none'); a.textContent = value;
+    var cp = document.createElement('button');
+    cp.setAttribute('style', 'border:0;background:#f0f0f2;border-radius:7px;padding:5px 9px;cursor:pointer;font-size:12px;color:#3a3a40');
+    cp.textContent = 'Copy';
+    cp.onclick = function () { copyText(value, kind); };
+    right.appendChild(a); right.appendChild(cp);
+    row.appendChild(l); row.appendChild(right);
+    return row;
+  }
+  function buildSupport() {
+    sModal = document.createElement('div');
+    sModal.id = 'rpos-support';
+    sModal.setAttribute('style', 'position:fixed;inset:0;background:rgba(15,15,20,.55);display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:20px 12px;z-index:2147483000;font-family:system-ui,Segoe UI,Roboto,sans-serif');
+    var inpS = 'width:100%;padding:11px;border:1px solid #d5d5d9;border-radius:9px;margin-bottom:10px;box-sizing:border-box;font-size:14px;font-family:inherit';
+    var lblS = 'display:block;text-align:left;font-size:12.5px;font-weight:600;color:#3a3a40;margin:2px 0 5px';
+    // Static shell only (no interpolation) - dynamic contacts appended below.
+    sModal.innerHTML =
+      '<div style="position:relative;background:#fff;max-width:560px;width:100%;margin:auto;border-radius:16px;padding:26px 24px;box-shadow:0 24px 70px rgba(0,0,0,.35);text-align:center">' +
+      '<button data-sx style="position:absolute;top:8px;right:12px;border:0;background:none;font-size:24px;line-height:1;color:#8a8a90;cursor:pointer">&times;</button>' +
+      '<h3 style="margin:0 0 6px;font-size:19px;color:#19191c">Customer Support</h3>' +
+      '<div style="color:#6b6b70;font-size:13px;margin-bottom:14px;line-height:1.45">Reach us by phone or email, or send us a message and we\'ll get back to you.</div>' +
+      '<div data-scontacts style="margin-bottom:16px"></div>' +
+      '<div style="text-align:left">' +
+      '<label style="' + lblS + '">Subject</label>' +
+      '<input data-ssubject placeholder="Brief description of your issue" style="' + inpS + '">' +
+      '<label style="' + lblS + '">Your contact details (optional)</label>' +
+      '<input data-scontact placeholder="Phone or email so we can reach you" style="' + inpS + '">' +
+      '<label style="' + lblS + '">Message</label>' +
+      '<textarea data-smessage rows="3" placeholder="Describe your issue in detail..." style="' + inpS + ';resize:vertical"></textarea>' +
+      '</div>' +
+      '<div data-serr style="display:none;text-align:left;color:#c0392b;font-size:12.5px;font-weight:600;margin:2px 0 10px"></div>' +
+      '<div style="display:flex;gap:10px;margin-top:6px">' +
+      '<button data-scancel style="flex:1;background:#f0f0f2;color:#3a3a40;font-weight:700;border:0;padding:12px;border-radius:11px;cursor:pointer;font-size:14px">Close</button>' +
+      '<button data-ssend style="flex:2;background:#c99400;color:#19191c;font-weight:800;border:0;padding:12px;border-radius:11px;cursor:pointer;font-size:15px">Send</button>' +
+      '</div>' +
+      '<div data-sok style="display:none;color:#1a7f37;font-weight:600;margin-top:14px;line-height:1.45">Message sent. We\'ll get back to you soon.</div>' +
+      '</div>';
+    document.body.appendChild(sModal);
+    var cbox = sModal.querySelector('[data-scontacts]');
+    for (var i = 0; i < SUPPORT_CONTACTS.length; i++) {
+      var c = SUPPORT_CONTACTS[i];
+      cbox.appendChild(contactRow(c.label, c.value, c.href, 'Phone number'));
+    }
+    var em = supportEmail();
+    cbox.appendChild(contactRow('Email', em, 'mailto:' + em, 'Email'));
+    // No outside-click dismiss (a stray click must not discard a typed message);
+    // close only via the X, Cancel, or Escape - matching the pay modal.
+    sModal.querySelector('[data-sx]').onclick = hideSupport;
+    sModal.querySelector('[data-scancel]').onclick = hideSupport;
+    document.addEventListener('keydown', function (e) {
+      if ((e.key === 'Escape' || e.key === 'Esc' || e.keyCode === 27)
+          && sModal && sModal.style.display !== 'none') { hideSupport(); }
+    });
+    sModal.querySelector('[data-ssend]').onclick = function () {
+      var subject = (sModal.querySelector('[data-ssubject]').value || '').trim();
+      var contactInfo = (sModal.querySelector('[data-scontact]').value || '').trim();
+      var message = (sModal.querySelector('[data-smessage]').value || '').trim();
+      var eb = sModal.querySelector('[data-serr]');
+      if (!subject) { eb.textContent = 'Please enter a subject.'; eb.style.display = 'block'; return; }
+      if (!message) { eb.textContent = 'Please enter a message.'; eb.style.display = 'block'; return; }
+      eb.style.display = 'none';
+      var body = message + (contactInfo ? ('\n\nContact details: ' + contactInfo) : '');
+      // Open Gmail compose in a NEW TAB - never hand off to the machine's email
+      // application (matches the desktop app's browser-compose fallback).
+      var url = 'https://mail.google.com/mail/?view=cm&fs=1'
+        + '&to=' + encodeURIComponent(supportEmail())
+        + '&su=' + encodeURIComponent('[Support] ' + subject)
+        + '&body=' + encodeURIComponent(body);
+      try { window.open(url, '_blank', 'noopener'); } catch (e) {}
+      sModal.querySelector('[data-sok]').style.display = 'block';
+    };
+  }
+  function hideSupport() { if (sModal) sModal.style.display = 'none'; }
+  function showSupport() {
+    if (!sModal) buildSupport();
+    sModal.querySelector('[data-ssubject]').value = '';
+    sModal.querySelector('[data-scontact]').value = '';
+    sModal.querySelector('[data-smessage]').value = '';
+    var eb = sModal.querySelector('[data-serr]'); eb.style.display = 'none'; eb.textContent = '';
+    sModal.querySelector('[data-sok]').style.display = 'none';
+    sModal.style.display = 'flex';
+  }
+  // Enterprise "Contact sales" / "Buy now" route here too (the app has one unified
+  // support surface). Kept as contact() so existing callers stay unchanged.
+  function contact() { showSupport(); }
 
   document.addEventListener('click', function (e) {
     var btn = (e.target && e.target.closest) ? e.target.closest('button, a') : null;
@@ -396,9 +670,9 @@
       var plan = planOf(btn) || 'growth';
       if (plan === 'enterprise') { contact(); return; }
       show(plan);
-    } else if (txt === 'contact sales' || txt === 'contact us' || txt === 'contact') {
+    } else if (txt === 'support' || txt === 'contact sales' || txt === 'contact us' || txt === 'contact') {
       e.preventDefault(); e.stopPropagation();
-      contact();
+      showSupport();
     }
   }, true);
 })();
