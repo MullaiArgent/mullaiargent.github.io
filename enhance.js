@@ -7,10 +7,12 @@
 //     PLANS overlay in wire.js re-renders the card (a deferred re-assert wins).
 //   * a Download nav item + a Windows / Android download modal, with links the
 //     sentinel manages (DOWNLOAD_WINDOWS_URL / DOWNLOAD_ANDROID_URL / RELEASES_URL).
-//   * the nav "Sign in" link reflects the signed-in Google account (?email= from
-//     the app), plus an optional real "Sign in with Google" (Google Identity
-//     Services), both gated on GOOGLE_CLIENT_ID. Sets window.rpos.pageEmail,
-//     which wire.js prefills into the pay modal.
+//   * the nav "Sign in" link reflects the signed-in Google account: it shows the
+//     account's display NAME (?name= from the app, or from a Google sign-in),
+//     falling back to the Gmail when the name is unknown. Plus an optional real
+//     "Sign in with Google" (Google Identity Services), both gated on
+//     GOOGLE_CLIENT_ID. Sets window.rpos.pageEmail / window.rpos.pageName; wire.js
+//     prefills the (read-only) Gmail into the pay modal.
 //   * a favicon fallback.
 // Everything is guarded; a failure just leaves the page as-is. No em-dash in
 // user-facing copy (project rule).
@@ -56,6 +58,15 @@
       R.pageEmail = (R.qs ? R.qs().email : '') || '';
       if (!R.pageEmail) { var _se = sessionStorage.getItem('rpos_email_v1'); if (_se) R.pageEmail = _se; }
     } catch (e) { R.pageEmail = ''; }
+  }
+  // Signed-in display name: the app passes ?name= alongside ?email=, else a
+  // Google sign-in on the page supplies it. Shown in the nav in place of the
+  // raw Gmail; falls back to the email when unknown.
+  if (R.pageName == null) {
+    try {
+      R.pageName = (R.qs ? R.qs().name : '') || '';
+      if (!R.pageName) { var _sn = sessionStorage.getItem('rpos_name_v1'); if (_sn) R.pageName = _sn; }
+    } catch (e) { R.pageName = ''; }
   }
 
   // -------------------------------------------------------------------------
@@ -460,31 +471,38 @@
     s.onerror = function () { loadGis._cbs = null; };
     (document.head || document.documentElement).appendChild(s);
   }
-  function jwtEmail(t) {
+  function jwtClaims(t) {
     try {
       var p = t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
       while (p.length % 4) p += '=';
-      var o = JSON.parse(decodeURIComponent(escape(atob(p))));
-      return o.email || '';
-    } catch (e) { return ''; }
+      return JSON.parse(decodeURIComponent(escape(atob(p)))) || {};
+    } catch (e) { return {}; }
   }
-  function onSignedIn(em) {
+  function onSignedIn(em, nm) {
     if (!em) return;
     R.pageEmail = em;
+    if (nm) R.pageName = nm;
     // Persist for this browser session so a framework re-render / the Buy-now
     // gate keeps seeing the signed-in user without re-prompting.
     try { sessionStorage.setItem('rpos_email_v1', em); } catch (e) {}
+    try { if (nm) sessionStorage.setItem('rpos_name_v1', nm); } catch (e) {}
     try { reflectSignin(); } catch (e) {}
     try {
       var mf = document.querySelector('#rpos-pay [data-email]');
-      if (mf) { mf.value = em; var sb = document.querySelector('#rpos-pay [data-signin]'); if (sb) sb.style.display = 'none'; }
+      if (mf) {
+        // Now that the Gmail is known, fill and lock it (matches wire.js).
+        mf.value = em; mf.readOnly = true;
+        mf.style.background = '#f2f2f4'; mf.style.cursor = 'not-allowed';
+        mf.title = 'Signed in with Google, this is your subscription email';
+        var sb = document.querySelector('#rpos-pay [data-signin]'); if (sb) sb.style.display = 'none';
+      }
     } catch (e) {}
   }
   var gisReady = false;
   function ensureGis(cb) {
     loadGis(function () {
       if (!gisReady) {
-        try { google.accounts.id.initialize({ client_id: C.GOOGLE_CLIENT_ID, callback: function (r) { onSignedIn(jwtEmail(r && r.credential || '')); } }); gisReady = true; } catch (e) {}
+        try { google.accounts.id.initialize({ client_id: C.GOOGLE_CLIENT_ID, callback: function (r) { var c = jwtClaims(r && r.credential || ''); onSignedIn(c.email || '', c.name || ''); } }); gisReady = true; } catch (e) {}
       }
       if (cb) cb();
     });
@@ -508,7 +526,8 @@
         .then(function (r) { return r.json(); })
         .then(function (o) {
           var em = (o && o.email) || '';
-          if (em) onSignedIn(em);
+          var nm = (o && o.name) || '';
+          if (em) onSignedIn(em, nm);
           if (done) { try { done(em); } catch (e) {} }
         })
         .catch(function () { if (done) done(''); });
@@ -600,11 +619,17 @@
     }
     if (!link) return;
     var email = R.pageEmail || '';
+    var name = R.pageName || '';
     if (email) {
-      if (link.getAttribute('data-rp-signed') !== email) {
+      // Prefer the Google display name; fall back to the Gmail when unknown.
+      // The guard key mixes both so a name that arrives after the email (a
+      // sign-in completing later) still refreshes the label.
+      var disp = name || email;
+      var key = email + '|' + name;
+      if (link.getAttribute('data-rp-signed') !== key) {
         // Signed in: drop the pill chrome + icon, show the account as gold text.
-        link.textContent = email.length > 24 ? email.slice(0, 21) + '...' : email;
-        link.title = 'Signed in as ' + email;
+        link.textContent = disp.length > 24 ? disp.slice(0, 21) + '...' : disp;
+        link.title = name ? ('Signed in as ' + name + ' (' + email + ')') : ('Signed in as ' + email);
         link.className = (link.className || '').replace(/\brp-signin-btn\b/g, '').trim();
         link.removeAttribute('data-rp-btn');
         var so = link.style;
@@ -615,7 +640,7 @@
         so.fontWeight = '700';
         link.setAttribute('href', '#');
         link.removeAttribute('data-rp-signin');
-        link.setAttribute('data-rp-signed', email);
+        link.setAttribute('data-rp-signed', key);
       }
     } else if (C.GOOGLE_CLIENT_ID) {
       // Signed out with sign-in configured: mark it clickable and dress it as a

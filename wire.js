@@ -454,6 +454,17 @@
     if (ccEl) ccEl.addEventListener('change', function () { clearFieldError('contact'); });
   }
   function hide() { if (modal) modal.style.display = 'none'; }
+  // The Gmail is the subscription identity and comes from Google auth (the app
+  // link or an on-page sign-in), so it must not be edited once known. Locked =
+  // read-only + a muted look; unlocked keeps it typable for a direct visitor
+  // whose email we do not have yet.
+  function setEmailLocked(el, locked) {
+    if (!el) return;
+    el.readOnly = !!locked;
+    el.style.background = locked ? '#f2f2f4' : '';
+    el.style.cursor = locked ? 'not-allowed' : '';
+    el.title = locked ? 'Signed in with Google, this is your subscription email' : '';
+  }
   function show(plan) {
     if (!modal) build();
     curPlan = plan;
@@ -481,7 +492,9 @@
     modal.querySelector('[data-qrhint]').textContent = mob
       ? 'Tap the button to pay, or scan the QR with any UPI app.'
       : 'Scan this QR with any UPI app on your phone (GPay / PhonePe / Paytm). If your phone camera does not open it, use the scan option inside the app.';
-    modal.querySelector('[data-email]').value = email;
+    var emEl = modal.querySelector('[data-email]');
+    emEl.value = email;
+    setEmailLocked(emEl, !!(email && email.trim()));
     modal.querySelector('[data-name]').value = '';
     modal.querySelector('[data-contact]').value = '';
     var ccEl = modal.querySelector('[data-cc]'); if (ccEl) ccEl.value = '+91';
@@ -501,7 +514,9 @@
         R.mountGoogleSignin(sb, function (em) {
           if (!em) return;
           try { R.pageEmail = em; } catch (e) {}
-          modal.querySelector('[data-email]').value = em;
+          var mfE = modal.querySelector('[data-email]');
+          mfE.value = em;
+          setEmailLocked(mfE, true);   // now known -> lock it
           refreshNotice();
           sb.style.display = 'none';
         });
