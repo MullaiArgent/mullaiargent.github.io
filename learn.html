@@ -20,7 +20,7 @@
       <div class="nav-links">
         <a href="index.html">Plans</a>
         <a href="learn.html" aria-current="page">Learn</a>
-        <a href="#support">Support</a>
+        <a href="#" id="support-link">Support</a>
       </div>
     </nav>
   </header>
@@ -35,11 +35,6 @@
     <!-- ============ SIDEBAR ============ -->
     <aside class="learn-toc" id="toc">
       <div class="learn-search"><input id="learn-search-input" type="search" placeholder="Search features..." aria-label="Search features"></div>
-
-      <div class="toc-group">Help &amp; support</div>
-      <ul>
-        <li><a href="#support">Get support</a></li>
-      </ul>
 
       <div class="toc-group">Getting started</div>
       <ul>
@@ -105,18 +100,6 @@
 
     <!-- ============ MAIN ============ -->
     <main class="learn-main">
-
-      <section class="learn-section" id="support">
-        <p class="eyebrow">Help &amp; support</p>
-        <h2>Get support</h2>
-        <p class="learn-lead">We are a small team and reply to every message. Reach us any time and we will help you get set up or sort out a problem.</p>
-        <div class="support-card">
-          <a class="support-btn js-email-link" href="#">Email us: <span class="js-email">support</span></a>
-          <a class="support-btn wa js-wa-link" href="#">WhatsApp: <span class="js-whatsapp">chat with us</span></a>
-        </div>
-        <div class="note"><strong>About your subscription.</strong> Your subscription is linked to your Google account and works on both desktop and Android. If your payment is confirmed but the app has not unlocked, keep RasidhuPOS open, it checks and unlocks automatically. If it still does not unlock, email us your Google account email and UPI reference (UTR) and we will sort it out.</div>
-        <a class="back-top" href="#top">Back to top</a>
-      </section>
 
       <section class="learn-section" id="getting-started">
         <p class="eyebrow">Getting started</p>
@@ -643,14 +626,126 @@
       var C = window.RPOS_CONFIG || {};
       function set(sel, val) { Array.prototype.forEach.call(document.querySelectorAll(sel), function (e) { e.textContent = val; }); }
       set(".js-business", C.BUSINESS_NAME || "RasidhuPOS");
-      if (C.SUPPORT_EMAIL) set(".js-email", C.SUPPORT_EMAIL);
-      if (C.WHATSAPP) set(".js-whatsapp", C.WHATSAPP);
-      Array.prototype.forEach.call(document.querySelectorAll("a.js-email-link"), function (a) {
-        if (C.SUPPORT_EMAIL) a.href = "mailto:" + C.SUPPORT_EMAIL;
-      });
-      Array.prototype.forEach.call(document.querySelectorAll("a.js-wa-link"), function (a) {
-        if (C.WHATSAPP) a.href = "https://wa.me/" + C.WHATSAPP;
-      });
+
+      // ----- Customer Support popup -----
+      // Mirrors the Subscription page's support popup (wire.js): same three
+      // contacts + copy, and a Subject / contact / Message form whose Send opens
+      // a prefilled Gmail compose. Kept in sync with web/subscription/wire.js.
+      var SUPPORT_CONTACTS = [
+        { label: "Thillai Rajan", value: "+91 7010704136", href: "tel:+917010704136" },
+        { label: "Mullai Rajan", value: "+91 7010139747", href: "tel:+917010139747" }
+      ];
+      function supportEmail() {
+        var e = C.SUPPORT_EMAIL;
+        return (e && !/FILL/i.test(e) && /@/.test(e)) ? e : "mullairajan2000@gmail.com";
+      }
+      function supportToast(msg) {
+        try {
+          var t = document.createElement("div");
+          t.textContent = msg;
+          t.setAttribute("style", "position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#19191c;color:#fff;padding:10px 16px;border-radius:9px;font:600 13px system-ui,sans-serif;z-index:2147483001");
+          document.body.appendChild(t);
+          setTimeout(function () { try { document.body.removeChild(t); } catch (e) {} }, 1600);
+        } catch (e) {}
+      }
+      function copyText(v, kind) {
+        function toast() { supportToast(kind + " copied"); }
+        try { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(v).then(toast, function () {}); return; } } catch (e) {}
+        try {
+          var ta = document.createElement("textarea"); ta.value = v;
+          ta.setAttribute("style", "position:fixed;top:0;left:0;opacity:0");
+          document.body.appendChild(ta); ta.focus(); ta.select();
+          document.execCommand("copy"); document.body.removeChild(ta); toast();
+        } catch (e) {}
+      }
+      function contactRow(label, value, href, kind) {
+        var row = document.createElement("div");
+        row.setAttribute("style", "display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid #f0f0f2");
+        var l = document.createElement("span");
+        l.setAttribute("style", "text-align:left;color:#3a3a40;font-size:13.5px"); l.textContent = label;
+        var right = document.createElement("span");
+        right.setAttribute("style", "display:flex;align-items:center;gap:8px");
+        var a = document.createElement("a");
+        a.setAttribute("href", href);
+        a.setAttribute("style", "color:#19191c;font-weight:600;font-size:13.5px;text-decoration:none"); a.textContent = value;
+        var cp = document.createElement("button");
+        cp.setAttribute("style", "border:0;background:#f0f0f2;border-radius:7px;padding:5px 9px;cursor:pointer;font-size:12px;color:#3a3a40");
+        cp.textContent = "Copy";
+        cp.onclick = function () { copyText(value, kind); };
+        right.appendChild(a); right.appendChild(cp);
+        row.appendChild(l); row.appendChild(right);
+        return row;
+      }
+      var sModal = null;
+      function buildSupport() {
+        sModal = document.createElement("div");
+        sModal.id = "rpos-support";
+        sModal.setAttribute("style", "position:fixed;inset:0;background:rgba(15,15,20,.55);display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:20px 12px;z-index:2147483000;font-family:system-ui,Segoe UI,Roboto,sans-serif");
+        var inpS = "width:100%;padding:11px;border:1px solid #d5d5d9;border-radius:9px;margin-bottom:10px;box-sizing:border-box;font-size:14px;font-family:inherit";
+        var lblS = "display:block;text-align:left;font-size:12.5px;font-weight:600;color:#3a3a40;margin:2px 0 5px";
+        sModal.innerHTML =
+          '<div style="position:relative;background:#fff;max-width:560px;width:100%;margin:auto;border-radius:16px;padding:26px 24px;box-shadow:0 24px 70px rgba(0,0,0,.35);text-align:center">' +
+          '<button data-sx style="position:absolute;top:8px;right:12px;border:0;background:none;font-size:24px;line-height:1;color:#8a8a90;cursor:pointer">&times;</button>' +
+          '<h3 style="margin:0 0 6px;font-size:19px;color:#19191c">Customer Support</h3>' +
+          '<div style="color:#6b6b70;font-size:13px;margin-bottom:14px;line-height:1.45">Reach us by phone or email, or send us a message and we\'ll get back to you.</div>' +
+          '<div data-scontacts style="margin-bottom:16px"></div>' +
+          '<div style="text-align:left">' +
+          '<label style="' + lblS + '">Subject</label>' +
+          '<input data-ssubject placeholder="Brief description of your issue" style="' + inpS + '">' +
+          '<label style="' + lblS + '">Your contact details (optional)</label>' +
+          '<input data-scontact placeholder="Phone or email so we can reach you" style="' + inpS + '">' +
+          '<label style="' + lblS + '">Message</label>' +
+          '<textarea data-smessage rows="3" placeholder="Describe your issue in detail..." style="' + inpS + ';resize:vertical"></textarea>' +
+          '</div>' +
+          '<div data-serr style="display:none;text-align:left;color:#c0392b;font-size:12.5px;font-weight:600;margin:2px 0 10px"></div>' +
+          '<div style="display:flex;gap:10px;margin-top:6px">' +
+          '<button data-scancel style="flex:1;background:#f0f0f2;color:#3a3a40;font-weight:700;border:0;padding:12px;border-radius:11px;cursor:pointer;font-size:14px">Close</button>' +
+          '<button data-ssend style="flex:2;background:#c99400;color:#19191c;font-weight:800;border:0;padding:12px;border-radius:11px;cursor:pointer;font-size:15px">Send</button>' +
+          '</div>' +
+          '<div data-sok style="display:none;color:#1a7f37;font-weight:600;margin-top:14px;line-height:1.45">Message sent. We\'ll get back to you soon.</div>' +
+          '</div>';
+        document.body.appendChild(sModal);
+        var cbox = sModal.querySelector("[data-scontacts]");
+        for (var i = 0; i < SUPPORT_CONTACTS.length; i++) {
+          var c = SUPPORT_CONTACTS[i];
+          cbox.appendChild(contactRow(c.label, c.value, c.href, "Phone number"));
+        }
+        var em = supportEmail();
+        cbox.appendChild(contactRow("Email", em, "mailto:" + em, "Email"));
+        sModal.querySelector("[data-sx]").onclick = hideSupport;
+        sModal.querySelector("[data-scancel]").onclick = hideSupport;
+        document.addEventListener("keydown", function (e) {
+          if ((e.key === "Escape" || e.key === "Esc" || e.keyCode === 27) && sModal && sModal.style.display !== "none") { hideSupport(); }
+        });
+        sModal.querySelector("[data-ssend]").onclick = function () {
+          var subject = (sModal.querySelector("[data-ssubject]").value || "").trim();
+          var contactInfo = (sModal.querySelector("[data-scontact]").value || "").trim();
+          var message = (sModal.querySelector("[data-smessage]").value || "").trim();
+          var eb = sModal.querySelector("[data-serr]");
+          if (!subject) { eb.textContent = "Please enter a subject."; eb.style.display = "block"; return; }
+          if (!message) { eb.textContent = "Please enter a message."; eb.style.display = "block"; return; }
+          eb.style.display = "none";
+          var body = message + (contactInfo ? ("\n\nContact details: " + contactInfo) : "");
+          var url = "https://mail.google.com/mail/?view=cm&fs=1"
+            + "&to=" + encodeURIComponent(supportEmail())
+            + "&su=" + encodeURIComponent("[Support] " + subject)
+            + "&body=" + encodeURIComponent(body);
+          try { window.open(url, "_blank", "noopener"); } catch (e) {}
+          sModal.querySelector("[data-sok]").style.display = "block";
+        };
+      }
+      function hideSupport() { if (sModal) sModal.style.display = "none"; }
+      function showSupport() {
+        if (!sModal) buildSupport();
+        sModal.querySelector("[data-ssubject]").value = "";
+        sModal.querySelector("[data-scontact]").value = "";
+        sModal.querySelector("[data-smessage]").value = "";
+        var eb = sModal.querySelector("[data-serr]"); eb.style.display = "none"; eb.textContent = "";
+        sModal.querySelector("[data-sok]").style.display = "none";
+        sModal.style.display = "flex";
+      }
+      var supportLink = document.getElementById("support-link");
+      if (supportLink) supportLink.addEventListener("click", function (e) { e.preventDefault(); showSupport(); });
 
       // ----- Sidebar search filter -----
       var input = document.getElementById("learn-search-input");
