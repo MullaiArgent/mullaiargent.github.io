@@ -1,0 +1,197 @@
+/* web/subscription/learn.css
+   Layout + components for the LEARN help page. Reuses the palette + header/footer
+   classes from styles.css (loaded first). Light theme, matches the landing site. */
+
+.learn-hero {
+  text-align: center;
+  padding: 46px 20px 8px;
+}
+.learn-hero .pill { margin-bottom: 16px; }
+.learn-hero h1 {
+  font-size: 40px; line-height: 1.08; margin: 0 0 12px;
+  font-weight: 800; letter-spacing: -1px;
+}
+.learn-hero p.sub {
+  font-size: 17px; color: #5f5f66; max-width: 640px; margin: 0 auto;
+}
+
+/* ---------- Two-column doc layout ---------- */
+.learn-layout {
+  display: grid;
+  grid-template-columns: 268px minmax(0, 1fr);
+  gap: 44px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 26px 20px 90px;
+  align-items: start;
+}
+
+/* ---------- Sidebar / table of contents ---------- */
+.learn-toc {
+  position: sticky; top: 74px;
+  max-height: calc(100vh - 92px);
+  overflow: auto;
+  padding: 4px 8px 24px 0;
+}
+.learn-search {
+  position: relative; margin-bottom: 16px;
+}
+.learn-search input {
+  width: 100%; padding: 10px 12px 10px 34px;
+  border: 1px solid var(--line); border-radius: 10px;
+  background: var(--card); color: var(--ink);
+  font-family: inherit; font-size: 14px;
+}
+.learn-search input:focus { outline: 2px solid var(--gold-mid); border-color: var(--gold-mid); }
+.learn-search::before {
+  content: "\1F50D"; position: absolute; left: 10px; top: 9px;
+  font-size: 13px; opacity: 0.55;
+}
+.learn-toc .toc-group {
+  font-size: 11px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 1.2px; color: #9a8a5e;
+  margin: 18px 0 6px; padding-left: 10px;
+}
+.learn-toc ul { list-style: none; margin: 0 0 6px; padding: 0; }
+.learn-toc a {
+  display: block; padding: 6px 10px; border-radius: 8px;
+  color: var(--ink-soft); text-decoration: none; font-size: 14px;
+  border-left: 2px solid transparent; line-height: 1.35;
+}
+.learn-toc a:hover { background: rgba(245, 197, 66, 0.14); color: var(--ink); }
+.learn-toc a.active {
+  background: rgba(245, 197, 66, 0.20); color: var(--gold-deep);
+  font-weight: 700; border-left-color: var(--gold);
+}
+.toc-hidden { display: none !important; }
+
+/* ---------- Main content ---------- */
+.learn-main { min-width: 0; }
+.learn-section {
+  scroll-margin-top: 84px;
+  padding: 10px 0 30px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 22px;
+}
+.learn-section:last-child { border-bottom: none; }
+.learn-section > .eyebrow {
+  font-size: 12px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 1.4px; color: var(--gold-deep); margin: 0 0 4px;
+}
+.learn-section h2 {
+  font-size: 27px; font-weight: 800; letter-spacing: -0.6px;
+  margin: 0 0 8px;
+}
+.learn-section h3 {
+  font-size: 18px; font-weight: 700; margin: 26px 0 8px;
+}
+.learn-lead { font-size: 16px; color: #4a4a52; margin: 0 0 14px; max-width: 760px; }
+
+.where {
+  display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  background: var(--cream-deep); border: 1px solid var(--line);
+  border-radius: 999px; padding: 5px 13px;
+  font-size: 13px; color: #6a5a2a; font-weight: 600; margin-bottom: 16px;
+}
+.where .kbd { margin-left: 2px; }
+
+/* ---------- Screenshots ---------- */
+figure.shot { margin: 8px 0 18px; }
+figure.shot img {
+  width: 100%; height: auto; display: block;
+  border: 1px solid var(--card-line); border-radius: 12px;
+  box-shadow: var(--card-shadow);
+  background: #fff;
+}
+figure.shot figcaption {
+  font-size: 13px; color: #8a8a90; margin-top: 8px; text-align: center;
+  font-style: italic;
+}
+
+/* ---------- Steps ---------- */
+ol.steps { counter-reset: step; list-style: none; margin: 6px 0 14px; padding: 0; }
+ol.steps > li {
+  position: relative; padding: 3px 0 12px 40px; margin: 0;
+  border-left: 2px solid var(--line); margin-left: 13px;
+}
+ol.steps > li:last-child { border-left-color: transparent; }
+ol.steps > li::before {
+  counter-increment: step; content: counter(step);
+  position: absolute; left: -14px; top: 0;
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--gold); color: #fff;
+  font-size: 13px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ---------- Reference table ---------- */
+.table-scroll { overflow-x: auto; margin: 6px 0 16px; }
+table.ref {
+  width: 100%; border-collapse: collapse; font-size: 14px;
+  background: var(--card); border: 1px solid var(--card-line);
+  border-radius: 10px; overflow: hidden;
+}
+table.ref th, table.ref td {
+  text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--card-line);
+  vertical-align: top;
+}
+table.ref th {
+  background: var(--cream-deep); font-weight: 700; color: #5a4a1a;
+  white-space: nowrap;
+}
+table.ref tr:last-child td { border-bottom: none; }
+table.ref td:first-child { font-weight: 600; white-space: nowrap; }
+
+/* ---------- Callouts + keys ---------- */
+.tip, .note {
+  border-radius: 10px; padding: 12px 15px; margin: 12px 0 16px;
+  font-size: 14.5px; line-height: 1.5;
+}
+.tip {
+  background: rgba(245, 197, 66, 0.14);
+  border: 1px solid rgba(224, 164, 18, 0.35); color: #6a5310;
+}
+.note {
+  background: #f2f5fb; border: 1px solid #dbe4f2; color: #35455f;
+}
+.tip strong, .note strong { font-weight: 800; }
+
+.kbd {
+  display: inline-block; padding: 1px 7px; border-radius: 6px;
+  border: 1px solid #d6cbb0; border-bottom-width: 2px;
+  background: #fff; color: var(--ink);
+  font: 600 12.5px/1.5 "Segoe UI", system-ui, sans-serif; white-space: nowrap;
+}
+
+ul.plain { margin: 6px 0 14px; padding-left: 20px; }
+ul.plain li { margin: 3px 0; }
+
+/* ---------- Support card ---------- */
+.support-card { display: flex; flex-wrap: wrap; gap: 12px; margin: 4px 0 16px; }
+.support-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 11px 18px; border-radius: 10px; text-decoration: none;
+  font-weight: 700; font-size: 15px;
+  background: var(--gold); color: #3a2a00;
+  border: 1px solid var(--gold-deep);
+}
+.support-btn:hover { background: var(--gold-mid); }
+.support-btn.wa { background: #25812f; border-color: #1c6624; color: #fff; }
+.support-btn.wa:hover { background: #2e9c3a; }
+
+.back-top {
+  display: inline-block; margin-top: 6px; font-size: 13px;
+  color: var(--gold-deep); text-decoration: none; font-weight: 600;
+}
+.back-top:hover { text-decoration: underline; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+  .learn-layout { grid-template-columns: 1fr; gap: 0; }
+  .learn-toc {
+    position: static; max-height: none; overflow: visible;
+    margin-bottom: 22px; padding-bottom: 8px;
+    border-bottom: 1px solid var(--line);
+  }
+  .learn-hero h1 { font-size: 32px; }
+}

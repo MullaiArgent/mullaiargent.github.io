@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Learn RasidhuPOS - Feature guide & help</title>
+  <meta name="description" content="A complete guide to every RasidhuPOS feature: billing, purchases, items, reports, stocks, expenses, 2FA, subscription and more.">
+  <link rel="icon" type="image/png" href="trident.png">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="learn.css">
+  <script src="config.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav">
+      <a class="brand" href="index.html">
+        <img class="trident" alt="RasidhuPOS" src="trident.png">
+        <span><span class="brand-name">Rasidhu POS</span><span class="brand-sub">Point of Sale</span></span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html">Plans</a>
+        <a href="learn.html" aria-current="page">Learn</a>
+        <a href="#support">Support</a>
+      </div>
+    </nav>
+  </header>
+
+  <section class="learn-hero">
+    <span class="pill">Feature guide</span>
+    <h1>Everything RasidhuPOS can do</h1>
+    <p class="sub">A hands-on guide to every tab, every screen and every setting: how to bill, how to record a purchase, how to add an item, how to set up two-factor sign-in, and more. Use the search box or the menu to jump to any topic.</p>
+  </section>
+
+  <div class="learn-layout">
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="learn-toc" id="toc">
+      <div class="learn-search"><input id="learn-search-input" type="search" placeholder="Search features..." aria-label="Search features"></div>
+
+      <div class="toc-group">Help &amp; support</div>
+      <ul>
+        <li><a href="#support">Get support</a></li>
+      </ul>
+
+      <div class="toc-group">Getting started</div>
+      <ul>
+        <li><a href="#getting-started">How the app is organised</a></li>
+        <li><a href="#sign-in">Signing in</a></li>
+      </ul>
+
+      <div class="toc-group">Selling &amp; buying</div>
+      <ul>
+        <li><a href="#billing">Billing (make a sale)</a></li>
+        <li><a href="#purchase">Purchase (record stock)</a></li>
+        <li><a href="#rate-change">Rate Change (sale prices)</a></li>
+      </ul>
+
+      <div class="toc-group">Catalog</div>
+      <ul>
+        <li><a href="#catalog-items">Items</a></li>
+        <li><a href="#catalog-parties">Wholesale customers &amp; suppliers</a></li>
+      </ul>
+
+      <div class="toc-group">Daily operations</div>
+      <ul>
+        <li><a href="#stocks">Stocks</a></li>
+        <li><a href="#expenses">Expenses</a></li>
+        <li><a href="#amount-tally">Amount Tally</a></li>
+        <li><a href="#daily-sales">Daily Sales (quick report)</a></li>
+      </ul>
+
+      <div class="toc-group">Reports</div>
+      <ul>
+        <li><a href="#reports">Reports (Analytics)</a></li>
+      </ul>
+
+      <div class="toc-group">Invoicing &amp; printing</div>
+      <ul>
+        <li><a href="#invoicing">Invoicing &amp; bill design</a></li>
+      </ul>
+
+      <div class="toc-group">Staff</div>
+      <ul>
+        <li><a href="#employees">Employees</a></li>
+      </ul>
+
+      <div class="toc-group">Settings</div>
+      <ul>
+        <li><a href="#settings">Settings overview</a></li>
+        <li><a href="#settings-shop">Shop &amp; Billing</a></li>
+        <li><a href="#settings-appearance">Appearance</a></li>
+        <li><a href="#settings-users">Users &amp; Security</a></li>
+        <li><a href="#settings-data">Data &amp; Sync</a></li>
+        <li><a href="#settings-system">System</a></li>
+      </ul>
+
+      <div class="toc-group">Account &amp; security</div>
+      <ul>
+        <li><a href="#two-factor">Two-factor sign-in (2FA)</a></li>
+        <li><a href="#subscription">Subscription</a></li>
+        <li><a href="#cloud-sync">Cloud sync</a></li>
+        <li><a href="#updates">Software updates</a></li>
+        <li><a href="#audit-log">Audit Log</a></li>
+      </ul>
+    </aside>
+
+    <!-- ============ MAIN ============ -->
+    <main class="learn-main">
+
+      <section class="learn-section" id="support">
+        <p class="eyebrow">Help &amp; support</p>
+        <h2>Get support</h2>
+        <p class="learn-lead">We are a small team and reply to every message. Reach us any time and we will help you get set up or sort out a problem.</p>
+        <div class="support-card">
+          <a class="support-btn js-email-link" href="#">Email us: <span class="js-email">support</span></a>
+          <a class="support-btn wa js-wa-link" href="#">WhatsApp: <span class="js-whatsapp">chat with us</span></a>
+        </div>
+        <div class="note"><strong>About your subscription.</strong> Your subscription is linked to your Google account and works on both desktop and Android. If your payment is confirmed but the app has not unlocked, keep RasidhuPOS open, it checks and unlocks automatically. If it still does not unlock, email us your Google account email and UPI reference (UTR) and we will sort it out.</div>
+        <a class="back-top" href="#top">Back to top</a>
+      </section>
+
+      <section class="learn-section" id="getting-started">
+        <p class="eyebrow">Getting started</p>
+        <h2>How the app is organised</h2>
+        <p class="learn-lead">RasidhuPOS is a shop counter you run from one window. A tab bar runs down the left; the tab you pick fills the rest of the screen. The bar along the bottom shows sync status, the clock, the Quick Report chip and a support link.</p>
+        <figure class="shot"><img src="img/learn/00_home.png" alt="The RasidhuPOS main window with the tab bar on the left"><figcaption>The main window. Tabs run down the left; the selected tab fills the screen.</figcaption></figure>
+        <h3>The tabs</h3>
+        <div class="table-scroll"><table class="ref">
+          <tr><th>Tab</th><th>What it is for</th></tr>
+          <tr><td>Purchase</td><td>Record stock you buy from suppliers.</td></tr>
+          <tr><td>Stocks</td><td>Enter and read each day's closing stock and wastage.</td></tr>
+          <tr><td>Billing</td><td>Ring up sales and print or share bills.</td></tr>
+          <tr><td>Invoicing</td><td>Design your receipt and A4 invoice layout.</td></tr>
+          <tr><td>Reports</td><td>Sales, purchase, stock, profit and other analytics.</td></tr>
+          <tr><td>Amount Tally</td><td>Close out the day's cash and reconcile it.</td></tr>
+          <tr><td>Rate Change</td><td>Change item sale prices, with a change history.</td></tr>
+          <tr><td>Expenses</td><td>Record shop spending by category.</td></tr>
+          <tr><td>Employees</td><td>Staff records, salary and payments.</td></tr>
+          <tr><td>Audit Log</td><td>A timeline of who changed what, with restore.</td></tr>
+          <tr><td>Settings</td><td>Every configuration option (opens a dialog).</td></tr>
+        </table></div>
+        <div class="tip"><strong>Tip.</strong> You can rename tabs, hide ones you do not use, and set your own keyboard shortcuts under Settings &rsaquo; Appearance. Because the shortcuts are yours to change, this guide points you to buttons and menus rather than fixed keys.</div>
+        <a class="back-top" href="#top">Back to top</a>
+      </section>
+
+      <section class="learn-section" id="sign-in">
+        <p class="eyebrow">Getting started</p>
+        <h2>Signing in</h2>
+        <p class="learn-lead">Each person has their own login. The owner account (Super Admin) can see every shop and every setting; cashier and admin accounts are scoped to their shop and to the tabs the owner allows.</p>
+        <ol class="steps">
+          <li>Start RasidhuPOS. On the login screen, pick your account.</li>
+          <li>Type your password (or PIN, if your account uses one) and confirm.</li>
+        </ol>
+        <div class="note"><strong>Protecting the owner account.</strong> The owner (Super Admin) account can be secured with two-factor sign-in using Google Authenticator, which guards sensitive actions such as reinitializing the app. See <a href="#two-factor">Two-factor sign-in</a>.</div>
+        <a class="back-top" href="#top">Back to top</a>
+      </section>
+
+      <section class="learn-section" id="billing">
+        <p class="eyebrow">Selling &amp; buying</p>
+        <h2>Billing (make a sale)</h2>
+        <p class="learn-lead">The Billing tab is where you ring up a sale, enter the customer and item lines, take payment, and save the bill. Saving prints and/or saves a bill image, and can share it on WhatsApp or email.</p>
+        <div class="where">Where: the Billing tab</div>
+        <figure class="shot"><img src="img/learn/tab_billing.png" alt="The Billing tab"><figcaption>The Billing tab in Customer mode. The live total is top right; recent bills are on the right.</figcaption></figure>
+
+        <h3>The screen, top to bottom</h3>
+        <ul class="plain">
+          <li><strong>Action bar:</strong> the auto bill number badge, and the New bill, Edit bill, Reprint bill and Cancel bill buttons, plus the full-screen toggle.</li>
+          <li><strong>Customer card:</strong> the "Customer" and "Wholesale" choice, a large live total (Customer mode), and Name / Phone / Address / Date, plus a "More" button for email, GST state, GSTIN and an invoice description.</li>
+          <li><strong>Ledger strip (Wholesale only):</strong> Previous balance, This bill, They paid and Closing balance.</li>
+          <li><strong>Bill items:</strong> the entry row (Item #, Item name, Quantity, Rate, Amount, and "+ Add"), the line table, and a footer with Delivery, Discount, payment fields, "Print bill" and "Save bill".</li>
+          <li><strong>Recent bills:</strong> a date-range list of recent bills you can copy, view, reprint or share.</li>
+        </ul>
+
+        <h3>How to make a walk-in (Customer) bill</h3>
+        <ol class="steps">
+          <li>Leave the <strong>Customer</strong> option selected (it is the default).</li>
+          <li>Optionally fill <strong>Name</strong>, <strong>Phone</strong> or <strong>Address</strong>. Filling any of these ticks "Delivery" automatically.</li>
+          <li>In <strong>Item #</strong>, type an item code or name and select it (or pick from the dropdown). The name and rate fill in.</li>
+          <li>Enter the <strong>Quantity</strong>, then the <strong>Amount</strong> if you want to bill by rupee value, and click <strong>+ Add</strong> to add the line.</li>
+          <li>Repeat for each item. Watch the large total in the top right.</li>
+          <li>Optionally tick <strong>Discount</strong> (owner password) and type the rupee amount off.</li>
+          <li>Click <strong>Save bill</strong>.</li>
+        </ol>
+
+        <h3>How to make a Wholesale bill (with a running account)</h3>
+        <ol class="steps">
+          <li>Choose the <strong>Wholesale</strong> option.</li>
+          <li>Pick the customer from the <strong>Wholesale</strong> dropdown. The phone fills in for you.</li>
+          <li>Add items the same way. Here you type the <strong>Rate</strong> freely (no owner password needed).</li>
+          <li>Enter what they paid in the cash <strong>Amount</strong> and/or <strong>UPI</strong> field. The ledger strip updates Previous balance, This bill, They paid and Closing balance live.</li>
+          <li>Save. Any unpaid amount stays on the customer's running balance (khata).</li>
+        </ol>
+        <div class="note"><strong>Payment only, no items?</strong> To record a wholesale customer paying down their balance, pick them, add no lines, type the payment, and save. It is stored as a settlement.</div>
+
+        <h3>Editing, cancelling and restoring</h3>
+        <ul class="plain">
+          <li><strong>Edit a bill:</strong> click <strong>Edit bill</strong> (owner password), type the number and pick the issue date, then <strong>Open bill</strong>. The bill keeps its number when you save.</li>
+          <li><strong>Cancel a bill:</strong> click <strong>Cancel bill</strong> (owner password), type the number and date, confirm. It is a soft delete: the bill stays in the records (shown struck through) for audit.</li>
+          <li><strong>Restore a cancelled bill:</strong> right-click the struck-through row in Recent bills and choose "Restore this bill". It also restores from the <a href="#audit-log">Audit Log</a>.</li>
+          <li><strong>Reprint or share:</strong> right-click a recent bill row for View, Copy bill image, Send via WhatsApp, Send by email, Reprint or Edit.</li>
+        </ul>
+
+        <h3>Key controls</h3>
+        <div class="table-scroll"><table class="ref">
+          <tr><th>Control</th><th>What it does</th></tr>
+          <tr><td>Item #</td><td>Accepts both a number and a name. Type "1" to match code 1, or "chi" to match Chicken items, then select it.</td></tr>
+          <tr><td>Rate</td><td>For a customer sale the saved rate is used; changing it needs the owner password. For wholesale you type it freely.</td></tr>
+          <tr><td>Amount</td><td>Typing an amount back-solves the quantity (amount divided by rate).</td></tr>
+          <tr><td>Delivery</td><td>Marks the bill a delivery. Tick "Send to WhatsApp" to auto-send the bill image on save (needs a phone).</td></tr>
+          <tr><td>Print bill</td><td>Prints the receipt on save. It is off and disabled until a receipt printer is set in Settings. Untick it to save without printing.</td></tr>
+          <tr><td>Save bill</td><td>Saves the bill, prints it (if Print bill is ticked), and shares it if configured.</td></tr>
+        </table></div>
+
+        <div class="tip"><strong>Fast at the counter.</strong> The whole sale can be done from the keyboard: item, quantity, amount, add, repeat, then save. Bill numbers are assigned automatically and run as separate series for walk-in and wholesale.</div>
+        <a class="back-top" href="#top">Back to top</a>
+      </section>
+
+      <section class="learn-section" id="purchase">
+        <p class="eyebrow">Selling &amp; buying</p>
+        <h2>Purchase (record stock)</h2>
+        <p class="learn-lead">The Purchase tab records stock you buy from suppliers: items, quantities, per-unit rates and payment. It mirrors Billing, and keeps a running supplier ledger so you always know what you owe each supplier.</p>
+        <div class="where">Where: the Purchase tab</div>
+        <figure class="shot"><img src="img/learn/tab_purchase.png" alt="The Purchase tab"><figcaption>The Purchase tab. The supplier ledger strip shows what you owe and the closing balance.</figcaption></figure>
+
+        <h3>How to record a purchase</h3>
+        <ol class="steps">
+          <li>Pick the supplier from the <strong>Supplier</strong> dropdown. (Add suppliers in <a href="#catalog-parties">Settings &rsaquo; Suppliers</a>.)</li>
+          <li>Optionally change the <strong>Date</strong> (or click "Today") and type a note such as the supplier's bill number.</li>
+          <li>In <strong>Item #</strong>, type a code or name and select it.</li>
+          <li>Enter the quantity, then the per-unit rate (the faint hint is the last rate you paid this supplier for that item), and click <strong>+ Add</strong> to add the line.</li>
+          <li>Repeat for each item. Enter what you paid in the cash <strong>Amount</strong> and/or <strong>UPI</strong> field; the <strong>Closing</strong> ledger card updates live.</li>
+          <li>Toggle <strong>Print bill</strong>, then click <strong>Save purchase</strong>.</li>
+        </ol>
+
+        <h3>The supplier ledger</h3>
+        <p class="learn-lead">The five cards across the top read: <strong>They owe us</strong>, <strong>We owe them</strong>, <strong>This bill</strong>, <strong>We paid</strong> and <strong>Closing</strong>. The closing balance is the previous balance plus what you paid, minus this bill. Green means they owe you; red means you owe them.</p>
+
+        <h3>Editing, cancelling and restoring</h3>
+        <ul class="plain">
+          <li><strong>Edit:</strong> "Edit purchase" (owner password), type the number and date, "Open purchase". Or double-click a row in Recent purchases and choose "Edit (owner)".</li>
+          <li><strong>Cancel:</strong> "Cancel purchase" (owner password), type the number and date, confirm. Soft delete, kept for audit.</li>
+          <li><strong>Restore:</strong> right-click the struck-through row in Recent purchases and choose "Restore this purchase".</li>
+        </ul>
+        <div class="note"><strong>Note.</strong> Purchase receipts print on the thermal printer only (there is no A4 invoice or email for purchases). Everything else works just like Billing.</div>
+        <a class="back-top" href="#top">Back to top</a>
+      </section>
+
+      <section class="learn-section" id="rate-change">
+        <p class="eyebrow">Selling &amp; buying</p>
+        <h2>Rate Change (sale prices)</h2>
+        <p class="learn-lead">Change your items' selling prices in one place, with every change logged. New prices apply immediately to new bills and to stock valuation. Already-saved bills are never changed.</p>
+        <div class="where">Where: the Rate Change tab</div>
+        <figure class="shot"><img src="img/learn/tab_rate.png" alt="The Rate Change tab"><figcaption>Edit the gold "Current sale" cell inline; the right pane keeps a full change history.</figcaption></figure>
+        <h3>How to change an item's sale rate</h3>
+        <ol class="steps">
+          <li>Open the Rate Change tab.</li>
+          <li>Double-click the item's <strong>Current sale &#8377;</strong> cell (owner and admin view) or <strong>Rate &#8377;</strong> cell (cashier view).</li>
+          <li>Type the new price and confirm the edit.</li>
+          <li>Enter the admin password when prompted. The cell updates and the change appears in the history pane on the right.</li>
+        </ol>
+        <div class="tip"><strong>Tip.</strong> Drag the handle at the start of a row to reorder your item list; that order carries over to Billing and Purchase. Cashiers get a simplified single-column view without the history pane.</div>
+        <a class="back-top" href="#top">Back to top</a>
+      </section>
+
+      <section class="learn-section" id="catalog-items">
+        <p class="eyebrow">Catalog</p>
+        <h2>Items</h2>
+        <p class="learn-lead">Your product list. Items are looked up by their Item # in Billing and Purchase. Manage them in Settings.</p>
+        <div class="where">Where: Settings &rsaquo; Catalog &rsaquo; Items</div>
+        <figure class="shot"><img src="img/learn/settings__Items.png" alt="The Items settings page"><figcaption>The item list: code, name, unit, sale price and purchase price. Buttons to add, edit, delete and set HSN / GST.</figcaption></figure>
+        <h3>How to add an item</h3>
+        <ol class="steps">
+          <li>Open <strong>Settings</strong> and go to <strong>Catalog &rsaquo; Items</strong>.</li>
+          <li>Click <strong>+ Add item</strong>.</li>
+          <li>Give it a short <strong>Item #</strong> (a simple number like 1, 2, 3 is easiest to type at the till), a <strong>Name</strong>, and a <strong>Unit</strong> (for example kg or unit).</li>
+          <li>Enter the <strong>Sale &#8377;</strong> price and the <strong>Purchase &#8377;</strong> (cost) price. Optionally set an opening stock.</li>
+          <li>Click <strong>Apply</strong> or <strong>OK</strong> to save. The item is now available in Billing, Purchase, Stocks and Rate Change.</li>
+        </ol>
+        <div class="table-scroll"><table class="ref">
+          <tr><th>Field</th><th>What it means</th></tr>
+          <tr><td>#</td><td>The item code you type in the Item # box while billing. Keep it short and unique.</td></tr>
+          <tr><td>Name</td><td>The item name, shown on the bill and searchable in the Item name box.</td></tr>
+          <tr><td>Unit</td><td>The selling unit, for example kg or unit.</td></tr>
+          <tr><td>Sale &#8377;</td><td>The default selling price. Change it later from the <a href="#rate-change">Rate Change</a> tab so the change is logged.</td></tr>
+          <tr><td>Purchase &#8377;</td><td>The cost price, used for profit and stock valuation.</td></tr>
+          <tr><td>Set HSN / GST</td><td>Optional tax details (HSN code and GST rate) for GST invoices.</td></tr>
+          <tr><td>Base &times; Ratio</td><td>For a derived item (for example a cut priced as a ratio of a base item), links it to its base.</td></tr>
+        </table></div>
+        <div class="note"><strong>Note.</strong> The selling rate is only changed from the <a href="#rate-change">Rate Change</a> tab (so every change is logged); the Items page sets everything else.</div>
+        <a class="back-top" href="#top">Back to top</a>
+      </section>
+
+      <section class="learn-section" id="catalog-parties">
+        <p class="eyebrow">Catalog</p>
+        <h2>Wholesale customers &amp; suppliers</h2>
+        <p class="learn-lead">Saved accounts you bill or buy from on a running balance. Walk-in customers do not need an account, you just type their name on the bill. Wholesale customers and suppliers are saved here so their ledger carries over.</p>
+        <div class="where">Where: Settings &rsaquo; Catalog &rsaquo; Wholesale customers / Suppliers</div>
+        <figure class="shot"><img src="img/learn/settings__Suppliers.png" alt="The Suppliers settings page"><figcaption>Suppliers are managed here; Wholesale customers have their own page in the same Catalog group.</figcaption></figure>
+        <h3>How to add a wholesale customer or supplier</h3>
+        <ol class="steps">
+          <li>Open <strong>Settings</strong> and go to <strong>Catalog</strong>.</li>
+          <li>Pick <strong>Wholesale customers</strong> (for a shop or hotel you sell to on credit) or <strong>Suppliers</strong> (for a farm or wholesaler you buy from).</li>
+          <li>Click Add, then fill the <strong>Name</strong>, <strong>Phone</strong>, <strong>Address</strong> and, if you keep an opening balance, the amount already owed.</li>
+          <li>Save. The account now appears in the Wholesale dropdown in Billing (customers) or the Supplier dropdown in Purchase (suppliers), with its running ledger.</li>
+        </ol>
+        <a class="back-top" href="#top">Back to top</a>
+      </section>
+
+      <section class="learn-section" id="stocks">
+        <p class="eyebrow">Daily operations</p>
+        <h2>Stocks</h2>
+        <p class="learn-lead">A daily stock workbook. Enter each item's actual closing count for a chosen day; opening, purchased and sales reconcile automatically, and the day's stock loss (sinkage) is worked out for you.</p>
+        <div class="where">Where: the Stocks tab</div>
+        <figure class="shot"><img src="img/learn/tab_stocks.png" alt="The Stocks tab"><figcaption>The daily stock workbook. Edit the Stock or Sinkage cell; the other recomputes.</figcaption></figure>
+        <p class="learn-lead">It follows one simple identity: <strong>opening + purchased = closing + sold + sinkage</strong>.</p>
+        <h3>How to record closing stock</h3>
+        <ol class="steps">
+          <li>Open the Stocks tab and set the <strong>Date</strong>.</li>
+          <li>On the <strong>UNITS</strong> tab, click the <strong>Stock</strong> cell for an item and type the count left at the end of the day, then move to the next item. (You can instead type the units lost into the <strong>Sinkage</strong> cell and let Stock recompute.)</li>
+          <li>Read the day's total loss and the biggest losses in the "Sinkage today" card. Switch to the <strong>AMOUNT</strong> tab for the rupee view.</li>
+        </ol>
+        <div class="tip"><strong>Export.</strong> Use the <strong>PDF</strong> or <strong>Excel</strong> button at the top to export the active tab. To change an item's name or price, go to Settings &rsaquo; Items.</div>
+        <a class="back-top" href="#top">Back to top</a>
+      </section>
+
+      <section class="learn-section" id="expenses">
+        <p class="eyebrow">Daily operations</p>
+        <h2>Expenses</h2>
+        <p class="learn-lead">Record shop spending (cash and/or UPI), organise it into colour-coded categories, and see per-day and per-category totals.</p>
+        <div class="where">Where: the Expenses tab</div>
+        <figure class="shot"><img src="img/learn/tab_expenses.png" alt="The Expenses tab"><figcaption>Record expenses on the left; see the category breakdown on the right.</figcaption></figure>
+        <h3>How to record an expense</h3>
+        <ol class="steps">
+          <li>Open the Expenses tab.</li>
+          <li>Pick a <strong>Category</strong>.</li>
+          <li>Type the cash amount in <strong>&#128181; Amount &#8377;</strong>, the UPI amount in <strong>&#128241; UPI &#8377;</strong>, or both.</li>
+          <li>Set the <strong>Date</strong> if it is not today, and choose a <strong>Spread</strong> (leave "One-off (1 day)" for a normal same-day expense; longer spreads amortise the daily share).</li>
+          <li>Optionally add a note in <strong>Notes / who paid</strong>, then click <strong>+ Record</strong>.</li>
+        </ol>
+        <h3>How to add an expense category</h3>
+        <ol class="steps">
+          <li>In the "Spending by category" pane on the right, click <strong>+ Add</strong>.</li>
+          <li>Type a <strong>Name</strong> (for example Rent) and pick a colour with <strong>Pick colour...</strong>.</li>
+          <li>Click <strong>Save</strong>. Use <strong>Rename</strong>, <strong>Recolor</strong> or <strong>Delete</strong> to manage existing categories.</li>
+        </ol>
+        <div class="note"><strong>Note.</strong> Filling both Amount and UPI records two rows (one per mode) so cash and UPI reporting stay exact. The "Salary" category is reserved for staff payouts from the Employees tab, and cannot be renamed or deleted. Editing or deleting a past expense needs the owner password.</div>
+        <a class="back-top" href="#top">Back to top</a>
+      </section>
+
+      <section class="learn-section" id="amount-tally">
+        <p class="eyebrow">Daily operations</p>
+        <h2>Amount Tally (day close-out)</h2>
+        <p class="learn-lead">Reconcile a single day's cash at close: expected cash (Total A) versus what you counted and paid out (Total B). The banner tells you if the day is balanced, over or short. It is a cash-only view (UPI is tracked separately).</p>
+        <div class="where">Where: the Amount Tally tab</div>
+        <figure class="shot"><img src="img/learn/tab_amount_tally.png" alt="The Amount Tally tab"><figcaption>Three columns: cash expenses, sales and receipts, and pending / payouts. The banner flags any mismatch.</figcaption></figure>
+        <h3>How to close out a day</h3>
+        <ol class="steps">
+          <li>Open the Amount Tally tab and set the date with the previous / next day arrows or the <strong>Today</strong> button.</li>
+          <li>Count the cash and type it into <strong>Closing / Kalla</strong> and <strong>Cash in hand</strong> (use the <strong>+</strong> button to add to a value, the reset button to revert to the auto figure).</li>
+          <li>Add any rows under <strong>Pending Amount</strong> and <strong>Due Clearance / Wholesale Payouts</strong>.</li>
+          <li>Read the banner: <strong>CORRECT AMOUNT</strong> (balanced), <strong>EXCESS</strong> (over, green), or <strong>SHORTAGE</strong> (short, red).</li>
+        </ol>
+        <div class="tip"><strong>Tip.</strong> Your counted closing cash carries forward as tomorrow's opening cash, so each day flows into the next. Wholesale cash bills appear automatically under "Due Clearance / Wholesale Payouts" so nothing is double counted.</div>
+        <a class="back-top" href="#top">Back to top</a>
+      </section>
+
+      <section class="learn-section" id="daily-sales">
+        <p class="eyebrow">Daily operations</p>
+        <h2>Daily Sales (quick report)</h2>
+        <p class="learn-lead">A one-day sales snapshot you can open from anywhere, split into retail (walk-in) versus wholesale (hotel), with per-item totals.</p>
+        <div class="where">Where: the "Quick Report" chip in the bottom bar</div>
+        <figure class="shot"><img src="img/learn/daily_sales_report.png" alt="The Daily Sales quick report"><figcaption>The grand total hero, the retail vs wholesale split, and per-item tables for the chosen day.</figcaption></figure>
+        <ol class="steps">
+          <li>Click the <strong>Quick Report</strong> chip in the bottom bar.</li>
+          <li>Pick a day with the <strong>Date</strong> picker or the <strong>Today</strong> button.</li>
+          <li>Read the hero for the grand total, bill count, average bill and top item; the two panels for the retail vs wholesale split; and the two tables for per-item quantity and amount.</li>
+        </ol>
+        <a class="back-top" href="#top">Back to top</a>
+      </section>
+
+      <section class="learn-section" id="reports">
+        <p class="eyebrow">Reports</p>
+        <h2>Reports (Analytics)</h2>
+        <p class="learn-lead">Query, chart and export every kind of business report for any date range and any shop, plus a cross-shop Overview dashboard. Reports update automatically as you change the filters, there is no "Generate" button.</p>
+        <div class="where">Where: the Reports tab</div>
+        <figure class="shot"><img src="img/learn/tab_reports.png" alt="The Reports tab"><figcaption>Pick a report and a date range; the table and trend chart update as you filter.</figcaption></figure>
+        <h3>How to run a report</h3>
+        <ol class="steps">
+          <li>Open the Reports tab.</li>
+          <li>Choose a type in the <strong>Report</strong> dropdown.</li>
+          <li>Set the dates with the <strong>Range</strong> presets (Today, 7 days, 30 days, 90 days, This year, Custom range) or the From / To pickers.</li>
+          <li>Narrow further with <strong>Shop</strong>, <strong>Party</strong>, <strong>Mode</strong> or <strong>Item</strong> as offered. Click a column header to sort.</li>
+          <li>Use <strong>&#10515; Export</strong> for PDF, Excel, CSV or "Copy as image", or <strong>&#10697; Undock</strong> to open the result in its own window beside another report.</li>
+        </ol>
+        <h3>The report types</h3>
+        <ul class="plain">
+          <li>Sales (bills), Purchases, Stock + wastage + valuation</li>
+          <li>Party ledger, Supplier ledger statement, Profit &amp; Loss</li>
+          <li>Expense by category, Cash &amp; UPI accounts, Day-end tally sheet</li>
+          <li>Weekly purchase by category, Items Sold (aggregate)</li>
+          <li>Item-wise sales (customer vs wholesale), Item-wise P/L, Item List / Rate Card</li>
+          <li>Employee salary, Employee ledger (detail)</li>
+        </ul>
+        <div class="tip"><strong>Tip.</strong> Turn on <strong>&#128269; Search columns</strong> for a per-column search box, or <strong>&#9879; Filter</strong> for an advanced AND / OR query builder. On a Sales or Purchase report, click a row to see its line items in the detail pane, or use "Find bill by address / phone" to locate a specific bill. The <strong>Overview</strong> sub-tab shows a cross-shop dashboard with KPI cards and charts.</div>
+        <a class="back-top" href="#top">Back to top</a>
+      </section>
+
+      <section class="learn-section" id="invoicing">
+        <p class="eyebrow">Invoicing &amp; printing</p>
+        <h2>Invoicing &amp; bill design</h2>
+        <p class="learn-lead">Design exactly how your printed bill looks. A live preview shows your real layout; drag elements to move them, resize them, and edit the text. Separate layouts exist for the customer bill, the wholesale bill and the purchase bill.</p>
+        <div class="where">Where: the Invoicing tab</div>
+        <figure class="shot"><img src="img/learn/tab_invoicing.png" alt="The Invoicing tab with the bill designer"><figcaption>The bill designer. Pick a format, pick a template tab, then drag and edit elements on the live preview.</figcaption></figure>
+        <h3>How to design your bill</h3>
+        <ol class="steps">
+          <li>Open the Invoicing tab.</li>
+          <li>Pick the <strong>Invoice format</strong> (for example "88mm Thermal Receipt" or an A4 letter-pad), and tick <strong>Item prices already include GST (MRP-style)</strong> if that matches your pricing.</li>
+          <li>Choose which layout to edit with the <strong>Customer Sale Bill</strong>, <strong>Wholesale Sale Bill</strong> or <strong>Purchase Bill</strong> tab.</li>
+          <li>On the live preview: drag an element to move it; select it to change its size, font and style, or drag its handles to resize; double-click text to edit it; right-click for more options.</li>
+          <li>Use <strong>+ Add element</strong> to add fields or text. Click <strong>Test print</strong> to try it on your printer, then <strong>Save</strong>. <strong>Reset to defaults</strong> restores the standard layout.</li>
+        </ol>
+        <div class="note"><strong>Note.</strong> The second sub-tab, <strong>Notification Configuration</strong>, controls the WhatsApp and email messages sent with a bill. The customer layout also has a <strong>Walk-in</strong> and <strong>Delivery</strong> variant you can switch between while designing.</div>
+        <a class="back-top" href="#top">Back to top</a>
+      </section>
+
+      <section class="learn-section" id="employees">
+        <p class="eyebrow">Staff</p>
+        <h2>Employees</h2>
+        <p class="learn-lead">Keep staff records, daily salary rates and payment history. Once an employee is added you can log their earnings and record payouts, and see what balance is still due.</p>
+        <div class="where">Where: the Employees tab</div>
+        <figure class="shot"><img src="img/learn/tab_hr.png" alt="The Employees tab"><figcaption>The employee list on the left; the selected employee's salary summary and payments on the right.</figcaption></figure>
+        <h3>How to add an employee and record pay</h3>
+        <ol class="steps">
+          <li>Open the Employees tab.</li>
+          <li>Click <strong>Add employee</strong> and record the name, daily rate and joining date.</li>
+          <li>Pick the employee on the left to see <strong>Earnings to date</strong>, <strong>Paid out</strong> and <strong>Balance due</strong>, plus the monthly summary.</li>
+          <li>Use the payout action to log a payment (date, amount, mode, notes). Salary payouts also appear under the reserved "Salary" category in <a href="#expenses">Expenses</a>.</li>
+        </ol>
+        <a class="back-top" href="#top">Back to top</a>
+      </section>
+
+      <section class="learn-section" id="settings">
+        <p class="eyebrow">Settings</p>
+        <h2>Settings overview</h2>
+        <p class="learn-lead">Every configuration option lives in the Settings dialog, organised into a tree on the left. Changes are buffered: nothing is saved until you click <strong>Apply</strong> or <strong>OK</strong>, and <strong>Cancel</strong> discards them.</p>
+        <div class="where">Where: the Settings tab</div>
+        <figure class="shot"><img src="img/learn/settings_00_overview.png" alt="The Settings dialog"><figcaption>The Settings dialog. Search at the top, the page tree on the left, and OK / Cancel / Apply at the bottom.</figcaption></figure>
+        <p class="learn-lead">The tree has seven groups. Each group heading is itself a landing page, with detailed pages beneath it:</p>
+        <div class="table-scroll"><table class="ref">
+          <tr><th>Group</th><th>Pages inside it</th></tr>
+          <tr><td><a href="#settings-shop">Shop &amp; Billing</a></td><td>Shop Profiles, Payments &amp; QR, Numbering, Custom fields, Printer setup, Tax &amp; totals</td></tr>
+          <tr><td><a href="#catalog-items">Catalog</a></td><td>Items, Wholesale customers, Suppliers</td></tr>
+          <tr><td><a href="#settings-appearance">Appearance</a></td><td>Theme &amp; font, Tabs Settings, Keyboard shortcuts, Startup</td></tr>
+          <tr><td><a href="#settings-users">Users &amp; Security</a></td><td>Users &amp; roles, Permission prompts, Two-factor (2FA), Active sessions</td></tr>
+          <tr><td><a href="#settings-data">Data &amp; Sync</a></td><td>Cloud sync, Backup &amp; retention, Reset installation</td></tr>
+          <tr><td><a href="#settings-system">System</a></td><td>Diagnostics</td></tr>
+          <tr><td><a href="#settings-system">About</a></td><td>Subscription, Software updates, Customer support</td></tr>
+        </table></div>
+        <div class="tip"><strong>Tip.</strong> Use the <strong>Search settings...</strong> box at the top of the dialog to jump straight to any option by name.</div>
+        <a class="back-top" href="#top">Back to top</a>
+      </section>
+
+      <section class="learn-section" id="settings-shop">
+        <p class="eyebrow">Settings</p>
+        <h2>Shop &amp; Billing settings</h2>
+        <p class="learn-lead">Everything about your shop identity and how bills are numbered, taxed and printed.</p>
+        <div class="where">Where: Settings &rsaquo; Shop &amp; Billing</div>
+        <figure class="shot"><img src="img/learn/settings__Shop_Profiles.png" alt="Shop Profiles settings"><figcaption>Shop Profiles: your shop name, address, phone and GSTIN, printed on bills.</figcaption></figure>
+        <div class="table-scroll"><table class="ref">
+          <tr><th>Page</th><th>What you set there</th></tr>
+          <tr><td>Shop Profiles</td><td>Each shop's name, address, phone and GSTIN, and which shop is active.</td></tr>
+          <tr><td>Payments &amp; QR</td><td>Your UPI / payment details and the QR code printed on bills.</td></tr>
+          <tr><td>Numbering</td><td>Bill and purchase number prefixes and how often the counter resets (daily, per financial year, or continuous).</td></tr>
+          <tr><td>Custom fields</td><td>Extra fields you can add to a bill or purchase (shown on the invoice).</td></tr>
+          <tr><td>Printer setup</td><td>Which receipt printer to use and the default output (thermal receipt or A4 letter-pad).</td></tr>
+          <tr><td>Tax &amp; totals</td><td>GST behaviour, rounding and how totals are calculated.</td></tr>
+        </table></div>
+        <a class="back-top" href="#top">Back to top</a>
+      </section>
+
+      <section class="learn-section" id="settings-appearance">
+        <p class="eyebrow">Settings</p>
+        <h2>Appearance settings</h2>
+        <p class="learn-lead">Make the app comfortable to use: theme, text size, which tabs show, shortcut keys, and what happens at startup.</p>
+        <div class="where">Where: Settings &rsaquo; Appearance</div>
+        <figure class="shot"><img src="img/learn/settings__Theme___font.png" alt="Theme and font settings"><figcaption>Theme &amp; font: light or dark theme, text size, and the startup tips toggle.</figcaption></figure>
+        <div class="table-scroll"><table class="ref">
+          <tr><th>Page</th><th>What you set there</th></tr>
+          <tr><td>Theme &amp; font</td><td>Light or dark theme, the text size, and whether a helpful tip shows on the loading screen at startup.</td></tr>
+          <tr><td>Tabs Settings</td><td>Rename tabs, change their colour, and hide tabs you do not use.</td></tr>
+          <tr><td>Keyboard shortcuts</td><td>View and set your own shortcut keys for actions such as new bill, save and reprint. Because they are yours to change, this guide does not list fixed keys.</td></tr>
+          <tr><td>Startup</td><td>What the app does when it opens.</td></tr>
+        </table></div>
+        <a class="back-top" href="#top">Back to top</a>
+      </section>
+
+      <section class="learn-section" id="settings-users">
+        <p class="eyebrow">Settings</p>
+        <h2>Users &amp; Security settings</h2>
+        <p class="learn-lead">Manage who can sign in, what each account can do, and the security controls that protect sensitive actions.</p>
+        <div class="where">Where: Settings &rsaquo; Users &amp; Security</div>
+        <figure class="shot"><img src="img/learn/settings__Users___roles.png" alt="Users and roles settings"><figcaption>Users &amp; roles: create owner, admin and cashier accounts and set what each can access.</figcaption></figure>
+        <div class="table-scroll"><table class="ref">
+          <tr><th>Page</th><th>What you set there</th></tr>
+          <tr><td>Users &amp; roles</td><td>Create and edit accounts (owner / admin / cashier), reset passwords, and choose which tabs each role can open.</td></tr>
+          <tr><td>Permission prompts</td><td>Which sensitive actions ask for the owner password (for example changing a rate, applying a discount, deleting an expense), and the "Don't ask again" choices.</td></tr>
+          <tr><td>Two-factor (2FA)</td><td>Pair Google Authenticator to protect Super Admin actions. See <a href="#two-factor">Two-factor sign-in</a>.</td></tr>
+          <tr><td>Active sessions</td><td>See where the account is currently signed in.</td></tr>
+        </table></div>
+        <a class="back-top" href="#top">Back to top</a>
+      </section>
+
+      <section class="learn-section" id="settings-data">
+        <p class="eyebrow">Settings</p>
+        <h2>Data &amp; Sync settings</h2>
+        <p class="learn-lead">Control cloud backup, local backups and the option to reset the installation.</p>
+        <div class="where">Where: Settings &rsaquo; Data &amp; Sync</div>
+        <figure class="shot"><img src="img/learn/settings__Backup___retention.png" alt="Backup and retention settings"><figcaption>Backup &amp; retention controls how long data and bill images are kept.</figcaption></figure>
+        <div class="table-scroll"><table class="ref">
+          <tr><th>Page</th><th>What you set there</th></tr>
+          <tr><td>Cloud sync</td><td>Turn cloud backup on or off and sign in with Google. See <a href="#cloud-sync">Cloud sync</a>.</td></tr>
+          <tr><td>Backup &amp; retention</td><td>How long bills, images and history are kept, and local backup options.</td></tr>
+          <tr><td>Reset installation</td><td>Wipe this installation back to a clean state (protected by 2FA when it is set up). Use with care.</td></tr>
+        </table></div>
+        <a class="back-top" href="#top">Back to top</a>
+      </section>
+
+      <section class="learn-section" id="settings-system">
+        <p class="eyebrow">Settings</p>
+        <h2>System &amp; About</h2>
+        <p class="learn-lead">Diagnostics, your subscription, software updates and support live here.</p>
+        <div class="where">Where: Settings &rsaquo; System / About</div>
+        <figure class="shot"><img src="img/learn/settings__Diagnostics.png" alt="Diagnostics settings"><figcaption>Diagnostics shows technical details useful when contacting support.</figcaption></figure>
+        <div class="table-scroll"><table class="ref">
+          <tr><th>Page</th><th>What you find there</th></tr>
+          <tr><td>Diagnostics</td><td>Technical details and logs, handy when you contact support.</td></tr>
+          <tr><td>Subscription</td><td>Your plan, caps and expiry, and the Subscribe / Renew buttons. See <a href="#subscription">Subscription</a>.</td></tr>
+          <tr><td>Software updates</td><td>Check for and apply app updates. See <a href="#updates">Software updates</a>.</td></tr>
+          <tr><td>Customer support</td><td>How to reach support from inside the app.</td></tr>
+        </table></div>
+        <a class="back-top" href="#top">Back to top</a>
+      </section>
+
+      <section class="learn-section" id="two-factor">
+        <p class="eyebrow">Account &amp; security</p>
+        <h2>Two-factor sign-in (2FA)</h2>
+        <p class="learn-lead">Pair Google Authenticator on your phone with the owner (Super Admin) account. Once paired, the 6-digit code from your phone is required to reinitialize the installation and to make changes to a Super Admin account. Until then those actions stay locked.</p>
+        <div class="where">Where: Settings &rsaquo; Users &amp; Security &rsaquo; Two-factor (2FA)</div>
+        <figure class="shot"><img src="img/learn/settings__Two_factor__2FA.png" alt="The Two-factor (2FA) settings page"><figcaption>Pair Google Authenticator to protect Reinitialize and Super Admin account changes.</figcaption></figure>
+        <h3>How to set up 2FA</h3>
+        <ol class="steps">
+          <li>Install Google Authenticator (or any compatible authenticator app) on your phone.</li>
+          <li>Open <strong>Settings</strong> and go to <strong>Users &amp; Security &rsaquo; Two-factor (2FA)</strong>.</li>
+          <li>Click <strong>Set up Google Authenticator</strong> and scan the QR code (or type the shown key) into the app.</li>
+          <li>Enter the current 6-digit code to confirm the pairing. The page then shows it as configured.</li>
+        </ol>
+        <div class="note"><strong>If you lose your phone</strong>, re-pair a new one on the same page using your Super Admin password. Use <strong>Remove...</strong> to unpair.</div>
+        <a class="back-top" href="#top">Back to top</a>
+      </section>
+
+      <section class="learn-section" id="subscription">
+        <p class="eyebrow">Account &amp; security</p>
+        <h2>Subscription</h2>
+        <p class="learn-lead">Your subscription is linked to your Google account and is valid for one year. The plan sets your caps: how many shops, how many bills and purchases per day, and how many staff accounts. It works on both the desktop and Android apps signed into the same Google account.</p>
+        <div class="where">Where: Settings &rsaquo; About &rsaquo; Subscription</div>
+        <figure class="shot"><img src="img/learn/settings__Subscription.png" alt="The Subscription settings page"><figcaption>Your plan, caps and expiry, with buttons to connect your Google account, refresh, and subscribe.</figcaption></figure>
+        <h3>How to subscribe or renew</h3>
+        <ol class="steps">
+          <li>Click <strong>Connect / switch Google account</strong> and sign in with the Google account you want the subscription tied to.</li>
+          <li>Click <strong>Subscribe now</strong>, choose your plan, and pay by UPI.</li>
+          <li>Submit your payment reference. Activation is manual and normally happens within one business day.</li>
+          <li>Once activated, click <strong>Refresh now</strong> to pull the latest plan, caps and expiry into the app.</li>
+        </ol>
+        <div class="note"><strong>When a subscription expires</strong>, the app becomes read-only: you can still view all your data and it stays on your device and in your cloud backup, but you cannot add new bills until you renew. There is no lock-in.</div>
+        <a class="back-top" href="#top">Back to top</a>
+      </section>
+
+      <section class="learn-section" id="cloud-sync">
+        <p class="eyebrow">Account &amp; security</p>
+        <h2>Cloud sync</h2>
+        <p class="learn-lead">RasidhuPOS is offline-first. While cloud sync is on, every change is also written to a Google Sheet on your signed-in Google account, so other shops or machines signed into the same account stay in sync. Everything keeps working offline; pending changes are queued and uploaded when the connection returns.</p>
+        <div class="where">Where: Settings &rsaquo; Data &amp; Sync &rsaquo; Cloud sync</div>
+        <figure class="shot"><img src="img/learn/settings__Cloud_sync.png" alt="The Cloud sync settings page"><figcaption>Turn on cloud sync and sign in with Google; press "Sync now" to push and pull immediately.</figcaption></figure>
+        <h3>How to turn on cloud sync</h3>
+        <ol class="steps">
+          <li>Open <strong>Settings</strong> and go to <strong>Data &amp; Sync &rsaquo; Cloud sync</strong>.</li>
+          <li>Click <strong>Sign in with Google...</strong> and sign in.</li>
+          <li>Tick <strong>Enable cloud sync</strong>.</li>
+          <li>Press <strong>Sync now</strong> at any time to push and pull immediately (a short sync animation plays, which you can turn off on the same page).</li>
+        </ol>
+        <a class="back-top" href="#top">Back to top</a>
+      </section>
+
+      <section class="learn-section" id="updates">
+        <p class="eyebrow">Account &amp; security</p>
+        <h2>Software updates</h2>
+        <p class="learn-lead">Keep the app current. RasidhuPOS can check for a newer version and apply it for you; your data is untouched by an update.</p>
+        <div class="where">Where: Settings &rsaquo; About &rsaquo; Software updates</div>
+        <figure class="shot"><img src="img/learn/settings__Software_updates.png" alt="The Software updates settings page"><figcaption>Check for updates and apply the latest version from here.</figcaption></figure>
+        <ol class="steps">
+          <li>Open <strong>Settings</strong> and go to <strong>About &rsaquo; Software updates</strong>.</li>
+          <li>Use the check-for-updates action. If a newer version is available, download and apply it.</li>
+          <li>The app restarts into the new version. Your bills, items and settings carry over unchanged.</li>
+        </ol>
+        <a class="back-top" href="#top">Back to top</a>
+      </section>
+
+      <section class="learn-section" id="audit-log">
+        <p class="eyebrow">Account &amp; security</p>
+        <h2>Audit Log</h2>
+        <p class="learn-lead">A read-only, filterable timeline of who changed what, and from which shop. It is also where an admin can restore a deleted or cancelled record.</p>
+        <div class="where">Where: the Audit Log tab</div>
+        <figure class="shot"><img src="img/learn/tab_audit_log.png" alt="The Audit Log tab"><figcaption>Filter by date, user, action and type; double-click a row for the field-level detail.</figcaption></figure>
+        <h3>How to view and filter activity</h3>
+        <ol class="steps">
+          <li>Open the Audit Log tab.</li>
+          <li>Adjust the <strong>From</strong> / <strong>To</strong> dates and optionally pick a <strong>User</strong>, <strong>Action</strong> or <strong>Type</strong>. The table re-queries as you change a filter.</li>
+          <li>Double-click any row to open the entry detail, with a before / after list of what changed.</li>
+        </ol>
+        <h3>How to restore a deleted or cancelled record</h3>
+        <ol class="steps">
+          <li>Filter to find the row (Action is "Delete" or "Cancel").</li>
+          <li>Click the blue <strong>Restore</strong> button in the last column.</li>
+          <li>Confirm. The record is brought back and reappears in its tab, re-applying any stock and totals.</li>
+        </ol>
+        <div class="note"><strong>Note.</strong> The log keeps the latest 500 entries; narrow the date range to see older activity. Audit entries themselves are never edited or deleted from here.</div>
+        <a class="back-top" href="#top">Back to top</a>
+      </section>
+
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-links">
+        <a href="index.html">Plans</a><a href="learn.html">Learn</a><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a><a href="refund.html">Refund</a><a href="contact.html">Contact</a>
+      </div>
+      <div class="footer-copy">&copy; 2026 <span class="js-business">RasidhuPOS</span></div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var C = window.RPOS_CONFIG || {};
+      function set(sel, val) { Array.prototype.forEach.call(document.querySelectorAll(sel), function (e) { e.textContent = val; }); }
+      set(".js-business", C.BUSINESS_NAME || "RasidhuPOS");
+      if (C.SUPPORT_EMAIL) set(".js-email", C.SUPPORT_EMAIL);
+      if (C.WHATSAPP) set(".js-whatsapp", C.WHATSAPP);
+      Array.prototype.forEach.call(document.querySelectorAll("a.js-email-link"), function (a) {
+        if (C.SUPPORT_EMAIL) a.href = "mailto:" + C.SUPPORT_EMAIL;
+      });
+      Array.prototype.forEach.call(document.querySelectorAll("a.js-wa-link"), function (a) {
+        if (C.WHATSAPP) a.href = "https://wa.me/" + C.WHATSAPP;
+      });
+
+      // ----- Sidebar search filter -----
+      var input = document.getElementById("learn-search-input");
+      var sections = Array.prototype.slice.call(document.querySelectorAll(".learn-section"));
+      var toc = document.getElementById("toc");
+      var links = Array.prototype.slice.call(toc.querySelectorAll("a"));
+
+      function byId(id) { return document.getElementById(id); }
+
+      function filter(q) {
+        q = (q || "").trim().toLowerCase();
+        sections.forEach(function (s) {
+          var hit = !q || s.textContent.toLowerCase().indexOf(q) !== -1;
+          s.style.display = hit ? "" : "none";
+        });
+        links.forEach(function (a) {
+          var href = a.getAttribute("href") || "";
+          if (href.charAt(0) !== "#") return;
+          var sec = byId(href.slice(1));
+          var vis = sec && sec.style.display !== "none";
+          a.parentElement.style.display = vis ? "" : "none";
+        });
+        Array.prototype.forEach.call(toc.querySelectorAll(".toc-group"), function (g) {
+          var ul = g.nextElementSibling;
+          var anyVisible = ul && Array.prototype.some.call(ul.children, function (li) {
+            return li.style.display !== "none";
+          });
+          g.classList.toggle("toc-hidden", !anyVisible);
+        });
+      }
+      if (input) input.addEventListener("input", function () { filter(input.value); });
+
+      // ----- Scroll spy: highlight the section in view -----
+      var current = null;
+      function setActive(id) {
+        if (id === current) return;
+        current = id;
+        links.forEach(function (a) {
+          a.classList.toggle("active", a.getAttribute("href") === "#" + id);
+        });
+      }
+      if ("IntersectionObserver" in window) {
+        var obs = new IntersectionObserver(function (entries) {
+          entries.forEach(function (en) {
+            if (en.isIntersecting) setActive(en.target.id);
+          });
+        }, { rootMargin: "-72px 0px -70% 0px", threshold: 0 });
+        sections.forEach(function (s) { obs.observe(s); });
+      }
+    })();
+  </script>
+</body>
+</html>
