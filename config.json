@@ -208,7 +208,7 @@
       "name": "Growth",
       "per": "/year",
       "popular": true,
-      "price": 5550,
+      "price": 2500,
       "shops": "Up to 2 shops",
       "tagline": "Everything a growing store needs across two locations."
     },
@@ -235,7 +235,7 @@
       "name": "Business",
       "per": "/year",
       "popular": true,
-      "price": 10000,
+      "price": 2250,
       "shops": "Up to 10 shops",
       "tagline": "Centralised control and analytics for multi-outlet retailers."
     },
@@ -268,11 +268,12 @@
     }
   ],
   "PRICES": {
-    "business": 10000,
-    "growth": 5550,
+    "business": 2250,
+    "growth": 2500,
     "starter": 3000
   },
   "RELEASES_URL": "https://github.com/MullaiArgent/RasidhuPOS-releases/releases/latest",
+  "SHOPS_PRICE_PER": 2250,
   "SUPPORT_EMAIL": "mullairajan2000@gmail.com",
   "UPI_VPA": "mullairajan@ybl",
   "WHATSAPP": "7010139747"
