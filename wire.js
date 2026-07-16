@@ -313,9 +313,16 @@
     var email = (modal.querySelector('[data-email]').value || '').trim();
     var nb = modal.querySelector('[data-notice]');
     if (!nb) return;
-    nb.style.display = 'none'; nb.textContent = '';
+    nb.style.display = 'none'; nb.innerHTML = '';
     if (email && isPending(email)) {
-      nb.textContent = 'We already have your request for this email. It is being processed - keep RasidhuPOS open and it unlocks automatically.';
+      nb.innerHTML =
+        'We already have your request for this email and it is being processed - '
+        + 'keep RasidhuPOS open and it unlocks automatically. '
+        + 'If it has been a while, or you need help, please '
+        + '<a href="#" data-notice-support style="color:#7a5b00;font-weight:700;'
+        + 'text-decoration:underline">contact support</a>.';
+      var sb = nb.querySelector('[data-notice-support]');
+      if (sb) sb.onclick = function (e) { e.preventDefault(); showSupport(); };
       nb.style.display = 'block';
     }
   }
@@ -669,6 +676,15 @@
       e.preventDefault(); e.stopPropagation();
       var plan = planOf(btn) || 'growth';
       if (plan === 'enterprise') { contact(); return; }
+      // Gate Buy now behind Google sign-in ONLY when a Client ID is configured.
+      // If it is not set, buying works exactly as before (never blocked by
+      // missing config). The sign-in opens Google's own small popup window; the
+      // pay modal opens only once a signed-in email comes back.
+      var signedIn = R.currentEmail && R.currentEmail();
+      if (C.GOOGLE_CLIENT_ID && !signedIn && R.requireSignIn) {
+        R.requireSignIn(function (em) { if (em) show(plan); });
+        return;
+      }
       show(plan);
     } else if (txt === 'support' || txt === 'contact sales' || txt === 'contact us' || txt === 'contact') {
       e.preventDefault(); e.stopPropagation();

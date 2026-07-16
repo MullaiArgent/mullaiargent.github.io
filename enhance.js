@@ -33,17 +33,30 @@
     return 0;
   }
   function shopsMin() { var g = planCap('growth'); return Math.max(1, g > 0 ? g + 1 : Math.floor(num(C.SHOPS_MIN, 3))); }
-  function shopsMax() { var b = planCap('business'); return b > 0 ? b : 999; }
+  // Self-serve ceiling: the published Business cap wins, else config SHOPS_MAX
+  // (default 10). Above this the buyer is steered to contact sales.
+  function shopsMax() { var b = planCap('business'); return b > 0 ? b : Math.max(shopsMin(), Math.floor(num(C.SHOPS_MAX, 10))); }
   function shopsPer() { var v = num(C.SHOPS_PRICE_PER, 1250); return v > 0 ? v : 1250; }
   function shopsDefault() { return Math.min(shopsMax(), Math.max(shopsMin(), Math.floor(num(C.SHOPS_DEFAULT, 4)))); }
   function shopsHintText() { return 'Minimum ' + shopsMin() + ' shops. Rs ' + inrNum(shopsPer()) + ' per shop / year.'; }
+  // Shown in place of the hint when the buyer asks for more shops than we sell
+  // self-serve; steers them to the Enterprise tier and pairs with the
+  // Enterprise-card hover flourish below.
+  function overLimitText() { return 'For more than ' + shopsMax() + ' shops, try the ' + entName() + ' subscription.'; }
   function inrNum(n) { return Number(n || 0).toLocaleString('en-IN'); }
   function bizPrice() { return R.businessShops * shopsPer(); }
   function safeUrl(u) { u = String(u || ''); return /^https?:\/\//i.test(u) ? u : '#'; }
 
   // Shared state read by wire.js (rpos is the same object across files).
   if (R.businessShops == null) R.businessShops = shopsDefault();
-  if (R.pageEmail == null) { try { R.pageEmail = (R.qs ? R.qs().email : '') || ''; } catch (e) { R.pageEmail = ''; } }
+  // Signed-in email: the app's ?email= wins, else a Google sign-in from an
+  // earlier step this session (sessionStorage) so a re-render doesn't drop it.
+  if (R.pageEmail == null) {
+    try {
+      R.pageEmail = (R.qs ? R.qs().email : '') || '';
+      if (!R.pageEmail) { var _se = sessionStorage.getItem('rpos_email_v1'); if (_se) R.pageEmail = _se; }
+    } catch (e) { R.pageEmail = ''; }
+  }
 
   // -------------------------------------------------------------------------
   // Business "Number of shops" control
@@ -130,13 +143,26 @@
 
     // Recompute on every keystroke ("listen to keyboard actions").
     function applyVal(v, snap) {
-      var eff, bad = false;
+      var eff, bad = false, over = false;
       if (isNaN(v)) { eff = R.businessShops; bad = true; }
       else if (v < shopsMin()) { eff = shopsMin(); bad = true; }
-      else if (v > shopsMax()) { eff = shopsMax(); bad = true; }
+      else if (v > shopsMax()) { eff = shopsMax(); bad = true; over = true; }   // clamp price, steer to sales
       else { eff = v; }
       R.businessShops = eff;
-      hint.style.color = bad ? '#c0392b' : '#8a8a90';
+      R.businessOverLimit = over;
+      if (over) {
+        // Swap the per-shop hint for a red "try Enterprise" line and draw the eye
+        // to the Enterprise card by holding its own hover pose (a slight lift).
+        hint.textContent = overLimitText();
+        hint.style.color = '#c0392b';
+        hint.style.fontWeight = '700';
+        try { triggerEnterpriseAttention(); } catch (e) {}
+      } else {
+        hint.textContent = shopsHintText();
+        hint.style.color = bad ? '#c0392b' : '#8a8a90';
+        hint.style.fontWeight = '';
+        try { clearEnterpriseAttention(); } catch (e) {}
+      }
       if (snap) inp.value = String(eff);
       assertBizPrice();
     }
@@ -163,14 +189,98 @@
     }
   }
 
+  // -------------------------------------------------------------------------
+  // Enterprise-card attention - fired while the Business shop count exceeds what
+  // we sell self-serve, to point the buyer at the Enterprise tier beside it.
+  // We replay the mockup's OWN card-hover pose (a slight lift), so the card
+  // reacts as if the mouse were resting on it, plus a soft glow and a one-shot
+  // shimmer sweep. Held while over-limit; eased back when the count drops.
+  // -------------------------------------------------------------------------
+  function entName() {
+    try {
+      if (C.PLANS) for (var i = 0; i < C.PLANS.length; i++) {
+        if ((C.PLANS[i].code || '') === 'enterprise') return C.PLANS[i].name || 'Enterprise';
+      }
+    } catch (e) {}
+    return 'Enterprise';
+  }
+  // Locate a plan card by the name shown on it. Returns {face, wrap} where face
+  // is the .card-face (carries the glow) and wrap is its z-index:1 content div,
+  // whose first child holds the tier title we match on.
+  function planCardByName(name) {
+    var faces = document.querySelectorAll('.card-face'), k;
+    for (k = 0; k < faces.length; k++) {
+      var face = faces[k], ch = face.children, wrap = null, c;
+      for (c = 0; c < ch.length; c++) { if (ch[c].tagName === 'DIV' && ch[c].style && ch[c].style.zIndex === '1') { wrap = ch[c]; break; } }
+      if (!wrap || !wrap.children[0]) continue;
+      if ((wrap.children[0].textContent || '').trim() === name) return { face: face, wrap: wrap };
+    }
+    return null;
+  }
+  function ensureEntAttnStyle() {
+    if (document.getElementById('rp-ent-attn-style')) return;
+    try {
+      var st = document.createElement('style');
+      st.id = 'rp-ent-attn-style';
+      st.textContent =
+        '@keyframes rp-ent-shimmer{0%{transform:translateX(-165%)}100%{transform:translateX(330%)}}' +
+        '.rp-ent-glow{box-shadow:0 0 0 2px rgba(224,164,18,.9),0 22px 60px rgba(224,164,18,.5)!important}';
+      (document.head || document.documentElement).appendChild(st);
+    } catch (e) {}
+  }
+  // Resolve the Enterprise card's outer .flip-card (the element the mockup itself
+  // transforms on hover) plus its glowing .card-face.
+  function entCard() {
+    var pc = planCardByName(entName()); if (!pc || !pc.face) return null;
+    var outer = pc.face.closest ? pc.face.closest('.flip-card') : null;
+    return outer ? { outer: outer, face: pc.face } : null;
+  }
+  // Hold the mockup's own hover pose on the Enterprise card: a slight lift (its
+  // real mouse-hover uses translateY(-6px)) plus a soft gold glow, so it reacts
+  // as though the pointer were resting on it. Stays until the count drops back.
+  function triggerEnterpriseAttention() {
+    var ec = entCard(); if (!ec) return;
+    var outer = ec.outer, face = ec.face;
+    ensureEntAttnStyle();
+    outer.style.transition = 'transform .18s ease-out';
+    outer.style.transform = 'translateY(-8px) rotateX(2deg)';
+    face.classList.add('rp-ent-glow');
+    if (outer.getAttribute('data-rp-attn') === '1') return;   // already lifted -> no re-shimmer
+    outer.setAttribute('data-rp-attn', '1');
+    // One shimmer sweep as we first cross the limit, clipped to the rounded
+    // corners and pointer-transparent so the card's button stays clickable.
+    var shine = document.createElement('span');
+    shine.setAttribute('data-rp', 'ent-shine');
+    shine.setAttribute('aria-hidden', 'true');
+    shine.style.cssText = 'position:absolute;inset:0;border-radius:18px;overflow:hidden;pointer-events:none;z-index:4';
+    var band = document.createElement('span');
+    band.style.cssText = 'position:absolute;top:-25%;left:0;width:45%;height:150%;background:linear-gradient(115deg,transparent,rgba(255,255,255,.85) 48%,rgba(255,244,205,.85) 58%,transparent);transform:translateX(-165%);animation:rp-ent-shimmer 1s ease-in-out';
+    shine.appendChild(band);
+    try { face.appendChild(shine); } catch (e) {}
+    setTimeout(function () { try { if (shine.parentNode) shine.parentNode.removeChild(shine); } catch (e) {} }, 1000);
+  }
+  // Ease the card back down exactly like the mockup's own mouse-leave reset.
+  function clearEnterpriseAttention() {
+    var ec = entCard(); if (!ec) return;
+    var outer = ec.outer, face = ec.face;
+    outer.style.transition = 'transform .5s ease';
+    outer.style.transform = '';
+    face.classList.remove('rp-ent-glow');
+    outer.removeAttribute('data-rp-attn');
+  }
+
   function ensureShops() {
     var wrap = bizWrap(); if (!wrap) return;
     var btn = wrap.querySelector('button'); if (!btn) return;
     if (!wrap.querySelector('[data-rp-shops]')) wrap.insertBefore(buildShopsField(), btn);
     // Refresh the per-shop hint in case the rate (SHOPS_PRICE_PER) arrived from
-    // config.json after the field was first built. Guarded so it never loops.
+    // config.json after the field was first built. Guarded so it never loops,
+    // and left alone while the "contact sales" over-limit message is showing.
     var h = wrap.querySelector('[data-rp-shops-hint]');
-    if (h && h.textContent !== shopsHintText()) h.textContent = shopsHintText();
+    if (h && !R.businessOverLimit && h.textContent !== shopsHintText()) h.textContent = shopsHintText();
+    // A re-render can drop the held hover pose off a freshly rebuilt Enterprise
+    // card; re-assert it while still over the cap (idempotent, no re-shimmer).
+    if (R.businessOverLimit) { try { triggerEnterpriseAttention(); } catch (e) {} }
     assertBizPrice(wrap);
     try { ensureCardFit(wrap); } catch (e) {}
   }
@@ -361,6 +471,9 @@
   function onSignedIn(em) {
     if (!em) return;
     R.pageEmail = em;
+    // Persist for this browser session so a framework re-render / the Buy-now
+    // gate keeps seeing the signed-in user without re-prompting.
+    try { sessionStorage.setItem('rpos_email_v1', em); } catch (e) {}
     try { reflectSignin(); } catch (e) {}
     try {
       var mf = document.querySelector('#rpos-pay [data-email]');
@@ -383,6 +496,101 @@
   };
   function doSignin() { if (!C.GOOGLE_CLIENT_ID) return; ensureGis(function () { try { google.accounts.id.prompt(); } catch (e) {} }); }
 
+  // ---- OAuth2 popup sign-in (a small Google window on top of the page) ------
+  // Used to GATE Buy now: unlike One Tap (doSignin), this always opens Google's
+  // own popup window sized just for signing in. On success we read the email
+  // from the userinfo endpoint and mark the user signed in.
+  var _tokenClient = null, _signinDone = null;
+  function _fetchEmail(token, done) {
+    try {
+      fetch('https://www.googleapis.com/oauth2/v3/userinfo',
+            { headers: { Authorization: 'Bearer ' + token } })
+        .then(function (r) { return r.json(); })
+        .then(function (o) {
+          var em = (o && o.email) || '';
+          if (em) onSignedIn(em);
+          if (done) { try { done(em); } catch (e) {} }
+        })
+        .catch(function () { if (done) done(''); });
+    } catch (e) { if (done) done(''); }
+  }
+  function _ensureTokenClient() {
+    if (_tokenClient) return _tokenClient;
+    try {
+      _tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: C.GOOGLE_CLIENT_ID,
+        scope: 'openid email profile',
+        ux_mode: 'popup',
+        callback: function (resp) {
+          var done = _signinDone; _signinDone = null;
+          if (resp && resp.access_token) _fetchEmail(resp.access_token, done);
+          else if (done) done('');
+        }
+      });
+    } catch (e) { _tokenClient = null; }
+    return _tokenClient;
+  }
+  // Public (called by wire.js's Buy-now gate). Ensures a Google sign-in via the
+  // popup window, then calls onDone(email). email is '' if sign-in is off, the
+  // user cancelled, or it could not complete - callers then simply do nothing.
+  R.requireSignIn = function (onDone) {
+    if (!C.GOOGLE_CLIENT_ID) { if (onDone) onDone(''); return; }
+    var em = R.currentEmail ? R.currentEmail() : (R.pageEmail || '');
+    if (em) { if (onDone) onDone(em); return; }        // already signed in
+    loadGis(function () {
+      var tc = _ensureTokenClient();
+      if (!tc) { if (onDone) onDone(''); return; }
+      _signinDone = onDone || null;
+      try { tc.requestAccessToken(); }                 // opens the Google popup window
+      catch (e) { _signinDone = null; if (onDone) onDone(''); }
+    });
+  };
+
+  // The official multi-colour Google "G" mark, inlined so it needs no network
+  // request (and survives the strict-origin landing page). Rendered inside the
+  // signed-out "Sign in" pill.
+  var GOOGLE_G_SVG =
+    '<svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:block;flex:none">' +
+    '<path fill="#4285F4" d="M17.64 9.2045c0-.6382-.0573-1.2518-.1636-1.8409H9v3.4814h4.8436c-.2086 1.125-.8427 2.0782-1.7959 2.7164v2.2582h2.9087c1.7018-1.5668 2.6836-3.874 2.6836-6.6151z"/>' +
+    '<path fill="#34A853" d="M9 18c2.43 0 4.4673-.806 5.9564-2.1818l-2.9087-2.2582c-.8059.54-1.8368.8618-3.0477.8618-2.344 0-4.3282-1.5831-5.0364-3.7104H.9573v2.3318C2.4382 15.9832 5.4818 18 9 18z"/>' +
+    '<path fill="#FBBC05" d="M3.9636 10.71c-.18-.54-.2822-1.1168-.2822-1.71s.1022-1.17.2822-1.71V4.9582H.9573C.3477 6.1732 0 7.5477 0 9c0 1.4523.3477 2.8268.9573 4.0418L3.9636 10.71z"/>' +
+    '<path fill="#EA4335" d="M9 3.5795c1.3214 0 2.5077.4541 3.4405 1.346l2.5813-2.5814C13.4632.8918 11.426 0 9 0 5.4818 0 2.4382 2.0168.9573 4.9582L3.9636 7.29C4.6718 5.1627 6.656 3.5795 9 3.5795z"/>' +
+    '</svg>';
+  // Injected once: only the :hover effect needs a stylesheet (inline styles set
+  // the base pill so they always beat the template's inline colour).
+  function ensureSigninBtnCss() {
+    if (document.getElementById('rp-signin-btn-css')) return;
+    try {
+      var st = document.createElement('style');
+      st.id = 'rp-signin-btn-css';
+      st.textContent =
+        '.rp-signin-btn{transition:background .15s ease,box-shadow .15s ease,border-color .15s ease}' +
+        '.rp-signin-btn:hover{background:#f7f8fa!important;box-shadow:0 1px 4px rgba(60,64,67,.3)!important;border-color:#c6cacf!important}';
+      (document.head || document.documentElement).appendChild(st);
+    } catch (e) {}
+  }
+  // Turn the signed-out "Sign in" link into a Google sign-in pill (icon + label).
+  // Idempotent: the icon/label are injected once (guarded by data-rp-btn); the
+  // inline pill styles are re-applied every pass, which is free (the render
+  // MutationObserver watches childList only, not attributes).
+  function styleSigninButton(link) {
+    ensureSigninBtnCss();
+    if (link.getAttribute('data-rp-btn') == null) {
+      link.innerHTML = GOOGLE_G_SVG + '<span>Sign in</span>';
+      if ((' ' + (link.className || '') + ' ').indexOf(' rp-signin-btn ') < 0) {
+        link.className = (link.className ? link.className + ' ' : '') + 'rp-signin-btn';
+      }
+      link.setAttribute('aria-label', 'Sign in with Google');
+      link.setAttribute('data-rp-btn', '1');
+    }
+    var s = link.style;
+    s.display = 'inline-flex'; s.alignItems = 'center'; s.gap = '8px';
+    s.padding = '7px 16px'; s.border = '1px solid #dadce0'; s.borderRadius = '999px';
+    s.background = '#fff'; s.color = '#3c4043'; s.fontWeight = '600';
+    s.lineHeight = '1'; s.textDecoration = 'none'; s.cursor = 'pointer';
+    s.boxShadow = '0 1px 2px rgba(60,64,67,.12)';
+  }
+
   function reflectSignin() {
     var nav = navEl(); if (!nav) return;
     var links = nav.querySelectorAll('a'), link = null, i;
@@ -394,16 +602,26 @@
     var email = R.pageEmail || '';
     if (email) {
       if (link.getAttribute('data-rp-signed') !== email) {
+        // Signed in: drop the pill chrome + icon, show the account as gold text.
         link.textContent = email.length > 24 ? email.slice(0, 21) + '...' : email;
         link.title = 'Signed in as ' + email;
-        link.style.color = '#a97400';
-        link.style.fontWeight = '700';
+        link.className = (link.className || '').replace(/\brp-signin-btn\b/g, '').trim();
+        link.removeAttribute('data-rp-btn');
+        var so = link.style;
+        so.display = ''; so.alignItems = ''; so.gap = ''; so.padding = '';
+        so.border = ''; so.borderRadius = ''; so.background = ''; so.boxShadow = '';
+        so.lineHeight = '';
+        so.color = '#a97400';
+        so.fontWeight = '700';
         link.setAttribute('href', '#');
         link.removeAttribute('data-rp-signin');
         link.setAttribute('data-rp-signed', email);
       }
-    } else if (C.GOOGLE_CLIENT_ID && link.getAttribute('data-rp-signin') == null) {
-      link.setAttribute('data-rp-signin', '1');
+    } else if (C.GOOGLE_CLIENT_ID) {
+      // Signed out with sign-in configured: mark it clickable and dress it as a
+      // Google sign-in button.
+      if (link.getAttribute('data-rp-signin') == null) link.setAttribute('data-rp-signin', '1');
+      styleSigninButton(link);
     }
   }
 
@@ -419,12 +637,127 @@
     } catch (e) {}
   }
 
+  // -------------------------------------------------------------------------
+  // Policy popups (Terms / Refund / Privacy) - the footer links are dead "#"
+  // anchors in the mockup; open the actual policy text in a modal instead of
+  // navigating away. Contact is handled by wire.js (opens Support). Content
+  // mirrors terms.html / refund.html / privacy.html. Built with DOM methods
+  // (no innerHTML for the copy), so there is no injection surface.
+  // -------------------------------------------------------------------------
+  function polBiz() { var b = C.BUSINESS_NAME; return (b && !/FILL/i.test(b)) ? b : 'RasidhuPOS'; }
+  function polCity() { var c = C.CITY; return (c && !/FILL/i.test(c)) ? c : 'India'; }
+  function polEmail() { var e = C.SUPPORT_EMAIL; return (e && !/FILL/i.test(e) && /@/.test(e)) ? e : 'mullairajan2000@gmail.com'; }
+  function policyData(kind) {
+    var biz = polBiz(), city = polCity(), email = polEmail();
+    if (kind === 'refund') {
+      return { title: 'Refund Policy', updated: 'Last updated: 10 July 2026', blocks: [
+        { p: biz + ' is a digital subscription that we activate after we confirm your payment.' },
+        { h: 'When you can request a refund', p: 'If we are unable to activate your account, or you are not satisfied, you can request a refund within 7 days of your payment.' },
+        { h: 'How to request', p: 'Email ' + email + ' with your Google account email and your UPI payment reference (UTR). Approved refunds are returned to the same UPI account the payment came from.' }
+      ] };
+    }
+    if (kind === 'privacy') {
+      return { title: 'Privacy Policy', updated: 'Last updated: 10 July 2026', blocks: [
+        { h: '1. What we collect', p: 'To provide the subscription we collect your Google account email (this is your subscription identity), the UPI payment reference (UTR), the plan and amount you submit, and basic technical details such as the app version and whether the request came from the desktop or Android app.' },
+        { h: '2. What we do not collect', p: 'We do not receive or store your card or bank credentials. UPI payments are made directly from your app to our UPI address, so we never see your banking login.' },
+        { h: '3. How we use it', p: 'We use this information only to verify your payment and to activate and support your subscription. It is stored in our Google Sheet of subscription requests and in the signed entitlement list that unlocks the app.' },
+        { h: '4. Sharing', p: 'We do not sell your data. We share it only where needed to run the service (for example Google, which hosts the form and sheet) or where required by law.' },
+        { h: '5. Your choices', p: 'To access or delete your data, contact us at ' + email + '.' }
+      ] };
+    }
+    return { title: 'Terms of Service', updated: 'Last updated: 10 July 2026', blocks: [
+      { h: '1. Subscription and account', p: 'Your ' + biz + ' subscription is tied to a single Google account and is valid for 1 year from the date we activate it. You may use it on both the desktop and Android apps when signed in with that Google account.' },
+      { h: '2. Plans and caps', p: 'Each plan (Starter, Growth, Business, Enterprise) includes a set number of shops and staff accounts, as shown on the pricing page. Enterprise caps are agreed individually. Caps can be adjusted for your account on request.' },
+      { h: '3. Activation', p: 'Activation is manual. After you pay by UPI and submit your payment reference, we verify the payment and then activate your account, normally within one business day. Until activation, the app stays in its current state and no charge is applied by us beyond your UPI payment.' },
+      { h: '4. Renewals and no lock-in', p: 'There is no lock-in. A subscription expires at the end of its year unless you renew by paying again. When it expires the app becomes read-only, you can still view your data, and your data stays on your device and in your cloud backup.' },
+      { h: '5. Acceptable use', p: 'Do not resell, sublicense or attempt to circumvent the subscription. One subscription is for one business\'s own use within the caps of the chosen plan.' },
+      { h: '6. Warranty and liability', p: 'The software is provided "as is", without warranties of any kind. To the extent permitted by law, our total liability is limited to the fees you paid for the current subscription term.' },
+      { h: '7. Governing law', p: 'These terms are governed by the laws of India, with courts at ' + city + ' having jurisdiction.' },
+      { h: '8. Contact', p: 'Questions about these terms: ' + email + '.' }
+    ] };
+  }
+  var polModal = null;
+  function buildPolicy() {
+    polModal = document.createElement('div');
+    polModal.id = 'rpos-policy';
+    polModal.setAttribute('style', 'position:fixed;inset:0;background:rgba(15,15,20,.55);display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:20px 12px;z-index:2147483000;font-family:system-ui,Segoe UI,Roboto,sans-serif');
+    var card = document.createElement('div');
+    card.setAttribute('data-rp-polcard', '1');
+    card.setAttribute('style', 'position:relative;background:#fff;max-width:640px;width:100%;margin:auto;border-radius:16px;padding:26px 24px 22px;box-shadow:0 24px 70px rgba(0,0,0,.35);text-align:left');
+    var x = document.createElement('button');
+    x.setAttribute('data-rp-polx', '1');
+    x.setAttribute('style', 'position:absolute;top:8px;right:12px;border:0;background:none;font-size:24px;line-height:1;color:#8a8a90;cursor:pointer');
+    x.textContent = '×';
+    var h3 = document.createElement('h3');
+    h3.setAttribute('data-rp-poltitle', '1');
+    h3.setAttribute('style', 'margin:0 6px 4px 0;font-size:20px;color:#19191c');
+    var upd = document.createElement('div');
+    upd.setAttribute('data-rp-polupd', '1');
+    upd.setAttribute('style', 'color:#8a8a90;font-size:12px;margin-bottom:14px');
+    var body = document.createElement('div');
+    body.setAttribute('data-rp-polbody', '1');
+    var foot = document.createElement('div');
+    foot.setAttribute('style', 'margin-top:18px;text-align:right');
+    var close = document.createElement('button');
+    close.setAttribute('data-rp-polclose', '1');
+    close.setAttribute('style', 'background:#c99400;color:#19191c;font-weight:800;border:0;padding:11px 22px;border-radius:11px;cursor:pointer;font-size:14px');
+    close.textContent = 'Close';
+    foot.appendChild(close);
+    card.appendChild(x); card.appendChild(h3); card.appendChild(upd); card.appendChild(body); card.appendChild(foot);
+    polModal.appendChild(card);
+    document.body.appendChild(polModal);
+    // No typed input here, so a backdrop click may dismiss (unlike the pay modal).
+    polModal.addEventListener('click', function (e) { if (e.target === polModal) hidePolicy(); });
+    x.onclick = hidePolicy;
+    close.onclick = hidePolicy;
+    document.addEventListener('keydown', function (e) {
+      if ((e.key === 'Escape' || e.key === 'Esc' || e.keyCode === 27) && polModal && polModal.style.display !== 'none') hidePolicy();
+    });
+  }
+  function hidePolicy() { if (polModal) polModal.style.display = 'none'; }
+  function showPolicy(kind) {
+    if (!polModal) buildPolicy();
+    var d = policyData(kind);
+    polModal.querySelector('[data-rp-poltitle]').textContent = d.title;
+    polModal.querySelector('[data-rp-polupd]').textContent = d.updated || '';
+    var body = polModal.querySelector('[data-rp-polbody]');
+    while (body.firstChild) body.removeChild(body.firstChild);
+    for (var i = 0; i < d.blocks.length; i++) {
+      var b = d.blocks[i];
+      if (b.h) {
+        var hh = document.createElement('h4');
+        hh.setAttribute('style', 'margin:16px 0 4px;font-size:14.5px;font-weight:700;color:#19191c');
+        hh.textContent = b.h; body.appendChild(hh);
+      }
+      var pp = document.createElement('p');
+      pp.setAttribute('style', 'margin:0 0 8px;font-size:13.5px;line-height:1.55;color:#3a3a40');
+      pp.textContent = b.p; body.appendChild(pp);
+    }
+    var card = polModal.querySelector('[data-rp-polcard]'); if (card) card.scrollTop = 0;
+    polModal.style.display = 'flex';
+  }
+  // Map a dead footer link's text to the policy it should open (Contact is left
+  // for wire.js's Support handler).
+  function policyKindFor(text) {
+    var t = (text || '').trim().toLowerCase();
+    if (t === 'terms' || t === 'terms & conditions' || t === 'terms and conditions' || t === 'terms of service') return 'terms';
+    if (t === 'refund policy' || t === 'refund' || t === 'refunds') return 'refund';
+    if (t === 'privacy' || t === 'privacy policy') return 'privacy';
+    return '';
+  }
+
   // ---- click delegation (bubble phase; wire.js handles buy/contact in capture)
   document.addEventListener('click', function (e) {
     var t = e.target;
     if (!t || !t.closest) return;
     if (t.closest('[data-rp-download]')) { e.preventDefault(); showDownload(); return; }
     if (t.closest('[data-rp-signin]')) { e.preventDefault(); doSignin(); return; }
+    // Footer policy links: dead "#" anchors -> open the content in a modal.
+    var pa = t.closest('a');
+    if (pa && (pa.getAttribute('href') || '') === '#' && !pa.getAttribute('data-rp')) {
+      var pk = policyKindFor(pa.textContent);
+      if (pk) { e.preventDefault(); showPolicy(pk); return; }
+    }
     // A plan/segment toggle can reveal or re-render the Business card; re-fit it
     // shortly after so all bullets stay inside once the retry window has closed.
     setTimeout(function () { try { ensureShops(); } catch (e2) {} }, 60);

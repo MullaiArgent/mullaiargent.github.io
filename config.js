@@ -30,12 +30,18 @@ window.RPOS_CONFIG = {
   // Optional "Sign in with Google" on the page (Google Identity Services). Leave
   // blank to keep the plain email field. Set a Google OAuth Client ID whose
   // "Authorised JavaScript origins" include this Pages origin to switch it on.
+  // When set, it ALSO gates "Buy now": buyers must complete Google sign-in (in a
+  // small popup window) before the pay modal opens. Blank = no gate (buy as before).
   GOOGLE_CLIENT_ID: "",
 
   // Business tier is priced per shop: price = shops * SHOPS_PRICE_PER, minimum
-  // SHOPS_MIN shops, the field starts at SHOPS_DEFAULT.
+  // SHOPS_MIN shops, the field starts at SHOPS_DEFAULT. Self-serve tops out at
+  // SHOPS_MAX shops; beyond that the card steers the buyer to contact sales and
+  // highlights the Enterprise card. (A published PLANS business caps.max_shops,
+  // if present, wins over SHOPS_MAX.)
   SHOPS_MIN: 3,
   SHOPS_DEFAULT: 4,
+  SHOPS_MAX: 10,
   SHOPS_PRICE_PER: 1250,
 
   // Download links, sentinel-managed. These point STRAIGHT at the release asset
