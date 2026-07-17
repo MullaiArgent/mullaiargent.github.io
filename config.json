@@ -136,6 +136,15 @@
         "\u2713",
         "\u2713"
       ]
+    },
+    {
+      "label": "Customizable Invoice",
+      "values": [
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713"
+      ]
     }
   ],
   "DOWNLOAD_ANDROID_URL": "https://github.com/MullaiArgent/RasidhuPOS-releases/releases/latest",
@@ -189,7 +198,7 @@
       "name": "Starter",
       "per": "/year",
       "popular": false,
-      "price": 3000,
+      "price": 1000,
       "shops": "Single shop",
       "tagline": "For a single counter just getting started with digital billing."
     },
@@ -254,7 +263,7 @@
         "cloud_enabled": true,
         "max_admins": 50,
         "max_bills_per_day": 100000,
-        "max_cashiers": 200,
+        "max_cashiers": 400,
         "max_purchases_per_day": 100000,
         "max_shops": 100,
         "max_super_admins": 10
@@ -281,7 +290,7 @@
   "PRICES": {
     "business": 2250,
     "growth": 2500,
-    "starter": 3000
+    "starter": 1000
   },
   "RELEASES_URL": "https://github.com/MullaiArgent/RasidhuPOS-releases/releases/latest",
   "SHOPS_PRICE_PER": 2250,
