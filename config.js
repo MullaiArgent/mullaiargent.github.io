@@ -22,6 +22,17 @@ window.RPOS_CONFIG = {
     name: "", contact: "", notes: "", shops: ""
   },
   SUPPORT_EMAIL: "FILL@example.com",
+  // Customer-support Google Form (separate from the payment Form above). When
+  // set, "Contact support" posts the message headlessly to this Form (no Gmail
+  // tab) and the "sent" note shows only on success. Requires Google sign-in when
+  // GOOGLE_CLIENT_ID is set. Create a support Form, add the questions, and paste
+  // SUPPORT_FORM_ACTION + the entry.<id>s here (or in the sentinel Storefront).
+  // Leave SUPPORT_FORM_ACTION blank to keep support on the phone/email contacts.
+  SUPPORT_FORM_ACTION: "",
+  SUPPORT_FIELDS: {
+    subject: "", message: "", contact: "", email: "", name: "",
+    appversion: "", client_ts: ""
+  },
   WHATSAPP: "FILL_91XXXXXXXXXX",             // digits only, country code, no +
   BUSINESS_NAME: "FILL Business Name",
   CITY: "FILL City, India",
@@ -49,6 +60,6 @@ window.RPOS_CONFIG = {
   // sentinel repoints them at the current .exe / .apk each release so the button
   // always serves the latest build.
   RELEASES_URL: "https://github.com/MullaiArgent/RasidhuPOS-releases/releases/latest",
-  DOWNLOAD_WINDOWS_URL: "https://github.com/MullaiArgent/RasidhuPOS-releases/releases/download/v1.5.10/RasidhuPOS-Setup-1.5.10.exe",
-  DOWNLOAD_ANDROID_URL: "https://github.com/MullaiArgent/RasidhuPOS-releases/releases/download/v1.5.10/RasidhuPOS-Mobile-1.5.10.apk"
+  DOWNLOAD_WINDOWS_URL: "https://github.com/MullaiArgent/RasidhuPOS-releases/releases/download/v1.5.15/RasidhuPOS-Setup-1.5.15.exe",
+  DOWNLOAD_ANDROID_URL: "https://github.com/MullaiArgent/RasidhuPOS-releases/releases/download/v1.5.15/RasidhuPOS-Mobile-1.5.15.apk"
 };

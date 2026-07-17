@@ -67,6 +67,10 @@ a { color: var(--gold-deep); }
 .nav-links { display: flex; gap: 26px; align-items: center; }
 .nav-links a { color: var(--ink); text-decoration: none; font-weight: 600; font-size: 15px; }
 .nav-links a:hover { color: var(--gold-deep); }
+/* Current page: gold + bold, matching the sidebar TOC active convention. The
+   Learn link carries aria-current="page" in learn.html, so no markup or JS is
+   needed to light it up on that page. */
+.nav-links a[aria-current="page"] { color: var(--gold-deep); font-weight: 700; }
 
 /* ---------- Hero ---------- */
 .hero { text-align: center; padding: 62px 20px 30px; }

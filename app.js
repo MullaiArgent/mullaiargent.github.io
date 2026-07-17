@@ -73,30 +73,25 @@
   // lands - it worked in incognito, where extensions are off). The vendor dedupes
   // by orderid, so the belt-and-suspenders double send on the blocked path is
   // harmless.
-  rpos.submitPaid = function (plan, opts, orderid) {
-    if (typeof opts === "string") opts = { utr: opts, orderid: orderid };
-    opts = opts || {};
-    var q = rpos.qs(), F = C.FORM_FIELDS || {};
-    var amount = (opts.amount != null) ? opts.amount : rpos.priceOf(plan);
-    var pairs = [
-      [F.email, opts.email || rpos.currentEmail()],
-      [F.plan, plan],
-      [F.amount, String(amount)],
-      [F.utr, opts.utr || ""],
-      [F.orderid, opts.orderid || orderid || ""],
-      [F.source, q.src || "web"],
-      [F.appversion, q.v || ""],
-      [F.client_ts, new Date().toISOString()],
-      [F.name, opts.name || ""],
-      [F.contact, opts.contact || ""],
-      [F.notes, opts.notes || ""],
-      [F.shops, (opts.shops != null && opts.shops !== "") ? String(opts.shops) : ""]
-    ];
-    var action = rpos.formAction(C.FORM_ACTION);
+  // Low-level: POST form-encoded pairs ([[fieldId, value], ...]) to a Google
+  // Form, skipping any pair whose field id is blank (not configured). Three
+  // transports in order - a no-cors fetch (primary, and the ONLY one that can
+  // DETECT a block, since it rejects when an ad / privacy extension kills the
+  // cross-site request), then navigator.sendBeacon, then the classic
+  // hidden-iframe form POST. Returns Promise<boolean>: true when a transport
+  // dispatched, false only when every detectable transport was refused, so the
+  // caller can show honest feedback instead of a false thank-you. Shared by
+  // submitPaid and submitSupport (the vendor dedupes, so the belt-and-suspenders
+  // double send on the blocked path is harmless).
+  rpos.submitForm = function (action, pairs) {
+    action = rpos.formAction(action);
+    var used = [];
+    for (var i = 0; i < (pairs || []).length; i++) {
+      if (pairs[i] && pairs[i][0]) used.push(pairs[i]);   // field id not configured -> skip
+    }
     var parts = [];
-    for (var i = 0; i < pairs.length; i++) {
-      if (!pairs[i][0]) continue;                  // field id not configured -> skip
-      parts.push(encodeURIComponent(pairs[i][0]) + "=" + encodeURIComponent(pairs[i][1]));
+    for (var k = 0; k < used.length; k++) {
+      parts.push(encodeURIComponent(used[k][0]) + "=" + encodeURIComponent(used[k][1]));
     }
     var bodyStr = parts.join("&");
 
@@ -107,10 +102,9 @@
         document.body.appendChild(iframe);
         var form = document.createElement("form");
         form.action = action; form.method = "POST"; form.target = "rpos_sink";
-        for (var j = 0; j < pairs.length; j++) {
-          if (!pairs[j][0]) continue;
+        for (var j = 0; j < used.length; j++) {
           var inp = document.createElement("input");
-          inp.type = "hidden"; inp.name = pairs[j][0]; inp.value = pairs[j][1];
+          inp.type = "hidden"; inp.name = used[j][0]; inp.value = used[j][1];
           form.appendChild(inp);
         }
         document.body.appendChild(form);
@@ -147,6 +141,57 @@
       if (beaconPost()) { done(true); return; }
       done(iframePost());
     });
+  };
+
+  // Submit the paid-subscription request to the Google Form. opts: { utr, name,
+  // contact, notes, email, amount, shops, orderid }. (A bare string second arg
+  // is still accepted as the UTR for older callers.) Returns Promise<boolean>.
+  rpos.submitPaid = function (plan, opts, orderid) {
+    if (typeof opts === "string") opts = { utr: opts, orderid: orderid };
+    opts = opts || {};
+    var q = rpos.qs(), F = C.FORM_FIELDS || {};
+    var amount = (opts.amount != null) ? opts.amount : rpos.priceOf(plan);
+    var pairs = [
+      [F.email, opts.email || rpos.currentEmail()],
+      [F.plan, plan],
+      [F.amount, String(amount)],
+      [F.utr, opts.utr || ""],
+      [F.orderid, opts.orderid || orderid || ""],
+      [F.source, q.src || "web"],
+      [F.appversion, q.v || ""],
+      [F.client_ts, new Date().toISOString()],
+      [F.name, opts.name || ""],
+      [F.contact, opts.contact || ""],
+      [F.notes, opts.notes || ""],
+      [F.shops, (opts.shops != null && opts.shops !== "") ? String(opts.shops) : ""]
+    ];
+    return rpos.submitForm(C.FORM_ACTION, pairs);
+  };
+
+  // Submit a support message to the (separate) support Google Form. opts:
+  // { subject, message, contact, email, name }. Returns Promise<boolean>. When
+  // no support form is configured (SUPPORT_FORM_ACTION / SUPPORT_FIELDS blank),
+  // resolves FALSE so the caller shows an honest fallback (use the phone / email
+  // contacts) rather than a false "message sent".
+  rpos.submitSupport = function (opts) {
+    opts = opts || {};
+    var action = C.SUPPORT_FORM_ACTION || "";
+    var S = C.SUPPORT_FIELDS || {};
+    if (!action) return Promise.resolve(false);
+    var q = rpos.qs();
+    var pairs = [
+      [S.subject, opts.subject || ""],
+      [S.message, opts.message || ""],
+      [S.contact, opts.contact || ""],
+      [S.email, opts.email || rpos.currentEmail()],
+      [S.name, opts.name || rpos.pageName || ""],
+      [S.appversion, q.v || ""],
+      [S.client_ts, new Date().toISOString()]
+    ];
+    var any = false;
+    for (var i = 0; i < pairs.length; i++) { if (pairs[i][0]) { any = true; break; } }
+    if (!any) return Promise.resolve(false);
+    return rpos.submitForm(action, pairs);
   };
 
   // Wire the page after DOM ready (openPay/renderQR defined in index.html inline

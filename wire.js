@@ -65,6 +65,19 @@
   // hydrated DOM (cards + real <table> compare grid).
   var PLAN_N2C = { Starter: 'starter', Growth: 'growth', Business: 'business', Enterprise: 'enterprise' };
 
+  // A card feature bullet is either a plain string (INCLUDED -> the template's
+  // tick) or an object { text, included:false } (EXCLUDED -> a red X mark, text
+  // still readable, no strikethrough, i.e. the plan does NOT include it). The
+  // vendor toggles this per bullet in the sentinel's Plans tab. Normalize to
+  // { text, included } so legacy string lists render exactly as before (anything
+  // not explicitly included:false stays included). Mirror of plans.py split_feature.
+  function featItem(f) {
+    if (f && typeof f === 'object') {
+      return { text: String(f.text != null ? f.text : ''), included: f.included !== false };
+    }
+    return { text: String(f == null ? '' : f), included: true };
+  }
+
   function planFmtPrice(p) {
     if (p.contact || p.price == null || p.price === '') return (p.price == null || p.price === '') ? 'Custom' : String(p.price);
     var n = Number(p.price);
@@ -72,11 +85,14 @@
   }
 
   // The card price = the plan's per-shop rate x its shop count (planShops is
-  // hoisted from below). Contact/Custom tiers keep their label. Business is
-  // re-asserted dynamically by enhance.js as its spinner changes; this writes
-  // the correct total on first paint so there is no flat-price flash.
+  // hoisted from below). Growth is the exception: its total is looked up from
+  // shop_prices for the chosen 1/2 shops (NOT proportional). Contact/Custom tiers
+  // keep their label. Business AND Growth are re-asserted dynamically by
+  // enhance.js as their selectors change; this writes the correct total on first
+  // paint so there is no flat-price flash.
   function planCardAmount(p) {
     if (p.contact || p.price == null || p.price === '' || isNaN(Number(p.price))) return planFmtPrice(p);
+    if (p.code === 'growth') return growthTotal().toLocaleString('en-IN');
     return (Number(p.price) * planShops(p.code)).toLocaleString('en-IN');
   }
 
@@ -91,7 +107,10 @@
       var nameEl = wrap.children[0]; if (!nameEl) continue;
       var p = by[PLAN_N2C[(nameEl.textContent || '').trim()]];
       if (!p) continue;                       // already applied (custom name) or unknown -> skip
-      var sig = [p.name, p.shops, p.currency, p.price, p.per, p.cta, (p.features || []).join('|')].join('~');
+      var featSig = (p.features || []).map(function (f) {
+        var it = featItem(f); return (it.included ? '+' : '-') + it.text;
+      }).join('|');
+      var sig = [p.name, p.shops, p.currency, p.price, p.per, p.cta, featSig].join('~');
       if (face.getAttribute('data-rp-plan') === sig) continue;   // idempotent
       nameEl.textContent = p.name;
       if (wrap.children[1]) wrap.children[1].textContent = p.shops || '';
@@ -112,9 +131,17 @@
               xs = t.children[1] ? t.children[1].getAttribute('style') : '';
           while (ul.firstChild) ul.removeChild(ul.firstChild);   // clear (no innerHTML: no injection surface)
           for (var fi = 0; fi < p.features.length; fi++) {
+            var fitem = featItem(p.features[fi]);
             var li = document.createElement('li'); if (ls) li.setAttribute('style', ls);
-            var a = document.createElement('span'); if (is) a.setAttribute('style', is); a.textContent = it;
-            var b = document.createElement('span'); if (xs) b.setAttribute('style', xs); b.textContent = p.features[fi];
+            var a = document.createElement('span'); if (is) a.setAttribute('style', is);
+            // Included keeps the template's tick; excluded shows a RED X mark at
+            // the SAME size (it copies the tick's style, then we override only the
+            // colour AFTER so it wins). No strikethrough and the label keeps its
+            // normal colour, so the buyer can still read the excluded feature.
+            a.textContent = fitem.included ? it : '✗';
+            if (!fitem.included) a.style.color = '#c0392b';
+            var b = document.createElement('span'); if (xs) b.setAttribute('style', xs);
+            b.textContent = fitem.text;
             li.appendChild(a); li.appendChild(b); ul.appendChild(li);
           }
         }
@@ -197,12 +224,11 @@
   var R = window.rpos || {};
 
   function shopPer() { var v = Number(C.SHOPS_PRICE_PER); return isFinite(v) && v > 0 ? v : 1250; }
-  // Every plan's Price is a PER-SHOP rate; the displayed/charged amount is that
-  // rate x the plan's shop count. Fixed tiers (Starter, Growth) use their
-  // caps.max_shops (1, 2); Business uses the count the buyer picks in the
-  // enhance.js spinner (rpos.businessShops). So Growth 2500 shows 5000 (x2) and
-  // Business 2000 x 10 = 20000. All shop counts come from the sentinel-published
-  // PLANS[].caps.max_shops, so the model is fully sentinel-driven.
+  // Business is priced PER SHOP: its amount is a per-shop rate x the count the
+  // buyer picks in the enhance.js spinner (rpos.businessShops). Growth is a
+  // single plan taken for 1 OR 2 shops with TWO explicit totals (NOT rate x
+  // shops): the buyer flips rpos.growthShops (1/2) on the card and the total is
+  // looked up from PLANS[growth].shop_prices. Starter is single-shop and flat.
   function planMaxShops(code) {
     try {
       if (C.PLANS) for (var i = 0; i < C.PLANS.length; i++) {
@@ -215,17 +241,49 @@
     } catch (e) {}
     return 1;
   }
+  // Growth's explicit per-shop-count totals: { 1: price1, 2: price2 } from
+  // PLANS[growth].shop_prices (JSON keys are strings). null when unpublished.
+  function growthPrices() {
+    try {
+      if (C.PLANS) for (var i = 0; i < C.PLANS.length; i++) {
+        var p = C.PLANS[i];
+        if ((p.code || '') === 'growth' && p.shop_prices) {
+          var out = {}, any = false;
+          for (var k in p.shop_prices) {
+            var n = Number(p.shop_prices[k]);
+            if (isFinite(n)) { out[String(parseInt(k, 10))] = n; any = true; }
+          }
+          if (any) return out;
+        }
+      }
+    } catch (e) {}
+    return null;
+  }
+  // The buyer's Growth choice (1 or 2 shops); defaults to a single shop so the
+  // card leads with the entry price. Set by the enhance.js Growth selector.
+  function growthShops() { var g = Number(R.growthShops); return g === 2 ? 2 : 1; }
+  // Growth total for the chosen shop count (lookup, NOT rate x shops); falls back
+  // to the plan's base PRICES entry when no shop_prices are published.
+  function growthTotal() {
+    var gp = growthPrices();
+    if (gp) { var v = gp[String(growthShops())]; if (isFinite(v)) return v; }
+    return Number((C.PRICES || {}).growth) || 0;
+  }
   function planShops(code) {
     if (code === 'business') {
       var b = Number(R.businessShops);
       return (isFinite(b) && b > 0) ? b : planMaxShops('business');
     }
+    if (code === 'growth') return growthShops();
     return planMaxShops(code);
   }
   function perShopRate(code) {
     return (code === 'business') ? shopPer() : (Number((C.PRICES || {})[code]) || 0);
   }
-  function priceOf(p) { return perShopRate(p) * planShops(p); }
+  function priceOf(p) {
+    if (p === 'growth') return growthTotal();
+    return perShopRate(p) * planShops(p);
+  }
   function inr(n) { return 'Rs ' + Number(n || 0).toLocaleString('en-IN'); }
 
   // Phones only: the "Pay in UPI app" upi:// deep link has no handler on a
@@ -477,9 +535,13 @@
     modal.querySelector('[data-plan]').textContent = 'RasidhuPOS ' + (PLAN_NAME[plan] || plan) + ' (yearly)';
     modal.querySelector('[data-amt]').textContent = inr(amt);
     var noteShops = planShops(plan), noteRate = perShopRate(plan);
+    // Growth has two flat totals (not per-shop), so show the shop count without a
+    // misleading "each" rate; Business keeps the "N shops (Rs X each)" note.
     modal.querySelector('[data-amtnote]').textContent =
-      (noteShops > 1 && noteRate > 0)
-        ? ('for ' + noteShops + ' shops (Rs ' + noteRate.toLocaleString('en-IN') + ' each)') : '';
+      (plan === 'growth')
+        ? ('for ' + noteShops + (noteShops > 1 ? ' shops' : ' shop'))
+        : ((noteShops > 1 && noteRate > 0)
+            ? ('for ' + noteShops + ' shops (Rs ' + noteRate.toLocaleString('en-IN') + ' each)') : '');
     modal.querySelector('[data-payee]').textContent = 'via UPI to ' + (C.UPI_VPA || '');
     var qb = modal.querySelector('[data-qr]'); qb.innerHTML = '';
     try { new QRCode(qb, { text: upi, width: 200, height: 200 }); }
@@ -650,23 +712,48 @@
       if ((e.key === 'Escape' || e.key === 'Esc' || e.keyCode === 27)
           && sModal && sModal.style.display !== 'none') { hideSupport(); }
     });
-    sModal.querySelector('[data-ssend]').onclick = function () {
+    // Send headlessly to the support Google Form (no Gmail tab, no false "sent").
+    // Google sign-in is required first (when a Client ID is configured) so every
+    // support request is tied to a known account; the message is posted with the
+    // same reliable three-transport submit used for payments, and the success
+    // note shows ONLY when the post actually dispatched.
+    function doSupportSend() {
       var subject = (sModal.querySelector('[data-ssubject]').value || '').trim();
       var contactInfo = (sModal.querySelector('[data-scontact]').value || '').trim();
+      var message = (sModal.querySelector('[data-smessage]').value || '').trim();
+      var sendBtn = sModal.querySelector('[data-ssend]');
+      var prev = sendBtn.textContent;
+      sendBtn.disabled = true; sendBtn.textContent = 'Sending...';
+      var eb = sModal.querySelector('[data-serr]');
+      var email = (R.currentEmail && R.currentEmail()) || '';
+      var p = R.submitSupport
+        ? R.submitSupport({ subject: subject, message: message, contact: contactInfo, email: email, name: R.pageName || '' })
+        : Promise.resolve(false);
+      p.then(function (sent) {
+        sendBtn.disabled = false; sendBtn.textContent = prev;
+        if (sent) {
+          sModal.querySelector('[data-sok]').style.display = 'block';
+        } else {
+          eb.textContent = 'Could not send your message right now. Please reach us using the phone or email above.';
+          eb.style.display = 'block';
+        }
+      });
+    }
+    sModal.querySelector('[data-ssend]').onclick = function () {
+      var subject = (sModal.querySelector('[data-ssubject]').value || '').trim();
       var message = (sModal.querySelector('[data-smessage]').value || '').trim();
       var eb = sModal.querySelector('[data-serr]');
       if (!subject) { eb.textContent = 'Please enter a subject.'; eb.style.display = 'block'; return; }
       if (!message) { eb.textContent = 'Please enter a message.'; eb.style.display = 'block'; return; }
       eb.style.display = 'none';
-      var body = message + (contactInfo ? ('\n\nContact details: ' + contactInfo) : '');
-      // Open Gmail compose in a NEW TAB - never hand off to the machine's email
-      // application (matches the desktop app's browser-compose fallback).
-      var url = 'https://mail.google.com/mail/?view=cm&fs=1'
-        + '&to=' + encodeURIComponent(supportEmail())
-        + '&su=' + encodeURIComponent('[Support] ' + subject)
-        + '&body=' + encodeURIComponent(body);
-      try { window.open(url, '_blank', 'noopener'); } catch (e) {}
-      sModal.querySelector('[data-sok]').style.display = 'block';
+      // Require Google sign-in before sending (only when configured; if there is
+      // no Client ID, sending proceeds so support is never fully blocked).
+      var signedIn = R.currentEmail && R.currentEmail();
+      if (C.GOOGLE_CLIENT_ID && !signedIn && R.requireSignIn) {
+        R.requireSignIn(function (em) { if (em) doSupportSend(); });
+        return;
+      }
+      doSupportSend();
     };
   }
   function hideSupport() { if (sModal) sModal.style.display = 'none'; }
