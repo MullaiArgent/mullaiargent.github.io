@@ -57,16 +57,7 @@
       ]
     },
     {
-      "label": "Loyalty & customer CRM",
-      "values": [
-        "\u2014",
-        "\u2014",
-        "Coming Soon",
-        "Coming Soon"
-      ]
-    },
-    {
-      "label": "Barcode & label printing",
+      "label": "Customizable Invoice",
       "values": [
         "\u2713",
         "\u2713",
@@ -132,15 +123,6 @@
       "label": "Mobile Login",
       "values": [
         "\u2014",
-        "\u2713",
-        "\u2713",
-        "\u2713"
-      ]
-    },
-    {
-      "label": "Customizable Invoice",
-      "values": [
-        "\u2713",
         "\u2713",
         "\u2713",
         "\u2713"
