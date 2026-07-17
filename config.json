@@ -173,11 +173,18 @@
       "contact": false,
       "cta": "Buy now",
       "features": [
-        "1 register",
+        "1 Register",
         "Billing & GST invoicing",
-        "Basic inventory management",
+        "Advanced Inventory Management",
         "Daily sales report",
-        "Email support"
+        {
+          "included": false,
+          "text": "Cloud Sync"
+        },
+        {
+          "included": false,
+          "text": "Android Mobile RasidhuPOS Incl"
+        }
       ],
       "name": "Starter",
       "per": "/year",
@@ -203,8 +210,9 @@
         "Up to 3 registers per shop",
         "Multi-shop dashboard",
         "Staff accounts & permissions",
-        "Loyalty & customer CRM",
-        "Priority chat support"
+        "Whatsapp Automation",
+        "Priority chat support",
+        "Android Mobile RasidhuPOS Incl."
       ],
       "name": "Growth",
       "per": "/year",
@@ -228,10 +236,11 @@
       "cta": "Buy now",
       "features": [
         "Unlimited registers",
-        "Advanced analytics & forecasting",
-        "Role-based staff access",
-        "API & payment integrations",
-        "Dedicated onboarding"
+        "Advanced analytics",
+        "Staff accounts & permissions",
+        "Whatsapp Automation",
+        "Dedicated onboarding",
+        "Android Mobile RasidhuPOS Incl."
       ],
       "name": "Business",
       "per": "/year",
@@ -256,9 +265,10 @@
       "features": [
         "Everything in Business",
         "Custom integrations",
-        "Single sign-on (SSO)",
+        "Pay as you grow",
         "24/7 priority support",
-        "Dedicated account manager"
+        "Dedicated account manager",
+        "Android Mobile RasidhuPOS Incl."
       ],
       "name": "Enterprise",
       "per": "",
