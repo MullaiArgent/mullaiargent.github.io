@@ -136,6 +136,15 @@
         "\u2713",
         "\u2713"
       ]
+    },
+    {
+      "label": "Audit Logs",
+      "values": [
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713"
+      ]
     }
   ],
   "DOWNLOAD_ANDROID_URL": "https://github.com/MullaiArgent/RasidhuPOS-releases/releases/latest",
@@ -217,7 +226,7 @@
       "name": "Growth",
       "per": "/year",
       "popular": true,
-      "price": 2500,
+      "price": 3000,
       "shops": "Up to 2 shops",
       "tagline": "Everything a growing store needs across two locations."
     },
@@ -245,7 +254,7 @@
       "name": "Business",
       "per": "/year",
       "popular": true,
-      "price": 2250,
+      "price": 2750,
       "shops": "Up to 10 shops",
       "tagline": "Centralised control and analytics for multi-outlet retailers."
     },
@@ -279,12 +288,12 @@
     }
   ],
   "PRICES": {
-    "business": 2250,
-    "growth": 2500,
+    "business": 2750,
+    "growth": 3000,
     "starter": 1500
   },
   "RELEASES_URL": "https://github.com/MullaiArgent/RasidhuPOS-releases/releases/latest",
-  "SHOPS_PRICE_PER": 2250,
+  "SHOPS_PRICE_PER": 2750,
   "SUPPORT_EMAIL": "mullairajan2000@gmail.com",
   "UPI_VPA": "mullairajan@ybl",
   "WHATSAPP": "7010139747"
