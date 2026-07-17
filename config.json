@@ -84,6 +84,15 @@
       ]
     },
     {
+      "label": "Automation",
+      "values": [
+        "\u2014",
+        "\u2713",
+        "\u2713",
+        "\u2713"
+      ]
+    },
+    {
       "label": "Support",
       "values": [
         "Email",
