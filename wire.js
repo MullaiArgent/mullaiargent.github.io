@@ -63,7 +63,7 @@
   // a per-node signature, and re-applied on the framework's re-renders. No PLANS
   // in config -> no-op, so the baked mockup shows unchanged. Verified against the
   // hydrated DOM (cards + real <table> compare grid).
-  var PLAN_N2C = { Starter: 'starter', Growth: 'growth', Business: 'business', Enterprise: 'enterprise' };
+  var PLAN_N2C = { Starter: 'starter', Business: 'business', Enterprise: 'enterprise' };
 
   // A card feature bullet is either a plain string (INCLUDED -> the template's
   // tick) or an object { text, included:false } (EXCLUDED -> a red X mark, text
@@ -84,29 +84,48 @@
     return isNaN(n) ? String(p.price) : n.toLocaleString('en-IN');
   }
 
-  // The card price = the plan's per-shop rate x its shop count (planShops is
-  // hoisted from below). Growth is the exception: its total is looked up from
-  // shop_prices for the chosen 1/2 shops (NOT proportional). Contact/Custom tiers
-  // keep their label. Business AND Growth are re-asserted dynamically by
-  // enhance.js as their selectors change; this writes the correct total on first
-  // paint so there is no flat-price flash.
+  // The card price. Business is affine: base() (SHOPS_BASE_PRICE) + its per-shop
+  // rate x the chosen shop count (planShops is hoisted from below). Contact/Custom
+  // tiers keep their label; other plans show their flat price. Business is
+  // re-asserted dynamically by enhance.js as the shop selector changes; this
+  // writes the correct total on first paint so there is no flat-price flash.
   function planCardAmount(p) {
     if (p.contact || p.price == null || p.price === '' || isNaN(Number(p.price))) return planFmtPrice(p);
-    if (p.code === 'growth') return growthTotal().toLocaleString('en-IN');
+    if (p.code === 'business') return (base() + Number(p.price) * planShops('business')).toLocaleString('en-IN');
     return (Number(p.price) * planShops(p.code)).toLocaleString('en-IN');
   }
 
+  // Show or hide a whole baked card. In the flat 3-card layout each .flip-card
+  // holds ONE .card-face, so hide the .flip-card so no empty slot remains. An
+  // older mockup that packs 2 faces on one flip-card (a front/back flip) hides
+  // only the surplus face, so the other plan on that card still shows.
+  function setCardHidden(face, hidden) {
+    var fc = face.closest ? face.closest('.flip-card') : null;
+    if (fc && fc.querySelectorAll('.card-face').length <= 1) fc.style.display = hidden ? 'none' : '';
+    else face.style.display = hidden ? 'none' : '';
+  }
+
   function applyPlanCards(plans) {
-    var by = {}, i;
-    for (i = 0; i < plans.length; i++) by[plans[i].code] = plans[i];
+    var by = {}, nameSet = {}, i;
+    for (i = 0; i < plans.length; i++) { by[plans[i].code] = plans[i]; if (plans[i].name) nameSet[plans[i].name] = 1; }
     var faces = document.querySelectorAll('.card-face');
     for (var k = 0; k < faces.length; k++) {
       var face = faces[k], wrap = null, ch = face.children, c;
       for (c = 0; c < ch.length; c++) { if (ch[c].tagName === 'DIV' && ch[c].style && ch[c].style.zIndex === '1') { wrap = ch[c]; break; } }
       if (!wrap) continue;
       var nameEl = wrap.children[0]; if (!nameEl) continue;
-      var p = by[PLAN_N2C[(nameEl.textContent || '').trim()]];
-      if (!p) continue;                       // already applied (custom name) or unknown -> skip
+      var nm = (nameEl.textContent || '').trim();
+      var p = by[PLAN_N2C[nm]];
+      if (!p) {
+        // Not a baked slot that maps to a published plan. If it already carries a
+        // published plan's name it is a card we rendered earlier (a custom rename)
+        // -> keep it. Otherwise it is a surplus baked card (e.g. a 4-card mockup
+        // against only 3 published plans, like the old Growth slot) -> hide it so
+        // exactly the published plans show.
+        if (!nameSet[nm]) setCardHidden(face, true);
+        continue;
+      }
+      setCardHidden(face, false);             // re-show if an earlier pass hid it
       var featSig = (p.features || []).map(function (f) {
         var it = featItem(f); return (it.included ? '+' : '-') + it.text;
       }).join('|');
@@ -169,6 +188,20 @@
       var sub = th.querySelector('div');                 // the "N shops" sub-label under the name
       if (sub && pl.shops && sub.textContent !== pl.shops) sub.textContent = pl.shops;
     }
+    // Collapse any surplus plan columns: an older baked table can carry more plan
+    // columns than the published plan count (a 4-column mockup against 3 plans, so
+    // a leftover Growth column). Hide every cell past the last published plan in
+    // the header, body and CTA rows so exactly the published columns show. Style
+    // writes only (attribute mutations the childList observer ignores) and
+    // idempotent, so this never feeds the re-render loop.
+    var allRows = table.querySelectorAll('tr'), rr, cc2, want;
+    for (rr = 0; rr < allRows.length; rr++) {
+      var cells2 = allRows[rr].children;
+      for (cc2 = 1; cc2 < cells2.length; cc2++) {
+        want = (cc2 - 1 < plans.length) ? '' : 'none';
+        if (cells2[cc2].style.display !== want) cells2[cc2].style.display = want;
+      }
+    }
     if (!rows || !rows.length) return;
     var tb = table.querySelector('tbody'); if (!tb) return;
     var trs = [], kids = tb.children, i;
@@ -219,16 +252,16 @@
     observeChildList(function () { applyPlans(); });
   }
 
-  var PLAN_ORDER = ['starter', 'growth', 'business', 'enterprise'];
-  var PLAN_NAME = { starter: 'Starter', growth: 'Growth', business: 'Business', enterprise: 'Enterprise' };
+  var PLAN_ORDER = ['starter', 'business', 'enterprise'];
+  var PLAN_NAME = { starter: 'Starter', business: 'Business', enterprise: 'Enterprise' };
   var R = window.rpos || {};
 
-  function shopPer() { var v = Number(C.SHOPS_PRICE_PER); return isFinite(v) && v > 0 ? v : 1250; }
-  // Business is priced PER SHOP: its amount is a per-shop rate x the count the
-  // buyer picks in the enhance.js spinner (rpos.businessShops). Growth is a
-  // single plan taken for 1 OR 2 shops with TWO explicit totals (NOT rate x
-  // shops): the buyer flips rpos.growthShops (1/2) on the card and the total is
-  // looked up from PLANS[growth].shop_prices. Starter is single-shop and flat.
+  function shopPer() { var v = Number(C.SHOPS_PRICE_PER); return isFinite(v) && v > 0 ? v : 600; }
+  // Business base price (the flat part of the affine total). Falls back to 2000.
+  function base() { var v = Number(C.SHOPS_BASE_PRICE); return isFinite(v) && v >= 0 ? v : 2000; }
+  // Business is priced AFFINE: base() + a per-shop rate x the shop count the buyer
+  // picks in the enhance.js spinner (rpos.businessShops). Starter is a single-shop
+  // flat price; Enterprise is contact-only.
   function planMaxShops(code) {
     try {
       if (C.PLANS) for (var i = 0; i < C.PLANS.length; i++) {
@@ -241,47 +274,18 @@
     } catch (e) {}
     return 1;
   }
-  // Growth's explicit per-shop-count totals: { 1: price1, 2: price2 } from
-  // PLANS[growth].shop_prices (JSON keys are strings). null when unpublished.
-  function growthPrices() {
-    try {
-      if (C.PLANS) for (var i = 0; i < C.PLANS.length; i++) {
-        var p = C.PLANS[i];
-        if ((p.code || '') === 'growth' && p.shop_prices) {
-          var out = {}, any = false;
-          for (var k in p.shop_prices) {
-            var n = Number(p.shop_prices[k]);
-            if (isFinite(n)) { out[String(parseInt(k, 10))] = n; any = true; }
-          }
-          if (any) return out;
-        }
-      }
-    } catch (e) {}
-    return null;
-  }
-  // The buyer's Growth choice (1 or 2 shops); defaults to a single shop so the
-  // card leads with the entry price. Set by the enhance.js Growth selector.
-  function growthShops() { var g = Number(R.growthShops); return g === 2 ? 2 : 1; }
-  // Growth total for the chosen shop count (lookup, NOT rate x shops); falls back
-  // to the plan's base PRICES entry when no shop_prices are published.
-  function growthTotal() {
-    var gp = growthPrices();
-    if (gp) { var v = gp[String(growthShops())]; if (isFinite(v)) return v; }
-    return Number((C.PRICES || {}).growth) || 0;
-  }
   function planShops(code) {
     if (code === 'business') {
       var b = Number(R.businessShops);
       return (isFinite(b) && b > 0) ? b : planMaxShops('business');
     }
-    if (code === 'growth') return growthShops();
     return planMaxShops(code);
   }
   function perShopRate(code) {
     return (code === 'business') ? shopPer() : (Number((C.PRICES || {})[code]) || 0);
   }
   function priceOf(p) {
-    if (p === 'growth') return growthTotal();
+    if (p === 'business') return base() + shopPer() * planShops('business');
     return perShopRate(p) * planShops(p);
   }
   function inr(n) { return 'Rs ' + Number(n || 0).toLocaleString('en-IN'); }
@@ -535,13 +539,14 @@
     modal.querySelector('[data-plan]').textContent = 'RasidhuPOS ' + (PLAN_NAME[plan] || plan) + ' (yearly)';
     modal.querySelector('[data-amt]').textContent = inr(amt);
     var noteShops = planShops(plan), noteRate = perShopRate(plan);
-    // Growth has two flat totals (not per-shop), so show the shop count without a
-    // misleading "each" rate; Business keeps the "N shops (Rs X each)" note.
+    // Business is affine, so spell out the maths: base + N shop(s) x rate = total.
+    // Other plans are flat and show no sub-note.
     modal.querySelector('[data-amtnote]').textContent =
-      (plan === 'growth')
-        ? ('for ' + noteShops + (noteShops > 1 ? ' shops' : ' shop'))
-        : ((noteShops > 1 && noteRate > 0)
-            ? ('for ' + noteShops + ' shops (Rs ' + noteRate.toLocaleString('en-IN') + ' each)') : '');
+      (plan === 'business')
+        ? ('Rs ' + base().toLocaleString('en-IN') + ' base + ' + noteShops
+            + (noteShops > 1 ? ' shops x Rs ' : ' shop x Rs ') + noteRate.toLocaleString('en-IN')
+            + ' = Rs ' + priceOf('business').toLocaleString('en-IN'))
+        : '';
     modal.querySelector('[data-payee]').textContent = 'via UPI to ' + (C.UPI_VPA || '');
     var qb = modal.querySelector('[data-qr]'); qb.innerHTML = '';
     try { new QRCode(qb, { text: upi, width: 200, height: 200 }); }
@@ -776,7 +781,7 @@
     var txt = (btn.textContent || '').trim().toLowerCase();
     if (txt === 'buy now') {
       e.preventDefault(); e.stopPropagation();
-      var plan = planOf(btn) || 'growth';
+      var plan = planOf(btn) || 'business';
       if (plan === 'enterprise') { contact(); return; }
       // Gate Buy now behind Google sign-in ONLY when a Client ID is configured.
       // If it is not set, buying works exactly as before (never blocked by

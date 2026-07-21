@@ -6,10 +6,10 @@
 window.RPOS_CONFIG = {
   UPI_VPA: "mullairajan@ybl",                // where money lands
   PAYEE_NAME: "RasidhuPOS",
-  // INR / year (sentinel config.json overrides). Business is charged per shop:
-  // the page shows SHOPS_PRICE_PER x (chosen shops), so business here is the
-  // per-shop rate, not the final amount.
-  PRICES: { starter: 1500, growth: 2500, business: 1250 },
+  // INR / year (sentinel config.json overrides). Starter is a flat yearly price.
+  // Business is affine: SHOPS_BASE_PRICE + SHOPS_PRICE_PER x (chosen shops), so
+  // the business value here is the per-shop rate, not the final amount.
+  PRICES: { starter: 1250, business: 600 },
   // Google Form (RasidhuPOS subscription requests). Editable in the sentinel Storefront tab.
   // name / contact are the mandatory buyer fields; notes + shops are extra columns.
   // Add the matching questions to the Form, then paste their entry.<id> here (or
@@ -45,15 +45,17 @@ window.RPOS_CONFIG = {
   // small popup window) before the pay modal opens. Blank = no gate (buy as before).
   GOOGLE_CLIENT_ID: "",
 
-  // Business tier is priced per shop: price = shops * SHOPS_PRICE_PER, minimum
-  // SHOPS_MIN shops, the field starts at SHOPS_DEFAULT. Self-serve tops out at
-  // SHOPS_MAX shops; beyond that the card steers the buyer to contact sales and
-  // highlights the Enterprise card. (A published PLANS business caps.max_shops,
-  // if present, wins over SHOPS_MAX.)
-  SHOPS_MIN: 3,
-  SHOPS_DEFAULT: 4,
+  // Business tier is priced affine: price = SHOPS_BASE_PRICE + shops x
+  // SHOPS_PRICE_PER (a flat base plus a per-shop rate), from SHOPS_MIN shops, the
+  // field starts at SHOPS_DEFAULT. Self-serve tops out at SHOPS_MAX shops; beyond
+  // that the card steers the buyer to contact sales and highlights the Enterprise
+  // card. (A published PLANS business caps.max_shops, if present, wins over
+  // SHOPS_MAX.) Example: 1 shop = 2,000 + 600 = Rs 2,600; 10 shops = Rs 8,000.
+  SHOPS_BASE_PRICE: 2000,
+  SHOPS_PRICE_PER: 600,
+  SHOPS_MIN: 1,
+  SHOPS_DEFAULT: 1,
   SHOPS_MAX: 10,
-  SHOPS_PRICE_PER: 1250,
 
   // Download links, sentinel-managed. These point STRAIGHT at the release asset
   // so the Download button downloads the file directly (no GitHub page). The

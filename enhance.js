@@ -2,9 +2,9 @@
 // Layered on top of app.js + wire.js. Adds, without touching the mockup markup
 // or its transition (event delegation + idempotent DOM patches, re-applied on
 // the framework's re-renders):
-//   * a per-shop "Number of shops" control on the Business card (minimum 3,
-//     starts at 4, price = shops x SHOPS_PRICE_PER). Stays correct even as the
-//     PLANS overlay in wire.js re-renders the card (a deferred re-assert wins).
+//   * a per-shop "Number of shops" control on the Business card (from 1 shop,
+//     price = SHOPS_BASE_PRICE + shops x SHOPS_PRICE_PER). Stays correct even as
+//     the PLANS overlay in wire.js re-renders the card (a deferred re-assert wins).
 //   * a Download nav item + a Windows / Android download modal, with links the
 //     sentinel manages (DOWNLOAD_WINDOWS_URL / DOWNLOAD_ANDROID_URL / RELEASES_URL).
 //   * the nav "Sign in" link reflects the signed-in Google account: it shows the
@@ -21,10 +21,9 @@
   var R = window.rpos || (window.rpos = {});
 
   function num(v, d) { v = Number(v); return isFinite(v) ? v : d; }
-  // Business shop range is sentinel-driven from PLANS[].caps.max_shops: it
-  // starts one above the tier below it (Growth's max) and tops out at
-  // Business's own max. Falls back to config.js SHOPS_MIN / a large ceiling
-  // when caps are absent (e.g. no published PLANS yet).
+  // Business shop range is sentinel-driven from PLANS[].caps.max_shops: it starts
+  // at SHOPS_MIN (1) and tops out at Business's own max. Falls back to config.js
+  // SHOPS_MAX when caps are absent (e.g. no published PLANS yet).
   function planCap(code) {
     try {
       if (C.PLANS) for (var i = 0; i < C.PLANS.length; i++) {
@@ -34,26 +33,25 @@
     } catch (e) {}
     return 0;
   }
-  function shopsMin() { var g = planCap('growth'); return Math.max(1, g > 0 ? g + 1 : Math.floor(num(C.SHOPS_MIN, 3))); }
+  function shopsMin() { return Math.max(1, Math.floor(num(C.SHOPS_MIN, 1))); }
   // Self-serve ceiling: the published Business cap wins, else config SHOPS_MAX
   // (default 10). Above this the buyer is steered to contact sales.
   function shopsMax() { var b = planCap('business'); return b > 0 ? b : Math.max(shopsMin(), Math.floor(num(C.SHOPS_MAX, 10))); }
-  function shopsPer() { var v = num(C.SHOPS_PRICE_PER, 1250); return v > 0 ? v : 1250; }
-  function shopsDefault() { return Math.min(shopsMax(), Math.max(shopsMin(), Math.floor(num(C.SHOPS_DEFAULT, 4)))); }
-  function shopsHintText() { return 'Minimum ' + shopsMin() + ' shops. Rs ' + inrNum(shopsPer()) + ' per shop / year.'; }
+  function shopsPer() { var v = num(C.SHOPS_PRICE_PER, 600); return v > 0 ? v : 600; }
+  // Business base price (the flat part of the affine total). Falls back to 2000.
+  function shopsBase() { var v = num(C.SHOPS_BASE_PRICE, 2000); return v >= 0 ? v : 2000; }
+  function shopsDefault() { return Math.min(shopsMax(), Math.max(shopsMin(), Math.floor(num(C.SHOPS_DEFAULT, 1)))); }
+  function shopsHintText() { return 'Rs ' + inrNum(shopsBase()) + ' base plus Rs ' + inrNum(shopsPer()) + ' per shop, per year.'; }
   // Shown in place of the hint when the buyer asks for more shops than we sell
   // self-serve; steers them to the Enterprise tier and pairs with the
   // Enterprise-card hover flourish below.
   function overLimitText() { return 'For more than ' + shopsMax() + ' shops, try the ' + entName() + ' subscription.'; }
   function inrNum(n) { return Number(n || 0).toLocaleString('en-IN'); }
-  function bizPrice() { return R.businessShops * shopsPer(); }
+  function bizPrice() { return shopsBase() + R.businessShops * shopsPer(); }
   function safeUrl(u) { u = String(u || ''); return /^https?:\/\//i.test(u) ? u : '#'; }
 
   // Shared state read by wire.js (rpos is the same object across files).
   if (R.businessShops == null) R.businessShops = shopsDefault();
-  // Growth is taken for 1 OR 2 shops; default to a single shop so the card leads
-  // with the entry price. The Growth selector below flips this; wire.js reads it.
-  if (R.growthShops == null) R.growthShops = 1;
   // Signed-in email: the app's ?email= wins, else a Google sign-in from an
   // earlier step this session (sessionStorage) so a re-render doesn't drop it.
   if (R.pageEmail == null) {
@@ -340,131 +338,6 @@
       var faces = cards[i].querySelectorAll('.card-face');
       for (j = 0; j < faces.length; j++) faces[j].style.removeProperty('height');
     }
-  }
-
-  // -------------------------------------------------------------------------
-  // Growth "1 or 2 shops" selector
-  // -------------------------------------------------------------------------
-  // Growth is one plan the buyer takes for 1 OR 2 shops, each with its own flat
-  // total in PLANS[growth].shop_prices (NOT rate x shops). A compact segmented
-  // control on the card flips rpos.growthShops; the card + pay-modal price follow
-  // (wire.js reads the same rpos.growthShops). Mirrors the Business shops control.
-  function growthName() {
-    try {
-      if (C.PLANS) for (var i = 0; i < C.PLANS.length; i++) {
-        if ((C.PLANS[i].code || '') === 'growth') return C.PLANS[i].name || 'Growth';
-      }
-    } catch (e) {}
-    return 'Growth';
-  }
-  function isGrowthName(el) {
-    if (!el) return false;
-    var nm = (el.textContent || '').trim();
-    return nm === growthName() || nm === 'Growth';
-  }
-  function growthWrap() {
-    var btns = document.querySelectorAll('button'), i;
-    for (i = 0; i < btns.length; i++) {
-      var b = btns[i];
-      if (b.getAttribute && b.getAttribute('data-rp') != null) continue;   // our own controls
-      if ((b.textContent || '').trim().toLowerCase() !== 'buy now') continue;
-      if (b.closest && b.closest('td, th, sc-raw-td')) continue;           // compare table
-      var wrap = b.parentElement;
-      if (wrap && isGrowthName(wrap.children[0])) return wrap;
-    }
-    return null;
-  }
-  // Growth's per-shop-count totals { "1":.., "2":.. } from PLANS[growth].shop_prices.
-  function growthPricesE() {
-    try {
-      if (C.PLANS) for (var i = 0; i < C.PLANS.length; i++) {
-        var p = C.PLANS[i];
-        if ((p.code || '') === 'growth' && p.shop_prices) {
-          var out = {}, any = false;
-          for (var k in p.shop_prices) { var n = num(p.shop_prices[k], NaN); if (isFinite(n)) { out[String(parseInt(k, 10))] = n; any = true; } }
-          if (any) return out;
-        }
-      }
-    } catch (e) {}
-    return null;
-  }
-  function growthShopsVal() { return R.growthShops === 2 ? 2 : 1; }
-  // The 1/2 selector + price management only kick in when the vendor has
-  // published Growth shop_prices. Without them, Growth is a single-price plan and
-  // we leave its card entirely to wire.js / the baked mockup (no selector, no
-  // price rewrite) - exactly like a page with no published PLANS.
-  function growthConfigured() { return !!growthPricesE(); }
-  // Total for the chosen shop count (lookup); falls back to the plan's base price
-  // (1-shop) when shop_prices are not published yet.
-  function growthPriceVal() {
-    var gp = growthPricesE();
-    if (gp && gp[String(growthShopsVal())] != null) return gp[String(growthShopsVal())];
-    try { if (C.PLANS) for (var i = 0; i < C.PLANS.length; i++) { if ((C.PLANS[i].code || '') === 'growth') return num(C.PLANS[i].price, 0); } } catch (e) {}
-    return 0;
-  }
-  // A two-option segmented control ("1 shop" / "2 shops"). Its buttons carry
-  // data-rp so growthWrap()/bizWrap() skip them; the box is data-rp-growth.
-  function buildGrowthField() {
-    var box = document.createElement('div');
-    box.setAttribute('data-rp', 'growth');
-    box.setAttribute('data-rp-growth', '1');
-    box.style.cssText = 'margin:0 0 16px;text-align:left';
-    var lab = document.createElement('div');
-    lab.textContent = 'Number of shops';
-    lab.style.cssText = 'font-size:12px;font-weight:700;color:#8a8a90;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px';
-    var seg = document.createElement('div');
-    seg.style.cssText = 'display:inline-flex;border:1px solid #e7dcc0;border-radius:11px;overflow:hidden;background:#fffdf7';
-    function mkBtn(n, text) {
-      var btn = document.createElement('button');
-      btn.type = 'button';
-      btn.setAttribute('data-rp', 'growth-opt');
-      btn.setAttribute('data-rp-growth-opt', String(n));
-      btn.textContent = text;
-      btn.style.cssText = 'border:0;background:transparent;padding:9px 16px;font-size:14px;font-weight:800;color:#8a8a90;cursor:pointer';
-      btn.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); setGrowth(n); });
-      return btn;
-    }
-    seg.appendChild(mkBtn(1, '1 shop'));
-    seg.appendChild(mkBtn(2, '2 shops'));
-    box.appendChild(lab);
-    box.appendChild(seg);
-    return box;
-  }
-  // Highlight the selected option (gold) and mute the other; idempotent.
-  function paintGrowthSeg(box) {
-    if (!box) return;
-    var opts = box.querySelectorAll('[data-rp-growth-opt]'), i;
-    for (i = 0; i < opts.length; i++) {
-      var on = String(growthShopsVal()) === opts[i].getAttribute('data-rp-growth-opt');
-      opts[i].style.background = on ? 'linear-gradient(#f5c542,#e6b325)' : 'transparent';
-      opts[i].style.color = on ? '#19191c' : '#8a8a90';
-    }
-  }
-  function setGrowth(n) {
-    R.growthShops = (n === 2) ? 2 : 1;
-    var w = growthWrap();
-    if (w) { paintGrowthSeg(w.querySelector('[data-rp-growth]')); assertGrowthPrice(w); try { ensureCardFit(w); } catch (e) {} }
-  }
-  // Write the Growth card's price = the chosen shop count's total (only when it
-  // actually differs, so this stays quiet inside the re-render observer).
-  function assertGrowthPrice(wrap) {
-    if (!growthConfigured()) return;           // single-price Growth -> leave to wire.js
-    wrap = wrap || growthWrap(); if (!wrap) return;
-    var prow = wrap.children[2];               // [name, shops-line, price-row, ...]
-    if (prow && prow.children && prow.children.length >= 2) {
-      var target = prow.children[1];           // [currency, amount, per]
-      var want = inrNum(growthPriceVal());
-      if (target && target.textContent !== want) target.textContent = want;
-    }
-  }
-  function ensureGrowth() {
-    if (!growthConfigured()) return;           // no dual-price published -> no selector
-    var wrap = growthWrap(); if (!wrap) return;
-    var btn = wrap.querySelector('button'); if (!btn) return;   // before any inject, this is Buy now
-    if (!wrap.querySelector('[data-rp-growth]')) wrap.insertBefore(buildGrowthField(), btn);
-    paintGrowthSeg(wrap.querySelector('[data-rp-growth]'));
-    assertGrowthPrice(wrap);
-    try { ensureCardFit(wrap); } catch (e) {}
   }
 
   // -------------------------------------------------------------------------
@@ -943,7 +816,7 @@
     }
     return { title: 'Terms of Service', updated: 'Last updated: 10 July 2026', blocks: [
       { h: '1. Subscription and account', p: 'Your ' + biz + ' subscription is tied to a single Google account and is valid for 1 year from the date we activate it. You may use it on both the desktop and Android apps when signed in with that Google account.' },
-      { h: '2. Plans and caps', p: 'Each plan (Starter, Growth, Business, Enterprise) includes a set number of shops and staff accounts, as shown on the pricing page. Enterprise caps are agreed individually. Caps can be adjusted for your account on request.' },
+      { h: '2. Plans and caps', p: 'Each plan (Starter, Business, Enterprise) includes a set number of shops and staff accounts, as shown on the pricing page. Enterprise caps are agreed individually. Caps can be adjusted for your account on request.' },
       { h: '3. Activation', p: 'Activation is manual. After you pay by UPI and submit your payment reference, we verify the payment and then activate your account, normally within one business day. Until activation, the app stays in its current state and no charge is applied by us beyond your UPI payment.' },
       { h: '4. Renewals and no lock-in', p: 'There is no lock-in. A subscription expires at the end of its year unless you renew by paying again. When it expires the app becomes read-only, you can still view your data, and your data stays on your device and in your cloud backup.' },
       { h: '5. Acceptable use', p: 'Do not resell, sublicense or attempt to circumvent the subscription. One subscription is for one business\'s own use within the caps of the chosen plan.' },
@@ -1124,11 +997,11 @@
       var pk = policyKindFor(pa.textContent);
       if (pk) { e.preventDefault(); showPolicy(pk); return; }
     }
-    // A plan/segment toggle can reveal or re-render the Business/Growth card;
-    // re-fit + re-inject the selectors shortly after so all bullets stay inside
-    // once the retry window has closed.
-    setTimeout(function () { try { ensureShops(); } catch (e2) {} try { ensureGrowth(); } catch (e2) {} }, 60);
-    setTimeout(function () { try { ensureShops(); } catch (e2) {} try { ensureGrowth(); } catch (e2) {} }, 420);
+    // A plan toggle can reveal or re-render the Business card; re-fit + re-inject
+    // the shops selector shortly after so all bullets stay inside once the retry
+    // window has closed.
+    setTimeout(function () { try { ensureShops(); } catch (e2) {} }, 60);
+    setTimeout(function () { try { ensureShops(); } catch (e2) {} }, 420);
   });
 
   // ---- passes: run now, retry through hydration, re-apply on re-render --------
@@ -1136,27 +1009,26 @@
     try { ensureFavicon(); } catch (e) {}
     try { ensureStepperStyle(); } catch (e) {}
     try { ensureShops(); } catch (e) {}
-    try { ensureGrowth(); } catch (e) {}
     try { mountDownload(); } catch (e) {}
     try { mountWhy(); } catch (e) {}
     try { reflectSignin(); } catch (e) {}
   }
-  // The Business + Growth prices are re-asserted on a macrotask so they run AFTER
-  // the PLANS overlay's synchronous observer (which would otherwise show the flat
-  // / single-shop price).
+  // The Business price is re-asserted on a macrotask so it runs AFTER the PLANS
+  // overlay's synchronous observer (which would otherwise show the single-shop
+  // price).
   function deferredAssert() {
-    try { setTimeout(function () { try { assertBizPrice(); } catch (e) {} try { assertGrowthPrice(); } catch (e) {} }, 0); } catch (e) {}
+    try { setTimeout(function () { try { assertBizPrice(); } catch (e) {} }, 0); } catch (e) {}
   }
 
   pass();
   try { seedDownloadsFromCache(); } catch (e) {}   // reuse last-known direct links (survives API rate-limits)
   try { resolveLatestDownloads(); } catch (e) {}   // fetch the current latest .exe/.apk up front
   var tries = 0;
-  var iv = setInterval(function () { pass(); assertBizPrice(); assertGrowthPrice(); if (++tries > 90) clearInterval(iv); }, 130);   // ~12s of retries
+  var iv = setInterval(function () { pass(); assertBizPrice(); if (++tries > 90) clearInterval(iv); }, 130);   // ~12s of retries
   // Card content wraps differently across widths, so re-measure the fit on resize
   // (clear our overrides first, then let the next pass grow to the new content).
   var _rz;
-  try { window.addEventListener('resize', function () { clearTimeout(_rz); _rz = setTimeout(function () { try { clearCardFit(); } catch (e) {} try { ensureShops(); } catch (e) {} try { ensureGrowth(); } catch (e) {} }, 160); }); } catch (e) {}
+  try { window.addEventListener('resize', function () { clearTimeout(_rz); _rz = setTimeout(function () { try { clearCardFit(); } catch (e) {} try { ensureShops(); } catch (e) {} }, 160); }); } catch (e) {}
   // Re-apply on the framework's re-renders. The observer disconnects while it
   // runs and reconnects after, so the DOM writes pass()/deferredAssert() make
   // are never observed by it - a hard guard against a self-feedback loop that

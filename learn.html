@@ -211,12 +211,23 @@
         <h3>How to make a Wholesale bill (with a running account)</h3>
         <ol class="steps">
           <li>Choose the <strong>Wholesale</strong> option.</li>
-          <li>Pick the customer from the <strong>Wholesale</strong> dropdown. The phone fills in for you.</li>
+          <li>Pick the customer from the <strong>Wholesale</strong> dropdown. The phone fills in for you. New customer? Click <strong>+ Add wholesale customer</strong> next to the dropdown to add them without leaving the bill; the new account is selected straight away so you can carry on.</li>
           <li>Add items the same way. Here you type the <strong>Rate</strong> freely (no owner password needed).</li>
           <li>Enter what they paid in the cash <strong>Amount</strong> and/or <strong>UPI</strong> field. The ledger strip updates Previous balance, This bill, They paid and Closing balance live.</li>
           <li>Save. Any unpaid amount stays on the customer's running balance (khata).</li>
         </ol>
-        <div class="note"><strong>Payment only, no items?</strong> To record a wholesale customer paying down their balance, pick them, add no lines, type the payment, and save. It is stored as a settlement.</div>
+        <div class="note"><strong>Payment only, no items?</strong> To record a wholesale customer paying down their balance, pick them, add no lines, type the payment, and save. It is stored as a settlement. You can edit a saved settlement later just like any bill (Edit bill, then its number and date): it keeps the same number, and a cash and UPI split is preserved.</div>
+
+        <h3>Drafts (park a bill and start another)</h3>
+        <p class="learn-lead">Need to start a fresh bill before finishing the current one? RasidhuPOS parks the bill in progress as a draft so nothing is lost.</p>
+        <ul class="plain">
+          <li><strong>Park the current bill:</strong> with an item added or a payment typed, click <strong>New bill</strong>. The bill in progress moves to a draft tab above the form and a fresh bill opens. (An empty form just clears, no draft is made.)</li>
+          <li><strong>Switch between drafts:</strong> click a draft tab to carry on where you left off; whatever is open at the time is parked in its place.</li>
+          <li><strong>They survive a restart:</strong> parked drafts stay on this computer even after you close and reopen the app.</li>
+          <li><strong>Discard one:</strong> click the small close (x) on a draft tab.</li>
+          <li><strong>After you save:</strong> the saved bill's tab closes and the most recent parked draft comes back.</li>
+        </ul>
+        <div class="note"><strong>Good to know.</strong> Drafts are kept on this computer only, they are not synced to the cloud or other devices. Up to 20 can be open at once for each shop.</div>
 
         <h3>Send the bill on WhatsApp automatically</h3>
         <p class="learn-lead">Save a delivery bill and RasidhuPOS can send it to the customer on WhatsApp for you, the bill image and all, without you leaving the counter.</p>
@@ -229,7 +240,7 @@
 
         <h3>Editing, cancelling and restoring</h3>
         <ul class="plain">
-          <li><strong>Edit a bill:</strong> click <strong>Edit bill</strong> (owner password), type the number and pick the issue date, then <strong>Open bill</strong>. The bill keeps its number when you save.</li>
+          <li><strong>Edit a bill:</strong> click <strong>Edit bill</strong> (owner password), type the number and pick the issue date, then <strong>Open bill</strong>. The bill keeps its number when you save. While editing, the Customer / Wholesale type is fixed; to bill the other type click <strong>New bill</strong>, which parks the edit as a draft you can return to.</li>
           <li><strong>Cancel a bill:</strong> click <strong>Cancel bill</strong> (owner password), type the number and date, confirm. It is a soft delete: the bill stays in the records (shown struck through) for audit.</li>
           <li><strong>Restore a cancelled bill:</strong> right-click the struck-through row in Recent bills and choose "Restore this bill". It also restores from the <a href="#audit-log">Audit Log</a>.</li>
           <li><strong>Reprint or share:</strong> right-click a recent bill row for View, Copy bill image, Send via WhatsApp, Send by email, Reprint or Edit.</li>
@@ -269,6 +280,9 @@
 
         <h3>The supplier ledger</h3>
         <p class="learn-lead">The five cards across the top read: <strong>They owe us</strong>, <strong>We owe them</strong>, <strong>This bill</strong>, <strong>We paid</strong> and <strong>Closing</strong>. The closing balance is the previous balance plus what you paid, minus this bill. Green means they owe you; red means you owe them.</p>
+
+        <h3>Drafts (park a purchase and start another)</h3>
+        <p class="learn-lead">Just like Billing, clicking <strong>New purchase</strong> while one is in progress parks it as a draft tab above the form so you can start another. Click a tab to resume where you left off, and parked purchases stay on this computer even after you close and reopen the app. When you save, that tab closes and the most recent parked draft comes back. Drafts are kept on this computer only and are never synced.</p>
 
         <h3>Editing, cancelling and restoring</h3>
         <ul class="plain">
@@ -338,6 +352,7 @@
           <li>Click Add, then fill the <strong>Name</strong>, <strong>Phone</strong>, <strong>Address</strong> and, if you keep an opening balance, the amount already owed.</li>
           <li>Save. The account now appears in the Wholesale dropdown in Billing (customers) or the Supplier dropdown in Purchase (suppliers), with its running ledger.</li>
         </ol>
+        <div class="note"><strong>Sorting and phone entry.</strong> Each list has a <strong>Sort by</strong> control. The Suppliers list opens on <strong>Oldest first</strong> (the order you added them, most recent last); Wholesale customers open on <strong>Name (A to Z)</strong>. Phone fields accept digits only, up to 15 of them, a longer number already saved is kept as is.</div>
         <a class="back-top" href="#top">Back to top</a>
       </section>
 
@@ -378,6 +393,7 @@
           <li>Type a <strong>Name</strong> (for example Rent) and pick a colour with <strong>Pick colour...</strong>.</li>
           <li>Click <strong>Save</strong>. Use <strong>Rename</strong>, <strong>Recolor</strong> or <strong>Delete</strong> to manage existing categories.</li>
         </ol>
+        <div class="tip"><strong>In a hurry?</strong> You can also add a category without leaving the entry row: click the small <strong>+</strong> next to the <strong>Category</strong> box, name it, and it is selected straight away so you carry on to the amount.</div>
         <div class="note"><strong>Note.</strong> Filling both Amount and UPI records two rows (one per mode) so cash and UPI reporting stay exact. The "Salary" category is reserved for staff payouts from the Employees tab, and cannot be renamed or deleted. Editing or deleting a past expense needs the owner password.</div>
         <a class="back-top" href="#top">Back to top</a>
       </section>
@@ -454,7 +470,7 @@
           <li>On the live preview: drag an element to move it; select it to change its size, font and style, or drag its handles to resize; double-click text to edit it; right-click for more options.</li>
           <li>Use <strong>+ Add element</strong> to add fields or text. Click <strong>Test print</strong> to try it on your printer, then <strong>Save</strong>. <strong>Reset to defaults</strong> restores the standard layout.</li>
         </ol>
-        <div class="note"><strong>Note.</strong> The second sub-tab, <strong>Notification Configuration</strong>, controls the WhatsApp and email messages sent with a bill. The customer layout also has a <strong>Walk-in</strong> and <strong>Delivery</strong> variant you can switch between while designing.</div>
+        <div class="note"><strong>Note.</strong> The second sub-tab, <strong>Notification Configuration</strong>, controls the WhatsApp and email messages sent with a bill. Its <strong>Message footer</strong> is always added to the end of every email and WhatsApp message; it cannot be turned off and must not be left blank, so Save asks you to fill it in if it is empty. The customer layout also has a <strong>Walk-in</strong> and <strong>Delivery</strong> variant you can switch between while designing.</div>
         <a class="back-top" href="#top">Back to top</a>
       </section>
 
@@ -471,6 +487,7 @@
           <li>Pick the employee on the left to see <strong>Earnings to date</strong>, <strong>Paid out</strong> and <strong>Balance due</strong>, plus the monthly summary.</li>
           <li>Use the payout action to log a payment (date, amount, mode, notes). Salary payouts also appear under the reserved "Salary" category in <a href="#expenses">Expenses</a>.</li>
         </ol>
+        <div class="tip"><strong>Fix a day in the ledger.</strong> Every row in the payments ledger carries its own edit (pencil) and delete (bin) icons, and you can also double-click a row. Edit opens that day's record so you can correct its earnings or payout in place, without touching the employee's details; delete removes that day's earnings and payouts. Both need the owner password. The employee phone field takes digits only, up to 15.</div>
         <a class="back-top" href="#top">Back to top</a>
       </section>
 
@@ -625,7 +642,8 @@
           <li>Press <strong>Sync now</strong> at any time to push and pull immediately (a short sync animation plays, which you can turn off on the same page).</li>
         </ol>
         <div class="note"><strong>Signing out.</strong> Once an account is connected, the same row shows a <strong>Sign out</strong> button in place of "Sign in with Google". Signing out clears the Google account on this device and pauses cloud sync; your local data is kept.</div>
-        <div class="note"><strong>Included from Growth up.</strong> Cloud sync is part of the Growth and Business plans. On the Starter plan the app is fully usable on one device and still signs in with Google, but cloud sync stays off. Upgrade to Growth or Business to back up and sync across machines; when you upgrade, your existing data is pushed up automatically.</div>
+        <div class="note"><strong>Included from the Business plan.</strong> Cloud sync is part of the Business plan. On the Starter plan the app is fully usable on one device and still signs in with Google, but cloud sync stays off. Upgrade to Business to back up and sync across machines; when you upgrade, your existing data is pushed up automatically.</div>
+        <div class="note"><strong>The Android mobile app is included from the Business plan.</strong> The RasidhuPOS Android app is part of the Business plan. On the Starter plan you use the desktop app on a single PC; upgrade to Business to bill from your phone and keep it in sync with your shop.</div>
         <a class="back-top" href="#top">Back to top</a>
       </section>
 
