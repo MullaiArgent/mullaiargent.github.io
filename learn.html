@@ -161,7 +161,7 @@
           <tr><td>Amount Tally</td><td>Close out the day's cash and reconcile it.</td></tr>
           <tr><td>Rate Change</td><td>Change item sale prices, with a change history.</td></tr>
           <tr><td>Expenses</td><td>Record shop spending by category.</td></tr>
-          <tr><td>Employees</td><td>Staff records, salary and payments.</td></tr>
+          <tr><td>Employees</td><td>Payroll tracker: daily or monthly pay, attendance, deductions and payouts.</td></tr>
           <tr><td>Audit Log</td><td>A timeline of who changed what, with restore.</td></tr>
           <tr><td>Settings</td><td>Every configuration option (opens a dialog).</td></tr>
         </table></div>
@@ -477,17 +477,21 @@
       <section class="learn-section" id="employees">
         <p class="eyebrow">Staff</p>
         <h2>Employees</h2>
-        <p class="learn-lead">Keep staff records, daily salary rates and payment history. Once an employee is added you can log their earnings and record payouts, and see what balance is still due.</p>
+        <p class="learn-lead">A simple payroll tracker. Keep staff records, pay each person a daily rate or a fixed monthly salary, log attendance and deductions, record payouts and always see the balance still due. A dashboard strip across the top shows the whole team at a glance.</p>
         <div class="where">Where: the Employees tab</div>
-        <figure class="shot"><img src="img/learn/tab_hr.png" alt="The Employees tab"><figcaption>The employee list on the left; the selected employee's salary summary and payments on the right.</figcaption></figure>
+        <figure class="shot"><img src="img/learn/tab_hr.png" alt="The Employees tab"><figcaption>The salary dashboard across the top; the employee list on the left; the selected employee's salary summary and payments on the right.</figcaption></figure>
+        <h3>The salary dashboard</h3>
+        <p>The strip along the top gives four figures for the whole team: <strong>Employees</strong> (active count), <strong>Monthly commitment</strong> (the total of everyone's monthly salaries), <strong>Payout today</strong> and <strong>Payout this month</strong>.</p>
         <h3>How to add an employee and record pay</h3>
         <ol class="steps">
           <li>Open the Employees tab.</li>
-          <li>Click <strong>Add employee</strong> and record the name, daily rate and joining date.</li>
-          <li>Pick the employee on the left to see <strong>Earnings to date</strong>, <strong>Paid out</strong> and <strong>Balance due</strong>, plus the monthly summary.</li>
-          <li>Use the payout action to log a payment (date, amount, mode, notes). Salary payouts also appear under the reserved "Salary" category in <a href="#expenses">Expenses</a>.</li>
+          <li>Click <strong>+ Add employee</strong> and record the name and joining date. For pay, choose <strong>Daily rate</strong> or <strong>Monthly salary</strong> and enter the amount. A monthly salary is prorated across the working days in the month, so a month with some absent days pays proportionally less.</li>
+          <li>Open a day to mark attendance (present, half day or absent). On that day you can also record <strong>Permission hours</strong> (leave hours, deducted at the hourly rate worked out from the pay and the hours-per-day) and an ad-hoc money deduction (<strong>Deduction &#8377;</strong>).</li>
+          <li>Pick the employee on the left to see the <strong>Salary earned</strong>, <strong>Deductions</strong>, <strong>Salary paid</strong> and <strong>Balance due</strong> cards, plus the monthly summary (Month, Earned, Deductions, Paid, Balance). <strong>Net salary</strong> is earnings minus deductions.</li>
+          <li>Use the payout action to log a payment (date, amount, mode, notes). Recording more than one payout on the same day adds each one, they no longer replace each other. Every payout is booked as a <strong>Salary</strong> expense on the day it is paid, so it also appears under the reserved "Salary" category in <a href="#expenses">Expenses</a>.</li>
         </ol>
-        <div class="tip"><strong>Fix a day in the ledger.</strong> Every row in the payments ledger carries its own edit (pencil) and delete (bin) icons, and you can also double-click a row. Edit opens that day's record so you can correct its earnings or payout in place, without touching the employee's details; delete removes that day's earnings and payouts. Both need the owner password. The employee phone field takes digits only, up to 15.</div>
+        <div class="tip"><strong>Work with several people at once.</strong> Each row in the employee list has a tick box. Tick one or more and an action bar appears so you can <strong>Mark attendance</strong> for a date, <strong>Record payout</strong> or <strong>Export salary report</strong> for all of them together. The list no longer forces a selection, click the selected employee again (or press Esc) to clear it and return to an empty view.</div>
+        <div class="tip"><strong>Fix a day in the ledger.</strong> Every row in the payments ledger carries its own edit (pencil) and delete (bin) icons, and you can also double-click a row. Edit opens that day's record so you can correct its earnings, deductions or payout in place, without touching the employee's details; delete removes that day's earnings and payouts. Both need the owner password. The employee phone field takes digits only, up to 15.</div>
         <a class="back-top" href="#top">Back to top</a>
       </section>
 
