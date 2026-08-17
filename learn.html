@@ -194,7 +194,7 @@
           <li><strong>Customer card:</strong> the "Customer" and "Wholesale" choice, a large live total (Customer mode), and Name / Phone / Address / Date, plus a "More" button for email, GST state, GSTIN and an invoice description.</li>
           <li><strong>Ledger strip (Wholesale only):</strong> Previous balance, This bill, They paid and Closing balance.</li>
           <li><strong>Bill items:</strong> the entry row (Item #, Item name, Quantity, Rate, Amount, and "+ Add"), the line table, and a footer with Delivery, Discount, payment fields, "Print bill" and "Save bill".</li>
-          <li><strong>Recent bills:</strong> a date-range list of recent bills you can copy, view, reprint or share.</li>
+          <li><strong>Recent bills:</strong> a date-range list of recent bills you can copy, view, reprint or share (select several to share as one combined image).</li>
         </ul>
 
         <h3>How to make a walk-in (Customer) bill</h3>
@@ -211,7 +211,7 @@
         <h3>How to make a Wholesale bill (with a running account)</h3>
         <ol class="steps">
           <li>Choose the <strong>Wholesale</strong> option.</li>
-          <li>Pick the customer from the <strong>Wholesale</strong> dropdown. The phone fills in for you. New customer? Click <strong>+ Add wholesale customer</strong> next to the dropdown to add them without leaving the bill; the new account is selected straight away so you can carry on.</li>
+          <li>Pick the customer from the <strong>Wholesale</strong> dropdown. The phone fills in for you (the Name box stays empty unless you type a note). New customer? Open the same dropdown and choose <strong>+ Add wholesale customer</strong>, the last row in the list, to add them without leaving the bill; the new account is selected straight away so you can carry on.</li>
           <li>Add items the same way. Here you type the <strong>Rate</strong> freely (no owner password needed).</li>
           <li>Enter what they paid in the cash <strong>Amount</strong> and/or <strong>UPI</strong> field. The ledger strip updates Previous balance, This bill, They paid and Closing balance live.</li>
           <li>Save. Any unpaid amount stays on the customer's running balance (khata).</li>
@@ -241,10 +241,13 @@
         <h3>Editing, cancelling and restoring</h3>
         <ul class="plain">
           <li><strong>Edit a bill:</strong> click <strong>Edit bill</strong> (owner password), type the number and pick the issue date, then <strong>Open bill</strong>. The bill keeps its number when you save. While editing, the Customer / Wholesale type is fixed; to bill the other type click <strong>New bill</strong>, which parks the edit as a draft you can return to.</li>
+          <li><strong>Reprint a bill:</strong> click <strong>Reprint bill</strong>, type the number and pick the issue date, then <strong>Find bill</strong> to check its details (number, date, customer and total). When it is the one you want, click <strong>Reprint</strong> to print it again. Changing the number or date asks you to find again, so you never reprint the wrong bill.</li>
           <li><strong>Cancel a bill:</strong> click <strong>Cancel bill</strong> (owner password), type the number and date, confirm. It is a soft delete: the bill stays in the records (shown struck through) for audit.</li>
           <li><strong>Restore a cancelled bill:</strong> right-click the struck-through row in Recent bills and choose "Restore this bill". It also restores from the <a href="#audit-log">Audit Log</a>.</li>
           <li><strong>Reprint or share:</strong> right-click a recent bill row for View, Copy bill image, Send via WhatsApp, Send by email, Reprint or Edit.</li>
+          <li><strong>Share several bills as one image:</strong> select more than one bill in Recent bills (hold Ctrl to pick individual rows, or Shift to pick a run), then right-click and choose <strong>Copy N bills as one image</strong> or <strong>Send N bills via WhatsApp</strong>. The selected bills are combined into a single picture on an auto grid, up to 8 at a time (if you pick more, the first 8 are used and a note tells you). Each bill keeps its full quality.</li>
         </ul>
+        <div class="note"><strong>Always the right shop.</strong> Copying, sharing (WhatsApp), viewing or reprinting a bill redraws it fresh, so it always shows the correct name and details of the shop that issued that bill, even when you are logged in to a different shop.</div>
 
         <h3>Key controls</h3>
         <div class="table-scroll"><table class="ref">
@@ -287,6 +290,7 @@
         <h3>Editing, cancelling and restoring</h3>
         <ul class="plain">
           <li><strong>Edit:</strong> "Edit purchase" (owner password), type the number and date, "Open purchase". Or double-click a row in Recent purchases and choose "Edit (owner)".</li>
+          <li><strong>Reprint:</strong> click <strong>Reprint bill</strong>, type the number and pick the date, then <strong>Find purchase</strong> to check its details (number, date, supplier and total). When it is the one you want, click <strong>Reprint</strong> to print it again. Changing the number or date asks you to find again, so you never reprint the wrong purchase.</li>
           <li><strong>Cancel:</strong> "Cancel purchase" (owner password), type the number and date, confirm. Soft delete, kept for audit.</li>
           <li><strong>Restore:</strong> right-click the struck-through row in Recent purchases and choose "Restore this purchase".</li>
         </ul>
@@ -336,6 +340,7 @@
           <tr><td>Base &times; Ratio</td><td>For a derived item (for example a cut priced as a ratio of a base item), links it to its base.</td></tr>
         </table></div>
         <div class="note"><strong>Note.</strong> The selling rate is only changed from the <a href="#rate-change">Rate Change</a> tab (so every change is logged); the Items page sets everything else.</div>
+        <div class="note"><strong>Shared across shops.</strong> Your item list is shared across all shops in the account. An item you add or edit in one shop appears in every shop, so you keep one catalog for the whole business. Your wholesale customers and suppliers are shared across shops too. Bills, categories and rates stay separate for each shop, and each shop keeps its own running balance with a shared customer or supplier.</div>
         <a class="back-top" href="#top">Back to top</a>
       </section>
 
@@ -353,6 +358,7 @@
           <li>Save. The account now appears in the Wholesale dropdown in Billing (customers) or the Supplier dropdown in Purchase (suppliers), with its running ledger.</li>
         </ol>
         <div class="note"><strong>Sorting and phone entry.</strong> Each list has a <strong>Sort by</strong> control. The Suppliers list opens on <strong>Oldest first</strong> (the order you added them, most recent last); Wholesale customers open on <strong>Name (A to Z)</strong>. Phone fields accept digits only, up to 15 of them, a longer number already saved is kept as is.</div>
+        <div class="note"><strong>Shared across shops.</strong> Wholesale customers and suppliers are shared across all your shops, so an account you add in one shop appears in every shop. Each shop keeps its own running balance with them, only that shop's bills, purchases and payments count towards the balance you see.</div>
         <a class="back-top" href="#top">Back to top</a>
       </section>
 
@@ -441,7 +447,7 @@
           <li>Choose a type in the <strong>Report</strong> dropdown.</li>
           <li>Set the dates with the <strong>Range</strong> presets (Today, 7 days, 30 days, 90 days, This year, Custom range) or the From / To pickers.</li>
           <li>Narrow further with <strong>Shop</strong>, <strong>Party</strong>, <strong>Mode</strong> or <strong>Item</strong> as offered. Click a column header to sort.</li>
-          <li>Use <strong>&#10515; Export</strong> for PDF, Excel, CSV or "Copy as image", or <strong>&#10697; Undock</strong> to open the result in its own window beside another report.</li>
+          <li>Use <strong>&#10515; Export</strong> for PDF, Excel, CSV or "Copy as image", <strong>&#9993; Email</strong> to send the report to your auditor or a customer, or <strong>&#10697; Undock</strong> to open the result in its own window beside another report.</li>
         </ol>
         <h3>The report types</h3>
         <ul class="plain">
@@ -452,6 +458,10 @@
           <li>Item-wise sales (customer vs wholesale), Item-wise P/L, Item List / Rate Card</li>
           <li>Employee salary, Employee ledger (detail)</li>
         </ul>
+        <h3>Profit &amp; Loss counts your stock</h3>
+        <p>The <strong>Profit &amp; Loss</strong> report does not treat everything you bought as spent. It adds back the value of stock still on hand and nets off the stock the period started with, so goods you bought but have not sold yet are not counted as a loss. Alongside <strong>Total sales</strong>, <strong>Total purchases</strong> and <strong>Total expenses</strong> you will see a <strong>Closing stock (still in hand)</strong> line added to the net, and an <strong>Opening stock</strong> line when the period began with stock. Stock is valued at your purchase cost, and it works even if you never record a daily stock count, the amount on hand is worked out from your bills and purchases.</p>
+        <h3>Email a statement to your auditor or a customer</h3>
+        <p>Click <strong>&#9993; Email</strong> (top-right, next to Export) to send the report you are viewing straight from the app, without hunting for a saved file. Pick who it goes to: your saved <strong>auditor / accountant</strong>, the customer the report is filtered to, or any address you type. Tick <strong>PDF</strong>, <strong>Excel</strong> or both to attach, then <strong>Send</strong>. It goes from your own mail account, which you set up once under <a href="#invoicing">Invoicing</a>, Notification Configuration, where you also save the default auditor address.</p>
         <div class="tip"><strong>Tip.</strong> Turn on <strong>&#128269; Search columns</strong> for a per-column search box, or <strong>&#9879; Filter</strong> for an advanced AND / OR query builder. On a Sales or Purchase report, click a row to see its line items in the detail pane, or use "Find bill by address / phone" to locate a specific bill. The <strong>Overview</strong> sub-tab shows a cross-shop dashboard with KPI cards and charts.</div>
         <a class="back-top" href="#top">Back to top</a>
       </section>
@@ -470,7 +480,13 @@
           <li>On the live preview: drag an element to move it; select it to change its size, font and style, or drag its handles to resize; double-click text to edit it; right-click for more options.</li>
           <li>Use <strong>+ Add element</strong> to add fields or text. Click <strong>Test print</strong> to try it on your printer, then <strong>Save</strong>. <strong>Reset to defaults</strong> restores the standard layout.</li>
         </ol>
-        <div class="note"><strong>Note.</strong> The second sub-tab, <strong>Notification Configuration</strong>, controls the WhatsApp and email messages sent with a bill. Its <strong>Message footer</strong> is always added to the end of every email and WhatsApp message; it cannot be turned off and must not be left blank, so Save asks you to fill it in if it is empty. The customer layout also has a <strong>Walk-in</strong> and <strong>Delivery</strong> variant you can switch between while designing.</div>
+        <h3>A4 letter-pad options</h3>
+        <p>When the format is an A4 letter-pad, the <strong>Invoice settings</strong> panel adds two controls for the printed look:</p>
+        <ul>
+          <li><strong>Table header colour</strong> recolours the items-table header band. Pick a colour, or click <strong>Reset</strong> to return to the default. Only the table header changes; the box borders and headings keep their navy.</li>
+          <li><strong>Ink intensity</strong> is a 0 to 100% slider that fades every filled area toward white to save printer ink. At 100% the invoice prints in full colour; lower values print lighter.</li>
+        </ul>
+        <div class="note"><strong>Note.</strong> The second sub-tab, <strong>Notification Configuration</strong>, controls the WhatsApp and email messages sent with a bill, your email sending account (SMTP), and the default <strong>Auditor email</strong> used when you email a statement from Reports. Its <strong>Message footer</strong> is always added to the end of every email and WhatsApp message; it cannot be turned off and must not be left blank, so Save asks you to fill it in if it is empty. The customer layout also has a <strong>Walk-in</strong> and <strong>Delivery</strong> variant you can switch between while designing.</div>
         <a class="back-top" href="#top">Back to top</a>
       </section>
 
@@ -645,6 +661,14 @@
           <li>Tick <strong>Enable cloud sync</strong>.</li>
           <li>Press <strong>Sync now</strong> at any time to push and pull immediately (a short sync animation plays, which you can turn off on the same page).</li>
         </ol>
+        <h3>Loading your data on a new computer</h3>
+        <p>When you set up a new computer, or sign in with a different Google account, RasidhuPOS opens straight away and loads your bills, items and stock in the background instead of making you wait. While it loads:</p>
+        <ul class="plain">
+          <li>The footer shows <strong>Loading your data...</strong> with a live percentage.</li>
+          <li>The Billing, Stocks and Reports tabs show a short note that totals may still be incomplete until the load finishes. You can dismiss the note; it comes back if a new load starts later.</li>
+          <li>A large shop on a slow or older computer loads reliably. The load picks up where it left off if the connection drops, so it never has to start over.</li>
+        </ul>
+        <p>When everything has arrived the footer returns to <strong>Synced</strong>. If the connection is lost later, the footer shows how long ago you were last fully synced, so a break in the connection is never mistaken for up to date.</p>
         <div class="note"><strong>Signing out.</strong> Once an account is connected, the same row shows a <strong>Sign out</strong> button in place of "Sign in with Google". Signing out clears the Google account on this device and pauses cloud sync; your local data is kept.</div>
         <div class="note"><strong>Included from the Business plan.</strong> Cloud sync is part of the Business plan. On the Starter plan the app is fully usable on one device and still signs in with Google, but cloud sync stays off. Upgrade to Business to back up and sync across machines; when you upgrade, your existing data is pushed up automatically.</div>
         <div class="note"><strong>The Android mobile app is included from the Business plan.</strong> The RasidhuPOS Android app is part of the Business plan. On the Starter plan you use the desktop app on a single PC; upgrade to Business to bill from your phone and keep it in sync with your shop.</div>
@@ -670,11 +694,12 @@
         <h2>Audit Log</h2>
         <p class="learn-lead">A read-only, filterable timeline of who changed what, and from which shop. It is also where an admin can restore a deleted or cancelled record.</p>
         <div class="where">Where: the Audit Log tab</div>
-        <figure class="shot"><img src="img/learn/tab_audit_log.png" alt="The Audit Log tab"><figcaption>Filter by date, user, action and type; double-click a row for the field-level detail.</figcaption></figure>
+        <figure class="shot"><img src="img/learn/tab_audit_log.png" alt="The Audit Log tab"><figcaption>Opens on the latest entries; switch to a date range and filter by user, action and type; double-click a row for the field-level detail.</figcaption></figure>
         <h3>How to view and filter activity</h3>
         <ol class="steps">
-          <li>Open the Audit Log tab.</li>
-          <li>Adjust the <strong>From</strong> / <strong>To</strong> dates and optionally pick a <strong>User</strong>, <strong>Action</strong> or <strong>Type</strong>. The table re-queries as you change a filter.</li>
+          <li>Open the Audit Log tab. It opens on the most recent activity right away.</li>
+          <li>Use <strong>Show</strong> to choose how much to load: <strong>Latest 100</strong>, <strong>250</strong> or <strong>500</strong>, or <strong>Date range</strong>. The <strong>From</strong> / <strong>To</strong> dates appear only when you pick Date range.</li>
+          <li>Optionally pick a <strong>User</strong>, <strong>Action</strong> or <strong>Type</strong>. The table re-queries as you change a filter.</li>
           <li>Double-click any row to open the entry detail, with a before / after list of what changed.</li>
         </ol>
         <h3>How to restore a deleted or cancelled record</h3>
@@ -683,7 +708,7 @@
           <li>Click the blue <strong>Restore</strong> button in the last column.</li>
           <li>Confirm. The record is brought back and reappears in its tab, re-applying any stock and totals.</li>
         </ol>
-        <div class="note"><strong>Note.</strong> The log keeps the latest 500 entries; narrow the date range to see older activity. Audit entries themselves are never edited or deleted from here.</div>
+        <div class="note"><strong>Note.</strong> The tab opens on the latest entries so it stays fast even on a very long history; choose a larger count or a date range under <strong>Show</strong> to see older activity. Audit entries themselves are never edited or deleted from here.</div>
         <a class="back-top" href="#top">Back to top</a>
       </section>
 
