@@ -226,7 +226,7 @@
           <li><strong>Switch between drafts:</strong> click a draft tab to carry on where you left off; whatever is open at the time is parked in its place.</li>
           <li><strong>They survive a restart:</strong> parked drafts stay on this computer even after you close and reopen the app.</li>
           <li><strong>Discard one:</strong> click the small close (x) on a draft tab.</li>
-          <li><strong>After you save:</strong> the saved bill's tab closes and the most recent parked draft comes back.</li>
+          <li><strong>After you save:</strong> if the bill you saved was opened from a draft tab, that tab closes and the next parked draft comes back. Saving an ordinary bill leaves your parked drafts as tabs, ready to open when you want them.</li>
         </ul>
         <div class="note"><strong>Good to know.</strong> Drafts are kept on this computer only, they are not synced to the cloud or other devices. Up to 20 can be open at once for each shop.</div>
 
@@ -254,7 +254,7 @@
         <div class="table-scroll"><table class="ref">
           <tr><th>Control</th><th>What it does</th></tr>
           <tr><td>Item #</td><td>Accepts both a number and a name. Type "1" to match code 1, or "chi" to match Chicken items, then select it.</td></tr>
-          <tr><td>Rate</td><td>For a customer sale the saved rate is used; changing it needs the owner password. For wholesale you type it freely.</td></tr>
+          <tr><td>Rate</td><td>For a customer sale the saved rate is used; changing it needs the owner password, and if the password is not given the price stays at the saved rate (a message tells you why). To let staff reduce a customer's price for a single bill without the password, tick <strong>Allow changing item prices on customer bills without the owner password</strong> in Settings &rsaquo; Owner password gates. For wholesale you type the rate freely.</td></tr>
           <tr><td>Amount</td><td>Typing an amount back-solves the quantity (amount divided by rate).</td></tr>
           <tr><td>Delivery</td><td>Marks the bill a delivery. Tick "Send to WhatsApp" to auto-send the bill image on save (needs a phone).</td></tr>
           <tr><td>Print bill</td><td>Prints the receipt on save. It is off and disabled until a receipt printer is set in Settings. Untick it to save without printing.</td></tr>
@@ -286,7 +286,7 @@
         <p class="learn-lead">The five cards across the top read: <strong>They owe us</strong>, <strong>We owe them</strong>, <strong>This bill</strong>, <strong>We paid</strong> and <strong>Closing</strong>. The closing balance is the previous balance plus what you paid, minus this bill. Green means they owe you; red means you owe them.</p>
 
         <h3>Drafts (park a purchase and start another)</h3>
-        <p class="learn-lead">Just like Billing, clicking <strong>New purchase</strong> while one is in progress parks it as a draft tab above the form so you can start another. Click a tab to resume where you left off, and parked purchases stay on this computer even after you close and reopen the app. When you save, that tab closes and the most recent parked draft comes back. Drafts are kept on this computer only and are never synced.</p>
+        <p class="learn-lead">Just like Billing, clicking <strong>New purchase</strong> while one is in progress parks it as a draft tab above the form so you can start another. Click a tab to resume where you left off, and parked purchases stay on this computer even after you close and reopen the app. When you save a purchase you opened from a draft tab, that tab closes and the next parked draft comes back; saving an ordinary purchase leaves your parked drafts as tabs to open when you want them. Drafts are kept on this computer only and are never synced.</p>
 
         <h3>Editing, cancelling and restoring</h3>
         <ul class="plain">
@@ -372,7 +372,7 @@
         <p class="learn-lead">It follows one simple identity: <strong>opening + purchased = closing + sold + sinkage</strong>.</p>
         <h3>How to record closing stock</h3>
         <ol class="steps">
-          <li>Open the Stocks tab and set the <strong>Date</strong>.</li>
+          <li>Open the Stocks tab and set the <strong>Date</strong> with the previous / next day arrows or the <strong>Today</strong> button.</li>
           <li>On the <strong>UNITS</strong> tab, click the <strong>Stock</strong> cell for an item and type the count left at the end of the day, then move to the next item. (You can instead type the units lost into the <strong>Sinkage</strong> cell and let Stock recompute.)</li>
           <li>Read the day's total loss and the biggest losses in the "Sinkage today" card. Switch to the <strong>AMOUNT</strong> tab for the rupee view.</li>
         </ol>
@@ -430,8 +430,9 @@
         <figure class="shot"><img src="img/learn/daily_sales_report.png" alt="The Daily Sales quick report"><figcaption>The grand total hero, the retail vs wholesale split, and per-item tables for the chosen day.</figcaption></figure>
         <ol class="steps">
           <li>Click the <strong>Quick Report</strong> chip in the bottom bar.</li>
-          <li>Pick a day with the <strong>Date</strong> picker or the <strong>Today</strong> button.</li>
+          <li>Pick a day with the <strong>Date</strong> picker, the previous / next day arrows, or the <strong>Today</strong> button.</li>
           <li>Read the hero for the grand total, bill count, average bill and top item; the two panels for the retail vs wholesale split; and the two tables for per-item quantity and amount.</li>
+          <li>Use <strong>&#10515; PDF</strong> or <strong>&#10515; Excel</strong>, next to the Date picker, to save the day's retail, wholesale and total figures and item breakdown as a file you can keep or share.</li>
         </ol>
         <a class="back-top" href="#top">Back to top</a>
       </section>
@@ -448,7 +449,7 @@
           <li>Choose a type in the <strong>Report</strong> dropdown.</li>
           <li>Set the dates with the <strong>Range</strong> presets (Today, 7 days, 30 days, 90 days, This year, Custom range) or the From / To pickers.</li>
           <li>Narrow further with <strong>Shop</strong>, <strong>Party</strong>, <strong>Mode</strong> or <strong>Item</strong> as offered. Click a column header to sort.</li>
-          <li>Use <strong>&#10515; Export</strong> for PDF, Excel, CSV or "Copy as image", <strong>&#9993; Email</strong> to send the report to your auditor or a customer, or <strong>&#10697; Undock</strong> to open the result in its own window beside another report.</li>
+          <li>Use <strong>&#10515; Export</strong> for PDF, Excel, CSV or "Copy as image", <strong>&#10515; Monthly workbook</strong> for one Excel file covering a whole month, <strong>&#9993; Email</strong> to send the report to your auditor or a customer, or <strong>&#10697; Undock</strong> to open the result in its own window beside another report.</li>
         </ol>
         <h3>The report types</h3>
         <ul class="plain">
@@ -463,6 +464,8 @@
         <p>The <strong>Profit &amp; Loss</strong> report does not treat everything you bought as spent. It adds back the value of stock still on hand and nets off the stock the period started with, so goods you bought but have not sold yet are not counted as a loss. Alongside <strong>Total sales</strong>, <strong>Total purchases</strong> and <strong>Total expenses</strong> you will see a <strong>Closing stock (still in hand)</strong> line added to the net, and an <strong>Opening stock</strong> line when the period began with stock. Stock is valued at your purchase cost, and it works even if you never record a daily stock count, the amount on hand is worked out from your bills and purchases.</p>
         <h3>Email a statement to your auditor or a customer</h3>
         <p>Click <strong>&#9993; Email</strong> (top-right, next to Export) to send the report you are viewing straight from the app, without hunting for a saved file. Pick who it goes to: your saved <strong>auditor / accountant</strong>, the customer the report is filtered to, or any address you type. Tick <strong>PDF</strong>, <strong>Excel</strong> or both to attach, then <strong>Send</strong>. It goes from your own mail account, which you set up once under <a href="#invoicing">Invoicing</a>, Notification Configuration, where you also save the default auditor address.</p>
+        <h3>One Excel file for the whole month</h3>
+        <p>Click <strong>&#10515; Monthly workbook</strong> (top-right, next to Export) to save a single Excel file for a month with everything on separate sheets: <strong>Sales</strong>, <strong>Purchases</strong>, <strong>Expenses</strong>, <strong>Stock</strong> and <strong>Customer balances</strong>. Each sheet ends with a bold <strong>TOTAL</strong> row and every amount is a real number, so you can add, filter and pivot in Excel. It uses the month of the <strong>From</strong> date (first to last of that month) and the shop you have selected. Stock shows what you held on hand at the end of that month, valued at your purchase cost, so an older month still reflects that month's closing stock. Choose <strong>Open now</strong> to open the file straight away.</p>
         <div class="tip"><strong>Tip.</strong> Turn on <strong>&#128269; Search columns</strong> for a per-column search box, or <strong>&#9879; Filter</strong> for an advanced AND / OR query builder. On a Sales or Purchase report, click a row to see its line items in the detail pane, or use "Find bill by address / phone" to locate a specific bill. The <strong>Overview</strong> sub-tab shows a cross-shop dashboard with KPI cards and charts.</div>
         <a class="back-top" href="#top">Back to top</a>
       </section>
