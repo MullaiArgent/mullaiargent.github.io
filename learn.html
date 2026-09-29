@@ -249,6 +249,9 @@
           <li><strong>Share several bills as one image:</strong> select more than one bill in Recent bills (hold Ctrl to pick individual rows, or Shift to pick a run), then right-click and choose <strong>Copy N bills as one image</strong> or <strong>Send N bills via WhatsApp</strong>. The selected bills are combined into a single picture on an auto grid, up to 8 at a time (if you pick more, the first 8 are used and a note tells you). Each bill keeps its full quality.</li>
         </ul>
         <div class="note"><strong>Always the right shop.</strong> Copying, sharing (WhatsApp), viewing or reprinting a bill redraws it fresh, so it always shows the correct name and details of the shop that issued that bill, even when you are logged in to a different shop.</div>
+        <div class="note"><strong>Past balances stay as they were.</strong> When you open or reprint an older wholesale bill, its opening and closing balance shows exactly what it was on that day, not today's figure, so a past bill always reads the way it did when you made it.</div>
+        <div class="note"><strong>Today's date, even after an all-nighter.</strong> If you leave the app open overnight, the first bill you make in the morning is dated today automatically. You can still pick any earlier date by hand for a back-dated bill.</div>
+        <div class="note"><strong>The Date box warns you when it is not today.</strong> If a bill is back-dated to an earlier day the Date box turns amber (so you notice, but you can still save, handy for entering yesterday's credit sales). A date in the future turns it red and the bill cannot be saved, because a future date is always a typo and it would throw off the customer's balance.</div>
 
         <h3>Key controls</h3>
         <div class="table-scroll"><table class="ref">
@@ -294,6 +297,7 @@
           <li><strong>Reprint:</strong> click <strong>Reprint bill</strong>, type the number and pick the date, then <strong>Find purchase</strong> to check its details (number, date, supplier and total). When it is the one you want, click <strong>Reprint</strong> to print it again. Changing the number or date asks you to find again, so you never reprint the wrong purchase.</li>
           <li><strong>Cancel:</strong> "Cancel purchase" (owner password), type the number and date, confirm. Soft delete, kept for audit.</li>
           <li><strong>Restore:</strong> right-click the struck-through row in Recent purchases and choose "Restore this purchase".</li>
+          <li><strong>Copy or share:</strong> click a row in Recent purchases to copy that purchase's bill image to the clipboard, so you can paste it straight into WhatsApp or a chat, or right-click a row for View, Copy bill image or Send via WhatsApp. The image is redrawn fresh each time, so what you copy is the full bill picture (not just the bill number) and it shows the correct shop.</li>
         </ul>
         <div class="note"><strong>Note.</strong> Purchase receipts print on the thermal printer only (there is no A4 invoice or email for purchases). Everything else works just like Billing.</div>
         <a class="back-top" href="#top">Back to top</a>
@@ -428,11 +432,12 @@
         <h2>Daily Sales (quick report)</h2>
         <p class="learn-lead">A one-day sales snapshot you can open from anywhere, split into retail (walk-in) versus wholesale (hotel), with per-item totals.</p>
         <div class="where">Where: the "Quick Report" chip in the bottom bar</div>
-        <figure class="shot"><img src="img/learn/daily_sales_report.png" alt="The Daily Sales quick report"><figcaption>The grand total hero, the retail vs wholesale split, and per-item tables for the chosen day.</figcaption></figure>
+        <figure class="shot"><img src="img/learn/daily_sales_report.png" alt="The Daily Sales quick report"><figcaption>Three fixed totals across the top; the Retail, Wholesale and Total buttons below switch only the item table.</figcaption></figure>
         <ol class="steps">
           <li>Click the <strong>Quick Report</strong> chip in the bottom bar.</li>
           <li>Pick a day with the <strong>Date</strong> picker, the previous / next day arrows, or the <strong>Today</strong> button.</li>
-          <li>Read the hero for the grand total, bill count, average bill and top item; the two panels for the retail vs wholesale split; and the two tables for per-item quantity and amount.</li>
+          <li>Read the three fixed totals across the top, <strong>Total Sale</strong>, <strong>Retail</strong> and <strong>Wholesale</strong>. They always show the whole day's figures and never change.</li>
+          <li>Use the <strong>Retail</strong>, <strong>Wholesale</strong> and <strong>Total</strong> buttons below the totals to switch the item table underneath. Only the table changes; the totals above stay put. The items sold table is a compact box, so on a busy day it scrolls within itself instead of stretching the whole page.</li>
           <li>Use <strong>&#10515; PDF</strong> or <strong>&#10515; Excel</strong>, next to the Date picker, to save the day's retail, wholesale and total figures and item breakdown as a file you can keep or share.</li>
         </ol>
         <a class="back-top" href="#top">Back to top</a>
@@ -449,7 +454,7 @@
           <li>Open the Reports tab.</li>
           <li>Choose a type in the <strong>Report</strong> dropdown.</li>
           <li>Set the dates with the <strong>Range</strong> presets (Today, 7 days, 30 days, 90 days, This year, Custom range) or the From / To pickers.</li>
-          <li>Narrow further with <strong>Shop</strong>, <strong>Party</strong>, <strong>Mode</strong> or <strong>Item</strong> as offered. Click a column header to sort.</li>
+          <li>Narrow further with <strong>Shop</strong>, <strong>Party</strong>, <strong>Mode</strong> or <strong>Item</strong> as offered. When you pick a specific shop, the <strong>Party</strong> list narrows to the parties that belong to that shop (the walk-in and wholesale customers and suppliers that do business there); choose <strong>All shops</strong> to see every party. Click a column header to sort.</li>
           <li>Use <strong>&#10515; Export</strong> for PDF, Excel, CSV or "Copy as image", <strong>&#10515; Monthly workbook</strong> for one Excel file covering a whole month, <strong>&#9993; Email</strong> to send the report to your auditor or a customer, or <strong>&#10697; Undock</strong> to open the result in its own window beside another report.</li>
         </ol>
         <h3>The report types</h3>
@@ -461,6 +466,8 @@
           <li>Item-wise sales (customer vs wholesale), Item-wise P/L, Item List / Rate Card</li>
           <li>Employee salary, Employee ledger (detail)</li>
         </ul>
+        <h3>Running closing balance on the Sales report</h3>
+        <p>The <strong>Sales (bills)</strong> report ends each row with a <strong>Closing balance</strong> column. For a wholesale customer it is that customer's running account balance as of that bill (their balance before the bill, plus this bill's total less what they paid), so you can read down the list and watch the account move. A walk-in cash bill shows a dash, as it keeps no running account. The balance is always that shop's own figure, so a wholesale customer who buys at more than one shop shows each shop's balance on that shop's bills.</p>
         <h3>Profit &amp; Loss counts your stock</h3>
         <p>The <strong>Profit &amp; Loss</strong> report does not treat everything you bought as spent. It adds back the value of stock still on hand and nets off the stock the period started with, so goods you bought but have not sold yet are not counted as a loss. Alongside <strong>Total sales</strong>, <strong>Total purchases</strong> and <strong>Total expenses</strong> you will see a <strong>Closing stock (still in hand)</strong> line added to the net, and an <strong>Opening stock</strong> line when the period began with stock. Stock is valued at your purchase cost, and it works even if you never record a daily stock count, the amount on hand is worked out from your bills and purchases.</p>
         <h3>Customer and Supplier statements</h3>
@@ -598,7 +605,7 @@
         <div class="table-scroll"><table class="ref">
           <tr><th>Page</th><th>What you set there</th></tr>
           <tr><td>Cloud sync</td><td>Turn cloud backup on or off and sign in with Google. See <a href="#cloud-sync">Cloud sync</a>.</td></tr>
-          <tr><td>Sync &amp; sharing</td><td>Choose, per list, whether wholesale customers, suppliers, products and categories are shared across shops or shown only in the shop that created them. See <a href="#sync-sharing">Sync &amp; sharing</a>.</td></tr>
+          <tr><td>Sync &amp; sharing</td><td>Choose, per list, whether wholesale customers, suppliers, products and categories are shared across shops or shown only in the shop that created them, and whether product prices are shared or set per shop. See <a href="#sync-sharing">Sync &amp; sharing</a>.</td></tr>
           <tr><td>Backup &amp; retention</td><td>How long bills, images and history are kept, and local backup options.</td></tr>
           <tr><td>Reset installation</td><td>Wipe this installation back to a clean state (protected by 2FA when it is set up). Use with care.</td></tr>
         </table></div>
@@ -613,7 +620,7 @@
         <figure class="shot"><img src="img/learn/settings__Diagnostics.png" alt="Diagnostics settings"><figcaption>Diagnostics shows technical details useful when contacting support.</figcaption></figure>
         <div class="table-scroll"><table class="ref">
           <tr><th>Page</th><th>What you find there</th></tr>
-          <tr><td>Diagnostics</td><td>Technical details and logs, handy when you contact support.</td></tr>
+          <tr><td>Diagnostics</td><td>Technical details and logs, handy when you contact support. Also sets the <strong>Performance mode</strong> (Auto, Lite, Standard or High) and <strong>Recent bills to show</strong>, how many rows the Recent bills and purchases list keeps before you click Show all (raise it, for example to 400, to scroll further). Both apply to this computer only.</td></tr>
           <tr><td>Subscription</td><td>Your plan, caps and expiry, and the Subscribe / Renew buttons. See <a href="#subscription">Subscription</a>.</td></tr>
           <tr><td>Software updates</td><td>Check for and apply app updates. See <a href="#updates">Software updates</a>.</td></tr>
           <tr><td>Customer support</td><td>How to reach support from inside the app.</td></tr>
@@ -686,7 +693,7 @@
       <section class="learn-section" id="sync-sharing">
         <p class="eyebrow">Account &amp; security</p>
         <h2>Sync &amp; sharing</h2>
-        <p class="learn-lead">If you run more than one shop, choose whether each list is shared across every shop or kept to the shop that created it. This is only a display choice, everything stays stored and synced for the whole account exactly as before.</p>
+        <p class="learn-lead">If you run more than one shop, choose whether each list is shared across every shop or kept to the shop that created it, and whether a product's price is the same everywhere or set per shop. For the lists this is only a display choice, everything stays stored and synced for the whole account exactly as before.</p>
         <div class="where">Where: Settings &rsaquo; Data &amp; Sync &rsaquo; Sync &amp; sharing</div>
         <h3>What you can choose per list</h3>
         <p>Set each of the following to <strong>Shared across shops</strong> so every shop sees the same list, or <strong>Only this shop</strong> so a shop sees only the records created there:</p>
@@ -697,7 +704,10 @@
           <li><strong>Categories</strong></li>
         </ul>
         <p>Each choice applies immediately, there is no need to click Apply or OK. The default for a fresh choice is <strong>Only this shop</strong>, so a new wholesale customer, supplier, product or category you add stays local to the shop you added it in until you choose to share it.</p>
-        <div class="note"><strong>Nothing is ever lost.</strong> This setting only changes what a shop's pickers and lists show. Switching a list to "Only this shop" hides records created in other shops from view, it does not move, unsync or delete them, and switching back to "Shared across shops" instantly brings them all back. Records added before this setting existed, or before a shop was set up, keep showing everywhere so nothing you already have ever disappears.</div>
+        <h3>Product prices</h3>
+        <p>Because one product is shared across all your shops, its sale rate is normally the same everywhere, so changing a rate in one shop changes it in every shop. If you want each shop to set its own price for the same product, change <strong>Product prices</strong> to <strong>Only this shop</strong>. From then on, a rate you change in one shop is kept for that shop only and does not change the rate in your other shops. Set it back to <strong>Shared across shops</strong> (the default) to go back to one price for the whole account. A shop that has not set its own price still uses the shared rate.</p>
+        <div class="note"><strong>Product prices vs. product list.</strong> The Products choice above controls which shop <em>sees</em> a product; Product prices controls the <em>rate</em> each shop charges. They are separate, so you can share one product list across every shop and still give each shop its own prices.</div>
+        <div class="note"><strong>Nothing is ever lost.</strong> This setting only changes what a shop's pickers and lists show, and, for Product prices, which rate it charges. Switching a list to "Only this shop" hides records created in other shops from view, it does not move, unsync or delete them, and switching back to "Shared across shops" instantly brings them all back. Turning Product prices back to "Shared across shops" simply shows the one shared price again. Records added before this setting existed, or before a shop was set up, keep showing everywhere so nothing you already have ever disappears.</div>
         <div class="note"><strong>Using more than one device for the same shop.</strong> This works correctly when a shop's records are all entered from one device. If a shop is also used from another computer or phone signed into the same account, a record created there shows as shared for now, even with "Only this shop" chosen, because that other device's records do not yet carry a shop label. This does not affect anyone using a single device, which is the normal case.</div>
         <a class="back-top" href="#top">Back to top</a>
       </section>
