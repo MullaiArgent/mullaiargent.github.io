@@ -31,7 +31,7 @@ window.RPOS_CONFIG = {
   SUPPORT_FORM_ACTION: "",
   SUPPORT_FIELDS: {
     subject: "", message: "", contact: "", email: "", name: "",
-    appversion: "", client_ts: ""
+    appversion: "", client_ts: "", platform: "", shop: "", device_id: ""
   },
   WHATSAPP: "FILL_91XXXXXXXXXX",             // digits only, country code, no +
   BUSINESS_NAME: "FILL Business Name",

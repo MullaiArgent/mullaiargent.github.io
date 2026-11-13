@@ -186,7 +186,8 @@
       [S.email, opts.email || rpos.currentEmail()],
       [S.name, opts.name || rpos.pageName || ""],
       [S.appversion, q.v || ""],
-      [S.client_ts, new Date().toISOString()]
+      [S.client_ts, new Date().toISOString()],
+      [S.platform, "web"]
     ];
     var any = false;
     for (var i = 0; i < pairs.length; i++) { if (pairs[i][0]) { any = true; break; } }
