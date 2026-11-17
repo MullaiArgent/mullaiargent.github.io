@@ -28,10 +28,12 @@ window.RPOS_CONFIG = {
   // GOOGLE_CLIENT_ID is set. Create a support Form, add the questions, and paste
   // SUPPORT_FORM_ACTION + the entry.<id>s here (or in the sentinel Storefront).
   // Leave SUPPORT_FORM_ACTION blank to keep support on the phone/email contacts.
-  SUPPORT_FORM_ACTION: "",
+  SUPPORT_FORM_ACTION: "https://docs.google.com/forms/d/e/1FAIpQLSeKaZ7R04el7H8Zw_epBKmj3MM5Zu2hgSFSenZ4qx77u1cUaw/formResponse",
   SUPPORT_FIELDS: {
-    subject: "", message: "", contact: "", email: "", name: "",
-    appversion: "", client_ts: "", platform: "", shop: "", device_id: ""
+    subject: "entry.1258323023", message: "entry.1201622977", contact: "entry.1692043200",
+    email: "entry.413797632", name: "entry.1762357008", appversion: "entry.1763984672",
+    client_ts: "entry.1314542676", platform: "entry.473820640", shop: "entry.1554874330",
+    device_id: "entry.2028423983"
   },
   WHATSAPP: "FILL_91XXXXXXXXXX",             // digits only, country code, no +
   BUSINESS_NAME: "FILL Business Name",
